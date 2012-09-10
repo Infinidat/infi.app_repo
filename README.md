@@ -1,22 +1,22 @@
-Overview
-========
-This repository is just a skeleton we use for projects.
+The Problem
+===========
 
-Usage
------
-Nothing to use here.
+The Solution
+============
 
-Checking out the code
-=====================
 
-This project uses buildout, and git to generate setup.py and __version__.py.
-In order to generate these, run:
+Resources
+=========
 
-    python -S bootstrap.py -d -t
-    bin/buildout -c buildout-version.cfg
-    python setup.py develop
+Apt repositories
+----------------
 
-In our development environment, we use isolated python builds, by running the following instead of the last command:
+* http://odzangba.wordpress.com/2006/10/13/how-to-build-local-apt-repositories/
+* http://www.debian.org/doc/manuals/repository-howto/repository-howto
 
-    bin/buildout install development-scripts
+Yum repositories
+----------------
+
+* http://www.techrepublic.com/blog/opensource/create-your-own-yum-repository/609
+* http://createrepo.baseurl.org/
 
