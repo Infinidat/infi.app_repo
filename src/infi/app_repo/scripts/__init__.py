@@ -5,13 +5,15 @@ from logging import DEBUG, basicConfig
 from infi.traceback import traceback_decorator
 from infi.app_repo import ApplicationRepository
 
-REPOSITORY_BASE_DIRECTORY = abspath(join(dirname(__file__), # scripts
+PROJECT_DIRECTORY = abspath(join(dirname(__file__), # scripts
                                          pardir, #app_repo
                                          pardir, #info
                                          pardir, # src
                                          pardir, #root
-                                         'data'
                                          ))
+
+REPOSITORY_BASE_DIRECTORY = join(PROJECT_DIRECTORY, 'data')
+
 @traceback_decorator
 def process_incoming(argv=argv[1:]):
     basicConfig(level=DEBUG, stream=stdout)

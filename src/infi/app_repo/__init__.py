@@ -72,7 +72,7 @@ class ApplicationRepository(object):
         from passlib.hash import sha256_crypt
         password = sha256_crypt.encrypt("app_repo")
         log_execute_assert_success(['useradd', '--no-create-home', '--no-user-group',
-                                    '--shell', '/bin/false', '--home-dir', self.incoming_directory,
+                                    '--shell', '/bin/sh', '--home-dir', self.incoming_directory,
                                     '--password', password, 'app_repo'])
 
     def copy_vsftp_config_file(self):
@@ -92,12 +92,26 @@ class ApplicationRepository(object):
         log_execute_assert_success(['chmod', '-Rf', '755', self.base_directory])
         log_execute_assert_success(['chown', '-R', 'app_repo', self.incoming_directory])
 
+    def set_cron_job(self):
+        from crontab import CronTab
+        from infi.app_repo.scripts import PROJECT_DIRECTORY
+        crontab = CronTab("app_repo")
+        crontab.lines = []
+        command = crontab.new(path.join(PROJECT_DIRECTORY, 'bin', 'process_incoming'))
+        command.minute.on('*')
+        command.hour.on('*')
+        command.month.on('*')
+        command.dom.on('*')
+        command.dow.on('*')
+        crontab.write()
+
     def setup(self):
         self.initialize()
         self.create_upload_user()
         self.fix_permissions()
         self.copy_vsftp_config_file()
         self.restart_vsftpd()
+        self.set_cron_job()
 
     def add(self, source_path):
         if not path.exists(source_path):
