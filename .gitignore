@@ -54,3 +54,5 @@ buildout.in
 
 src/infi/app_repo/__version__.py
 data
+gpg-ring.pub
+gpg-ring.sec

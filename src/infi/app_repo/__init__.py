@@ -1,10 +1,11 @@
 __import__("pkg_resources").declare_namespace(__name__)
 
 from glob import glob
-from shutil import copy2
+from shutil import copy2, rmtree
 from os import makedirs, path, remove, listdir, pardir, walk
 from infi.execute import execute_assert_success, ExecutionError
 from pkg_resources import resource_filename
+from pexpect import spawn
 from fnmatch import fnmatch
 from time import sleep
 from cjson import encode, decode
@@ -118,6 +119,15 @@ class ApplicationRepository(object):
         from infi.app_repo.upstart import install
         install()
 
+    def generate_gpg_key(self):
+        with open("/etc/default/rng-tools", 'a') as fd:
+            fd.write("HRNGDEVICE=/dev/urandom\n")
+        rmtree(path.expanduser("~/.gnupg"), ignore_errors=True)
+        log_execute_assert_success(['gpg', '--batch', '--gen-key', resource_filename(__name__, 'gpg_batch_file')])
+        pid = log_execute_assert_success(['gpg', '--export', '--armor'])
+        with open(path.join(self.base_directory, 'gpg.key'), 'w') as fd:
+            fd.write(pid.get_stdout())
+
     def setup(self):
         self.initialize()
         self.create_upload_user()
@@ -126,6 +136,7 @@ class ApplicationRepository(object):
         self.restart_vsftpd()
         self.set_cron_job()
         self.install_upstart_script_for_webserver()
+        self.generate_gpg_key()
 
     def add(self, source_path):
         """:returns: True if metadata was updates"""
@@ -180,6 +191,8 @@ class ApplicationRepository(object):
                                          'main', 'binary-i386' if architecture == 'x86' else 'binary-amd64')
         if not path.exists(destination_directory):
             makedirs(destination_directory)
+        logger.info("Signing {!r}".format(filepath))
+        log_execute_assert_success(['dpkg-sig', '--sign', 'builder', filepath])
         logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
         copy2(filepath, destination_directory)
 
@@ -190,6 +203,12 @@ class ApplicationRepository(object):
                                           'i686' if architecture == 'x86' else 'x86_64')
         if not path.exists(destination_directory):
             makedirs(destination_directory)
+        logger.info("Signing {!r}".format(filepath))
+        pid = spawn('rpm --addsign {}'.format(filepath))
+        pid.expect("Enter pass phrase:")
+        pid.sendline("\n")
+        pid.wait()
+        assert pid.exitstatus == 0
         logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
         copy2(filepath, destination_directory)
 

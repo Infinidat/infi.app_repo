@@ -7,6 +7,7 @@ echo "[${fqdn}]
 name=${fqdn}
 baseurl=ftp://${fqdn}/rpm/$distribution/$version/$arch/
 enabled=1
-gpgcheck=0" > /etc/yum.repos.d/${fqdn}.repo
+gpgcheck=1
+gpgkey=ftp://${fqdn}/gpg.key" > /etc/yum.repos.d/${fqdn}.repo
 echo Fetching package metadata...
 yum update > /dev/null 2>&1

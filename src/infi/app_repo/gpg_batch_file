@@ -1,0 +1,9 @@
+%echo Generating a default key
+Key-Type: RSA
+Key-Length: 2048
+Name-Real: Real Name
+Name-Comment: Comment
+Name-Email: no@email.com
+Expire-Date: 0
+%commit
+%echo done
