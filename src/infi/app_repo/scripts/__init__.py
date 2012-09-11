@@ -20,11 +20,11 @@ REPOSITORY_BASE_DIRECTORY = join(PROJECT_DIRECTORY, 'data')
 logger = getLogger(__name__)
 
 def console_script(func):
-    @wraps
+    @wraps(func)
     def decorator(*args, **kwargs):
         filename = datetime.now().strftime("%Y-%m-%d:%H-%m-%S")
-        basicConfig(level=DEBUG, filemode='w', filepath='/tmp/{}_{}.log'.format(func.__name__, filename))
-        logger.infi("Logging started")
+        basicConfig(level=DEBUG, filemode='w', filename='/tmp/{}_{}.log'.format(func.__name__, filename))
+        logger.info("Logging started")
         with traceback_context():
             try:
                 logger.info("Calling {}".format(func.__name__))
