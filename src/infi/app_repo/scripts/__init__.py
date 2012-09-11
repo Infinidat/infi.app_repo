@@ -6,7 +6,7 @@ from infi.traceback import traceback_decorator, traceback_context
 from infi.app_repo import ApplicationRepository
 from infi.app_repo.webserver import start
 from infi.pyutils.decorators import wraps
-from datedate import datetime
+from datetime import datetime
 
 PROJECT_DIRECTORY = abspath(join(dirname(__file__), # scripts
                                          pardir, #app_repo
@@ -22,7 +22,7 @@ logger = getLogger(__name__)
 def console_script(func):
     @wraps
     def decorator(*args, **kwargs):
-        filename = datetime.datetime.now().strftime("%Y-%m-%d:%H-%m-%S")
+        filename = datetime.now().strftime("%Y-%m-%d:%H-%m-%S")
         basicConfig(level=DEBUG, filemode='w', filepath='/tmp/{}_{}.log'.format(func.__name__, filename))
         logger.infi("Logging started")
         with traceback_context():
