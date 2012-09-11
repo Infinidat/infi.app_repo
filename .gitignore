@@ -53,3 +53,4 @@ tmp*
 buildout.in
 
 src/infi/app_repo/__version__.py
+data

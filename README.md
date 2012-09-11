@@ -5,6 +5,18 @@ The Solution
 ============
 
 
+
+Installation
+============
+
+The solution is designed and tested only on ubuntu.
+You willl need to pre-install the following packages:
+
+* dpkg
+* alien
+* createrepo
+* yum
+
 Resources
 =========
 
