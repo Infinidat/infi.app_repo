@@ -16,7 +16,7 @@ REPOSITORY_BASE_DIRECTORY = abspath(join(dirname(__file__), # scripts
 def process_incoming(argv=argv[1:]):
     basicConfig(level=DEBUG, stream=stdout)
     app_repo = ApplicationRepository(REPOSITORY_BASE_DIRECTORY)
-    [source_path] = argv
+    [source_path] = argv or [join(REPOSITORY_BASE_DIRECTORY, 'incoming')]
     app_repo.add(source_path)
 
 def post_install():

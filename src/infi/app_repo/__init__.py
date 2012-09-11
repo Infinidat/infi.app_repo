@@ -18,7 +18,7 @@ def is_file_open(filepath):
     return log_execute_assert_success(['lsof', filepath]).get_stdout() != ''
 
 def wait_for_directory_to_stabalize(source_path):
-    if not path.isdir(source_path):
+    if path.isdir(source_path):
         return
     while True:
         items = [path.join(source_path, filename) for filename in listdir(source_path)]
@@ -105,9 +105,10 @@ class ApplicationRepository(object):
             return
         isdir = path.isdir(source_path)
         if isdir:
-                wait_for_directory_to_stabalize(source_path)
+            wait_for_directory_to_stabalize(source_path)
         files_to_add = [path.join(source_path, filename)
                         for filename in listdir(source_path)] if isdir else [source_path]
+        files_to_add = [filepath for filepath in files_to_add if not path.isdir(filepath)]
         if not files_to_add:
             logger.info("Nothing to add")
             return
@@ -126,7 +127,7 @@ class ApplicationRepository(object):
             logger.exception("Failed to add {!r} to repository".format(filepath))
         finally:
             pass
-            #remove(filepath)
+            remove(filepath)
 
     def get_factory_for_incoming_distribution(self,filepath):
         _, _, platform_string, _, _ = parse_filepath(filepath)
