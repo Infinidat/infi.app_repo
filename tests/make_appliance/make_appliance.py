@@ -25,7 +25,7 @@ def get_product_uuid(self):
     return get_buildout_cfg().get("project", "upgrade_code")
 
 def get_company(self):
-    return get_buildout_cfg().get("pack", "company")
+    return get_buildout_cfg().get("project", "company")
 
 def get_deb_filepath(self):
     [filepath] = filter(lambda item: item.endswith('deb'), listdir('parts'))
