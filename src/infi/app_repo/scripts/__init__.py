@@ -4,6 +4,7 @@ from os import pardir
 from logging import DEBUG, basicConfig
 from infi.traceback import traceback_decorator
 from infi.app_repo import ApplicationRepository
+from infi.app_repo.webserver import start
 
 PROJECT_DIRECTORY = abspath(join(dirname(__file__), # scripts
                                          pardir, #app_repo
@@ -25,3 +26,10 @@ def post_install():
     basicConfig(level=DEBUG, stream=stdout)
     app_repo = ApplicationRepository(REPOSITORY_BASE_DIRECTORY)
     app_repo.setup()
+
+def webserver(argv=argv[1:]):
+    develop = 'develop' in argv
+    if not develop:
+        from infi.app_repo.upstart import signal_init_that_i_am_ready
+        signal_init_that_i_am_ready()
+    start(develop)

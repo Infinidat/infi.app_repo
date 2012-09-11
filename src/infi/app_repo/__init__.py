@@ -7,7 +7,7 @@ from infi.execute import execute_assert_success, ExecutionError
 from pkg_resources import resource_filename
 from fnmatch import fnmatch
 from time import sleep
-from cjson import encode
+from cjson import encode, decode
 from logging import getLogger
 
 logger = getLogger(__name__)
@@ -114,6 +114,10 @@ class ApplicationRepository(object):
         command.dow.on('*')
         crontab.write()
 
+    def install_upstart_script_for_webserver(self):
+        from infi.app_repo.upstart import install
+        install()
+
     def setup(self):
         self.initialize()
         self.create_upload_user()
@@ -121,6 +125,7 @@ class ApplicationRepository(object):
         self.copy_vsftp_config_file()
         self.restart_vsftpd()
         self.set_cron_job()
+        self.install_upstart_script_for_webserver()
 
     def add(self, source_path):
         if not path.exists(source_path):
@@ -183,7 +188,7 @@ class ApplicationRepository(object):
         package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
         _, distribution_name, major_version = platform_string.split('-')
         destination_directory = path.join(self.base_directory, 'rpm', distribution_name, major_version,
-                                          'i386' if architecture == 'x86' else 'x86_64')
+                                          'i686' if architecture == 'x86' else 'x86_64')
         if not path.exists(destination_directory):
             makedirs(destination_directory)
         logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
@@ -219,19 +224,16 @@ class ApplicationRepository(object):
             all_files += list(find_files(path.join(self.base_directory, distribution_type),
                                       '*.{}'.format(distribution_type)))
         distributions = [parse_filepath(distribution) + (distribution, ) for distribution in all_files]
-        print distributions
         package_names = set([distribution[0] for distribution in distributions])
         distributions_by_package = {package_name: [distribution for distribution in distributions
                                                    if distribution[0] == package_name]
                                     for package_name in package_names}
-        print distributions_by_package
         for package_name, package_distributions in distributions_by_package.items():
             package_versions = set([distribution[1] for distribution in package_distributions])
-            print package_versions
             distributions_by_version = {package_version: [dict(platform=distribution[2],
                                                                architecture=distribution[3],
                                                                extension=distribution[4],
-                                                               filepath=distribution[5])
+                                                               filepath=distribution[5].replace(self.base_directory, ''))
                                                           for distribution in package_distributions
                                                           if distribution[1] == package_version]
                                         for package_version in package_versions}
@@ -261,4 +263,8 @@ class ApplicationRepository(object):
            package_gz_fd = open(packages_gz, 'wb')
            package_gz_fd.write(content)
            package_gz_fd.close()
+
+    def get_views_metadata(self):
+        with open(path.join(self.base_directory, 'metadata.json')) as fd:
+            return decode(fd.read())
 
