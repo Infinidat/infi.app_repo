@@ -18,3 +18,8 @@ def process_incoming(argv=argv[1:]):
     app_repo = ApplicationRepository(REPOSITORY_BASE_DIRECTORY)
     [source_path] = argv
     app_repo.add(source_path)
+
+def post_install():
+    basicConfig(level=DEBUG, stream=stdout)
+    app_repo = ApplicationRepository(REPOSITORY_BASE_DIRECTORY)
+    app_repo.setup()

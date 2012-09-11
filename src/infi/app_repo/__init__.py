@@ -2,8 +2,9 @@ __import__("pkg_resources").declare_namespace(__name__)
 
 from glob import glob
 from shutil import copy2
-from os import makedirs, path, remove, listdir
+from os import makedirs, path, remove, listdir, pardir
 from infi.execute import execute_assert_success, ExecutionError
+from pkg_resources import resource_filename
 from time import sleep
 from logging import getLogger
 
@@ -50,10 +51,53 @@ class ApplicationRepository(object):
     def __init__(self, base_directory):
         super(ApplicationRepository, self).__init__()
         self.base_directory = base_directory
+        self.incoming_directory = path.join(base_directory, 'incoming')
 
     def initialize(self):
-        if not path.exists(base_directory):
-            makedirs(base_directory)
+        if not path.exists(self.base_directory):
+            makedirs(self.base_directory)
+        if not path.exists(self.incoming_directory):
+            makedirs(self.incoming_directory)
+    
+    def is_upload_user_exists(self):
+        try:
+            log_execute_assert_success(['id', 'app_repo'])
+        except ExecutionError:
+            return False
+        return True
+
+    def create_upload_user(self):
+        if self.is_upload_user_exists():
+            log_execute_assert_success(['deluser', 'app_repo'])
+        from passlib.hash import sha256_crypt
+        password = sha256_crypt.encrypt("app_repo")
+        log_execute_assert_success(['useradd', '--no-create-home', '--no-user-group',
+                                    '--shell', '/bin/false', '--home-dir', self.incoming_directory,
+                                    '--password', password, 'app_repo'])
+
+    def copy_vsftp_config_file(self):
+        src = resource_filename(__name__, 'vsftpd.conf')
+        copy2(src, '/etc/')
+
+    def restart_vsftpd(self):
+        log_execute_assert_success(['service', 'vsftpd', 'restart'])
+
+    def fix_permissions(self):
+        parent = self.base_directory
+        while True:
+            parent = path.abspath(path.join(parent, pardir))
+            log_execute_assert_success(['chmod', '755', parent])
+            if parent in ['/', '']:
+                break
+        log_execute_assert_success(['chmod', '-Rf', '755', self.base_directory])
+        log_execute_assert_success(['chown', '-R', 'app_repo', self.incoming_directory])
+
+    def setup(self):
+        self.initialize()
+        self.create_upload_user()
+        self.fix_permissions()
+        self.copy_vsftp_config_file()
+        self.restart_vsftpd()
 
     def add(self, source_path):
         if not path.exists(source_path):
@@ -64,6 +108,9 @@ class ApplicationRepository(object):
                 wait_for_directory_to_stabalize(source_path)
         files_to_add = [path.join(source_path, filename)
                         for filename in listdir(source_path)] if isdir else [source_path]
+        if not files_to_add:
+            logger.info("Nothing to add")
+            return
         for filepath in files_to_add:
             self.add_single_file(filepath)
         self.update_metadata()
@@ -125,8 +172,12 @@ class ApplicationRepository(object):
         self.add_package_for_yum_repository(filepath)
 
     def add_package_for_windows(self, filepath):
-        # TODO NotImplementedError
-        pass
+        package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
+        destination_directory = path.join(self.base_directory, 'msi', architecture)
+        if not path.exists(destination_directory):
+            makedirs(destination_directory)
+        logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
+        copy2(filepath, destination_directory)
 
     def update_metadata(self):
         self.update_metadata_for_views()
