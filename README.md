@@ -1,6 +1,8 @@
 The Problem
 ===========
 
+We build software packages for various platforms and architectures, and users often download and install incompatible distributions.
+
 The Solution
 ============
 

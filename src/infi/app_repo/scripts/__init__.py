@@ -19,8 +19,10 @@ REPOSITORY_BASE_DIRECTORY = join(PROJECT_DIRECTORY, 'data')
 def process_incoming(argv=argv[1:]):
     basicConfig(level=DEBUG, stream=stdout)
     app_repo = ApplicationRepository(REPOSITORY_BASE_DIRECTORY)
-    [source_path] = argv or [join(REPOSITORY_BASE_DIRECTORY, 'incoming')]
-    app_repo.add(source_path)
+    [source_path] = argv if argv != [] and argv[0] != '--force' else [join(REPOSITORY_BASE_DIRECTORY, 'incoming')]
+    force_metdata_update = '--force' in argv
+    if not app_repo.add(source_path) and force_metdata_update:
+        app_repo.update_metadata()
 
 def post_install():
     basicConfig(level=DEBUG, stream=stdout)

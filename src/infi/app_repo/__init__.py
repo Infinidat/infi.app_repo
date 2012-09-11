@@ -128,9 +128,10 @@ class ApplicationRepository(object):
         self.install_upstart_script_for_webserver()
 
     def add(self, source_path):
+        """:returns: True if metadata was updates"""
         if not path.exists(source_path):
             logger.error("Source path {!r} does not exist".format(source_path))
-            return
+            return False
         isdir = path.isdir(source_path)
         if isdir:
             wait_for_directory_to_stabalize(source_path)
@@ -139,10 +140,11 @@ class ApplicationRepository(object):
         files_to_add = [filepath for filepath in files_to_add if not path.isdir(filepath)]
         if not files_to_add:
             logger.info("Nothing to add")
-            return
+            return False
         for filepath in files_to_add:
             self.add_single_file(filepath)
         self.update_metadata()
+        return True
 
     def add_single_file(self, filepath):
         try:
@@ -161,17 +163,17 @@ class ApplicationRepository(object):
         _, _, platform_string, _, _ = parse_filepath(filepath)
         logger.debug("Platform string is {!r}".format(platform_string))
         if platform_string is None:
-            return None
-        add_package_by_platfrom_prefix = {'windows': self.add_package_for_windows,
-                                          'linux-redhat': self.add_package_for_redhat,
-                                          'linux-centos': self.add_package_for_centos,
-                                          'linux-ubuntu': self.add_package_for_ubuntu,
+            return No
+        add_package_by_postfix = {'msi': self.add_package__msi,
+                                          'rpm': self.add_package__rpm,
+                                          'deb': self.add_package__deb,
+                                          'tar.gz': self.add_package__tar_gz,
                                          }
-        [factory] = [value for key, value in add_package_by_platfrom_prefix.items()
-                     if platform_string.startswith(key)]
+        [factory] = [value for key, value in add_package_by_postfix.items()
+                     if filepath.endswith(key)]
         return factory
 
-    def add_package_for_apt_repository(self, filepath):
+    def add_package__deb(self, filepath):
         package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
         _, distribution_name, codename = platform_string.split('-')
         destination_directory = path.join(self.base_directory, 'deb', distribution_name, 'dists', codename,
@@ -181,10 +183,7 @@ class ApplicationRepository(object):
         logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
         copy2(filepath, destination_directory)
 
-    def add_package_for_ubuntu(self, filepath):
-        return self.add_package_for_apt_repository(filepath)
-
-    def add_package_for_yum_repository(self, filepath):
+    def add_package__rpm(self, filepath):
         package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
         _, distribution_name, major_version = platform_string.split('-')
         destination_directory = path.join(self.base_directory, 'rpm', distribution_name, major_version,
@@ -194,15 +193,17 @@ class ApplicationRepository(object):
         logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
         copy2(filepath, destination_directory)
 
-    def add_package_for_redhat(self, filepath):
-        self.add_package_for_yum_repository(filepath)
-
-    def add_package_for_centos(self, filepath):
-        self.add_package_for_yum_repository(filepath)
-
-    def add_package_for_windows(self, filepath):
+    def add_package__msi(self, filepath):
         package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
         destination_directory = path.join(self.base_directory, 'msi', architecture)
+        if not path.exists(destination_directory):
+            makedirs(destination_directory)
+        logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
+        copy2(filepath, destination_directory)
+
+    def add_package__tar_gz(self, filepath):
+        package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
+        destination_directory = path.join(self.base_directory, 'archives')
         if not path.exists(destination_directory):
             makedirs(destination_directory)
         logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
@@ -220,9 +221,9 @@ class ApplicationRepository(object):
 
     def gather_metadata_for_views(self):
         all_files =  []
-        for distribution_type in ['deb', 'rpm', 'msi']:
-            all_files += list(find_files(path.join(self.base_directory, distribution_type),
-                                      '*.{}'.format(distribution_type)))
+        all_files = [filepath for filepath in find_files(self.base_directory, '*')
+                     if not filepath.startswith(self.incoming_directory)
+                     and parse_filepath(filepath) != (None, None, None, None, None)]
         distributions = [parse_filepath(distribution) + (distribution, ) for distribution in all_files]
         package_names = set([distribution[0] for distribution in distributions])
         distributions_by_package = {package_name: [distribution for distribution in distributions
