@@ -1,10 +1,12 @@
 from sys import argv, stdout
 from os.path import abspath, dirname, join
 from os import pardir
-from logging import DEBUG, basicConfig
-from infi.traceback import traceback_decorator
+from logging import DEBUG, basicConfig, getLogger
+from infi.traceback import traceback_decorator, traceback_context
 from infi.app_repo import ApplicationRepository
 from infi.app_repo.webserver import start
+from infi.pyutils.decorators import wraps
+from datedate import datetime
 
 PROJECT_DIRECTORY = abspath(join(dirname(__file__), # scripts
                                          pardir, #app_repo
@@ -15,7 +17,28 @@ PROJECT_DIRECTORY = abspath(join(dirname(__file__), # scripts
 
 REPOSITORY_BASE_DIRECTORY = join(PROJECT_DIRECTORY, 'data')
 
-@traceback_decorator
+logger = getLogger(__name__)
+
+def console_script(func):
+    @wraps
+    def decorator(*args, **kwargs):
+        filename = datetime.datetime.now().strftime("%Y-%m-%d:%H-%m-%S")
+        basicConfig(level=DEBUG, filemode='w', filepath='/tmp/{}_{}.log'.format(func.__name__, filename))
+        logger.infi("Logging started")
+        with traceback_context():
+            try:
+                logger.info("Calling {}".format(func.__name__))
+                result = func(*args, **kwargs)
+                logger.info("Call to {} returned {}".format(func.__name__, result))
+                return result
+            except:
+                logger.exception("Caught exception")
+                raise
+            finally:
+                logger.info("Logging ended")
+    return decorator
+
+@console_script
 def process_incoming(argv=argv[1:]):
     basicConfig(level=DEBUG, stream=stdout)
     app_repo = ApplicationRepository(REPOSITORY_BASE_DIRECTORY)
@@ -24,11 +47,13 @@ def process_incoming(argv=argv[1:]):
     if not app_repo.add(source_path) and force_metdata_update:
         app_repo.update_metadata()
 
+@console_script
 def post_install():
     basicConfig(level=DEBUG, stream=stdout)
     app_repo = ApplicationRepository(REPOSITORY_BASE_DIRECTORY)
     app_repo.setup()
 
+@console_script
 def webserver(argv=argv[1:]):
     develop = 'develop' in argv
     if not develop:

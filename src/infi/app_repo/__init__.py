@@ -107,7 +107,7 @@ class ApplicationRepository(object):
         from infi.app_repo.scripts import PROJECT_DIRECTORY
         crontab = CronTab("app_repo")
         crontab.lines = []
-        command = crontab.new(path.join(PROJECT_DIRECTORY, 'bin', 'process_incoming'))
+        command = crontab.new('{} > /dev/null 2>&1 '.format(path.join(PROJECT_DIRECTORY, 'bin', 'process_incoming')))
         command.minute.on('*')
         command.hour.on('*')
         command.month.on('*')
