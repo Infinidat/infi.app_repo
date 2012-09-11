@@ -1,0 +1,501 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ovf:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:vadk="http://www.vmware.com/schema/vadk" xmlns:ovf="http://schemas.dmtf.org/ovf/envelope/1" xmlns:vssd="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_VirtualSystemSettingData" xmlns:rasd="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_ResourceAllocationSettingData" xmlns:vmw="http://www.vmware.com/schema/ovf" xmlns:vsm="http://www.vmware.com/schema/vServiceManager" xsi:schemaLocation="http://schemas.dmtf.org/ovf/envelope/1 /opt/vmware/etc/build/schemas/vadk.xsd" ovf:version="0.7.0" vadk:version="2.6.0.0">
+	<References>
+		<File ovf:href="system.vmdk" ovf:id="system.vmdk_id"/>
+	</References>
+<!--
+		The Annotation element of the AnnotationSection_Type is the text
+		that will be presented as the Description of the VM.
+	-->
+	<Section xsi:type="ovf:AnnotationSection_Type">
+		<Info/>
+		<Annotation></Annotation>
+	</Section>
+	<Section xsi:type="ovf:ProductSection_Type" ovf:required="false">
+		<Info>VM ISV branding information</Info>
+		<Product>PRODUCT_NAME</Product>
+		<Vendor>PRODUCT_VENDOR</Vendor>
+<!--
+			Version is the actual product version in the
+			form X.X.X.X where X is an unsigned 16-bit integer.
+
+			FullVersion is a descriptive version string
+			including, for example, alpha or beta designations
+			and other release criteria.
+		-->
+		<Version>SHORT_VERSION</Version>
+		<FullVersion>FULL_VERSION</FullVersion>
+		<ProductUrl>http://www.infinidat.com</ProductUrl>
+		<VendorUrl>http://www.infinidat.com</VendorUrl>
+		<AppUrl>http://${app.ip}/</AppUrl>
+		<Category>Application</Category>
+	</Section>
+	<Section xsi:type="vadk:ExtendedProductSection_Type">
+		<Info/>
+		<vadk:VendorUUID>d76e38bd-83ef-11e1-aabd-1093e90fe436</vadk:VendorUUID>
+		<vadk:ProductRID>PRODUCT_UUID</vadk:ProductRID>
+		<vadk:AppUrlName>Application Home</vadk:AppUrlName>
+		<vadk:Logo></vadk:Logo>
+		<vadk:LogoUrl></vadk:LogoUrl>
+		<vadk:WelcomeText>${app.name} - ${app.version}</vadk:WelcomeText>
+	</Section>
+	<Section xsi:type="vadk:SSLCertificateSection_Type">
+		<Info/>
+		<vadk:CommonName>Self-Signed by Infinidat, Ltd.</vadk:CommonName>
+		<vadk:OrganizationName>Infinidat, Ltd.</vadk:OrganizationName>
+		<vadk:OrganizationalUnitName>Host Software</vadk:OrganizationalUnitName>
+		<vadk:CountryName>IL</vadk:CountryName>
+	</Section>
+	<Section xsi:type="vadk:VAMISection_Type">
+		<Info>VAMI Specific Information</Info>
+		<vadk:InitScript vadk:template="/opt/vmware/etc/vaos/vaos_init.sh"/>
+		<vadk:ShowEULA>false</vadk:ShowEULA>
+		<vadk:SetHostname>true</vadk:SetHostname>
+		<vadk:SetNetwork>true</vadk:SetNetwork>
+		<vadk:CreateSSHKeys>true</vadk:CreateSSHKeys>
+		<vadk:RunBootScripts>true</vadk:RunBootScripts>
+		<vadk:LoginTTY>true</vadk:LoginTTY>
+		<vadk:ManagementSrv>true</vadk:ManagementSrv>
+		<vadk:Services>
+			<vadk:Service vadk:name="core" vadk:version="2.6.0.0" vadk:tabOrder="0"/>
+			<vadk:Service vadk:name="system" vadk:version="2.6.0.0" vadk:tabOrder="1"/>
+			<vadk:Service vadk:name="network" vadk:version="2.6.0.0" vadk:tabOrder="2"/>
+			<vadk:Service vadk:name="update" vadk:version="2.6.0.0" vadk:tabOrder="3"/>
+		</vadk:Services>
+		<vadk:ManagementGUI>true</vadk:ManagementGUI>
+		<vadk:WebServer vadk:httpsPort="5480"/>
+		<vadk:ViewCustomization>
+			<vadk:FooterLeft><!--Html for the footer left section, example ISV small logo --></vadk:FooterLeft>
+			<vadk:FooterCopyright><!--Html for footer middle section, ISV copyright section.--></vadk:FooterCopyright>
+		</vadk:ViewCustomization>
+		<vadk:VMToolsCore vadk:install="false" vadk:pkgsDir="/opt/vmware/lib/build/include/vmware-tools"/>
+		<vadk:VMToolsX vadk:install="false" vadk:pkgsDir=""/>
+	</Section>
+	<Section xsi:type="vadk:ApplicationSection_Type">
+		<Info/>
+		<vadk:VMXFilename>VMX_FILENAME.vmx</vadk:VMXFilename>
+		<vadk:DistributionFormat vadk:format="ovf" vadk:enabled="true" vadk:filename="VMX_FILENAME" vadk:directory="">
+			<vadk:PostOutputCreation>
+				<vadk:Script vadk:name="sign" vadk:enabled="true">
+#
+# This script will be passed the full path to the ovffile as $1
+#
+# The script should produce a detached signature file with
+# a .cert extension into the same directory as the passed ovffile.
+#
+
+#
+# this will generate a self-signed certificate and sign the OVF with it.
+#
+cd `dirname $1`
+#/opt/vmware/bin/signovf -s &apos;/C=US/ST=Some-State/O=AnyCompany/CN=Self-Signed&apos; `basename $1`
+#
+# if you have your own pem key, you can sign the OVF with it this way:
+#
+# /opt/vmware/bin/signovf -p /tmp/my_pem_file.pem `basename $1`
+#
+wget PEM_URL -O /tmp/my_pem_file.pem
+/opt/vmware/bin/signovf -p /tmp/my_pem_file.pem `basename $1`
+				</vadk:Script>
+			</vadk:PostOutputCreation>
+		</vadk:DistributionFormat>
+		<vadk:DistributionFormat vadk:format="vmx" vadk:enabled="false" vadk:filename="VM" vadk:directory="">
+			<vadk:PostOutputCreation/>
+		</vadk:DistributionFormat>
+		<vadk:DistributionFormat vadk:format="ova" vadk:enabled="true" vadk:filename="VMX_FILENAME" vadk:directory="">
+			<vadk:PostOutputCreation/>
+		</vadk:DistributionFormat>
+		<vadk:DistributionFormat vadk:format="zip" vadk:enabled="false" vadk:filename="VM" vadk:directory="">
+			<vadk:PostOutputCreation/>
+		</vadk:DistributionFormat>
+		<vadk:ApplicationPackages>
+			<vadk:url vadk:path="dists/precise/main/binary-i386/Packages.gz" vadk:type="ondemand">ftp://li507-149.members.linode.com/ubuntu</vadk:url>
+		</vadk:ApplicationPackages>
+		<vadk:OSPackages><!-- Additional OS packages needed by the ISV's application -->
+			<vadk:Package vadk:name="groff-base"/>
+			<vadk:Package vadk:name="libssl-dev"/>
+			<vadk:Package vadk:name="binutils"/>
+			<vadk:Package vadk:name="libexpat1"/>
+			<vadk:Package vadk:name="openssh-server"/>
+			<vadk:Package vadk:name="openssh-client"/>
+			<vadk:Package vadk:name="libossp-uuid16"/>
+			<vadk:Package vadk:name="libuuid1"/>
+			<vadk:Package vadk:name="vmware-tools-esx-nox"/>
+			<vadk:Package vadk:name="infi.app_repo"/>
+		</vadk:OSPackages>
+		<vadk:PackagesToRemove><!-- vadk:Package vadk:name="" / --></vadk:PackagesToRemove>
+		<vadk:BootActions>
+			<vadk:FirstBoot>#!/bin/bash
+#Un comment to send the output of this script to a logfile
+#exec &gt; /opt/vmware/var/log/firstboot 2&gt;&amp;1
+
+echo This script is executed on first boot only.
+
+#Un comment to run subsequent boot script after first boot
+#/opt/vmware/etc/isv/subsequentboot
+/opt/infinidat/app_repo/bin/post_install
+initctl restart app_repo</vadk:FirstBoot>
+			<vadk:SubsequentBoot>#!/bin/bash
+#Un comment to send the output of this script to a logfile
+#exec &gt; /opt/vmware/var/log/subsequentboot 2&gt;&amp;1
+
+echo This script is executed on all boots, except the first one.</vadk:SubsequentBoot>
+		</vadk:BootActions>
+		<vadk:Users>
+			<vadk:User vadk:username="root" vadk:password="ROOT_PASSWORD" vadk:passwordFormat="plaintext" vadk:fullname="Administrator" vadk:uid="" vadk:vamiAdmin="true"/>
+		</vadk:Users>
+	</Section>
+	<Section xsi:type="vadk:IpAssignmentSection_Type">
+		<Info>Supported IP assignment schemes</Info>
+		<vmw:IpAssignmentSection ovf:required="false" vmw:protocols="IPv4" vmw:schemes="">
+			<Info>Supported IP assignment schemes</Info>
+		</vmw:IpAssignmentSection>
+	</Section>
+	<Section xsi:type="vadk:PropertySection_Type">
+		<Info/>
+	</Section>
+	<Section xsi:type="vadk:AnyOVFSection_Type">
+		<Info>
+			Unknown OVF elements in this element will be passed directly
+			to the OVF output descriptor without interpretation
+		</Info>
+	</Section>
+	<Section xsi:type="vadk:UpdateSection_Type">
+		<Info/>
+		<vadk:Repository vadk:url="cdrom://" vadk:username="" vadk:password="" vadk:passwordFormat="base64"/>
+		<vadk:RepositoryStagingServer vadk:fileProto="scp" vadk:hostname="" vadk:fileLogin="" vadk:filePassword="" vadk:filePasswordFormat="base64" vadk:filePath=""/>
+<!--
+		<vadk:RepositoryStagingServer vadk:hostname=""
+			vadk:fileLogin="root" vadk:filePassword=""
+			vadk:filePasswordFormat="plaintext" vadk:fileProto="scp"
+			vadk:filePath="/tmp"/>
+-->
+		<vadk:Info>Update description</vadk:Info>
+<!--
+		<vadk:RepositoryExport vadk:format="zip"
+			vadk:filename="VADK_Update"/>
+-->
+		<vadk:PreInstallShellScript>#!/bin/sh
+#Sample pre install update script
+#This script will be executed with the following arguments:
+#  $1 - version of VM before update
+#  $2 - version of VM trying to be installed
+echo &quot;Installing update from version $1 to version $2&quot;
+
+#exit with value of 0 to allow update to continue
+exit 0
+		</vadk:PreInstallShellScript>
+		<vadk:PostInstallShellScript>#!/bin/sh
+#Sample post install update script
+#This script will be executed with the following arguments:
+#  $1 - version of VM before update
+#  $2 - version of VM trying to be installed
+#  $3 - status of update process
+#
+#The Status in $3 will indicate to success of failure of the update:
+#  0 - all update steps are successful
+#  1 - pre install script failed, package test and installation skipped
+#  2 - pre install success, package test failed, installation skipped
+#  4 - pre install and package test success, package installation failed
+#
+#A Status of 2 is likely caused by a package dependency conflict.  A Status of 4
+#is likely caused by a failed package install script.
+
+if [ $3 -eq 0 ]; then
+  echo &quot;Finished installing version $2&quot;
+else
+  echo &quot;Failed with status of $3 while installing version $2&quot;
+  echo &quot;VM version is still $1&quot;
+fi
+
+#Exit with a value of 0 to allow the VM version to be changed and set the final
+#update status to success.
+exit 0
+		</vadk:PostInstallShellScript>
+		<vadk:DigitalSignature>
+			<vadk:Script vadk:name="sign" vadk:enabled="true">#!/bin/sh
+#Sample script to sign updates
+#  $1 is the file to sign
+#  $2 is the file to save sig into
+#  write the signature to stdout
+
+#use sample pem file
+PEMFILE=/opt/vmware/etc/update.pem
+
+#Sign the update with the temporary certificate
+openssl dgst -sha1 -sign $PEMFILE -out &quot;$2&quot; &quot;$1&quot;
+
+			</vadk:Script>
+			<vadk:Script vadk:name="pubkey" vadk:enabled="true">#!/bin/sh
+#Sample script to get the public key
+#  $1 is the file to write the public key to
+
+SUBJECT=&apos;/C=US/ST=Some-State/O=AnyCompany/CN=Self-Signed&apos;
+PEMFILE=/opt/vmware/etc/update.pem
+
+if [ ! -f $PEMFILE ]; then
+  #Create a temporary self-signed certificate first time only
+  openssl req -x509 -nodes -sha256 -newkey rsa:1024 -keyout $PEMFILE -out $PEMFILE -subj &apos;$SUBJECT&apos;
+fi
+
+#Get the public key
+openssl rsa -in $PEMFILE -pubout -out $1
+
+
+
+			</vadk:Script>
+			<vadk:Script vadk:name="validate" vadk:enabled="true">#!/bin/sh
+#Sample script to validate digital signature
+#  $1 is the file to validate
+#  $2 is the signature file
+#  $3 is the signature key file
+#  exit with status of 0 if valid
+
+openssl dgst -sha1 -verify &quot;$3&quot; -signature &quot;$2&quot;  &quot;$1&quot;
+
+
+			</vadk:Script>
+		</vadk:DigitalSignature>
+		<vadk:UpdateInfoList>
+			<vadk:UpdateInfo vadk:introduced-version="" vadk:category="feature" vadk:severity="important" vadk:affected-versions="" vadk:description="" vadk:reference-type="vendor" vadk:reference-id="" vadk:reference-url=""/>
+		</vadk:UpdateInfoList>
+	</Section>
+<!-- Defined by  CIM_OperatingSystem.OsType -->
+	<Section ovf:id="101" ovf:version="" vmw:osType="ubuntuGuest" xsi:type="ovf:OperatingSystemSection_Type">
+		<Info>Guest Operating System</Info>
+		<Description>ubuntu-12.04-server-i386</Description>
+	</Section>
+	<Section xsi:type="ovf:VirtualHardwareSection_Type" ovf:transport="com.vmware.guestInfo iso">
+		<Info>Virtual Hardware Requirements</Info>
+		<System>
+			<vssd:VirtualSystemType>vmx-07</vssd:VirtualSystemType>
+		</System>
+		<Item>
+			<rasd:Caption>1 virtual CPU</rasd:Caption>
+			<rasd:Description>Number of virtual CPUs</rasd:Description>
+			<rasd:InstanceId>1</rasd:InstanceId>
+			<rasd:ResourceType>3</rasd:ResourceType>
+			<rasd:VirtualQuantity>1</rasd:VirtualQuantity>
+		</Item>
+		<Item>
+			<rasd:AllocationUnits>MegaBytes</rasd:AllocationUnits>
+			<rasd:Caption>512 MB of memory</rasd:Caption>
+			<rasd:Description>Memory Size</rasd:Description>
+			<rasd:InstanceId>2</rasd:InstanceId>
+			<rasd:ResourceType>4</rasd:ResourceType>
+			<rasd:VirtualQuantity>512</rasd:VirtualQuantity>
+		</Item>
+		<Item>
+			<rasd:AutomaticAllocation>true</rasd:AutomaticAllocation>
+			<rasd:Caption>Ethernet adapter on vmnet</rasd:Caption>
+			<rasd:Connection>Network 1</rasd:Connection>
+			<rasd:InstanceId>3</rasd:InstanceId>
+			<rasd:ResourceSubType>PCNet32</rasd:ResourceSubType>
+			<rasd:ResourceType>10</rasd:ResourceType>
+		</Item>
+		<Item>
+			<rasd:BusNumber>0</rasd:BusNumber>
+			<rasd:Caption>SCSI Controller 0 - LSI Logic</rasd:Caption>
+			<rasd:InstanceId>4</rasd:InstanceId>
+			<rasd:ResourceSubType>lsilogic</rasd:ResourceSubType>
+			<rasd:ResourceType>6</rasd:ResourceType>
+		</Item>
+		<Item>
+			<rasd:AddressOnParent>0</rasd:AddressOnParent>
+			<rasd:Caption>Harddisk 0</rasd:Caption>
+			<rasd:HostResource>/disk/system</rasd:HostResource>
+			<rasd:InstanceId>5</rasd:InstanceId>
+			<rasd:Parent>4</rasd:Parent>
+			<rasd:ResourceType>17</rasd:ResourceType>
+		</Item>
+		<Item>
+			<rasd:Address>0</rasd:Address>
+			<rasd:Caption>IDE Controller 0</rasd:Caption>
+			<rasd:InstanceId>6</rasd:InstanceId>
+			<rasd:ResourceType>5</rasd:ResourceType>
+		</Item>
+		<Item>
+			<rasd:AddressOnParent>0</rasd:AddressOnParent>
+			<rasd:AutomaticAllocation>true</rasd:AutomaticAllocation>
+			<rasd:Caption>CD/DVD Drive 1</rasd:Caption>
+			<rasd:InstanceId>7</rasd:InstanceId>
+			<rasd:Parent>6</rasd:Parent>
+			<rasd:ResourceType>15</rasd:ResourceType>
+		</Item>
+	</Section>
+	<Section xsi:type="vadk:VServiceSection_Type">
+		<Info>
+			vService content in this element will be passed directly
+			to the OVF output descriptor without interpretation
+		</Info>
+		<vmw:vServiceDependencySection xmlns:ovf="http://schemas.dmtf.org/ovf/envelope/1" xmlns:vmw="http://www.vmware.com/schema/ovf" ovf:required="true" vmw:id="installation">
+			<ovf:Info>A vService dependency</ovf:Info>
+			<vmw:Type>com.vmware.vservice.extension</vmw:Type>
+			<vmw:Name>vCenter Extension Installation</vmw:Name>
+			<vmw:Description>
+					 This appliance requires a binding to the vCenter Extension vService,
+					 which allows it to register automatically as a vCenter Extension at runtime.
+				</vmw:Description>
+			<vmw:Configuration/>
+		</vmw:vServiceDependencySection>
+	</Section>
+	<Section xsi:type="vadk:JEOSSection_Type">
+		<Info/>
+		<vadk:BootArgs>
+initrd=ubuntu-installer/i386/initrd.gz
+priority=critical
+locale=en_US bootkbd=us
+kbd-chooser/method=us console-setup/layoutcode=us
+disable_dhcp=true
+file=/preseed.cfg
+--
+		</vadk:BootArgs>
+		<vadk:BootArgsDHCP>
+append initrd=ubuntu-installer/i386/initrd.gz
+priority=critical locale=en_US bootkbd=us
+kbd-chooser/method=us console-setup/layoutcode=us
+netcfg/disable_dhcp=false dhcptimeout=120 netcfg/choose_interface=eth0
+preseed/url=[VADK.unattendedCfgURL]
+--
+		</vadk:BootArgsDHCP>
+		<vadk:BootFiles vadk:relPath="install/netboot" vadk:kernel="ubuntu-installer/i386/linux"/>
+		<vadk:UnattendedInstallTemplate>[VADK.vadkRoot]/etc/build/templates/ubuntu-12.04-server-i386/ubuntu-12.04-server-i386.xsl</vadk:UnattendedInstallTemplate>
+		<vadk:PreInstallScript vadk:template="[VADK.vadkRoot]/etc/build/templates/ubuntu-12.04-server-i386/preinstall.xsl" vadk:output="[VADK.stageDir]/preinstall.sh"/>
+		<vadk:PostInstallScript vadk:path="http://[VADK.localIP]/build/[VADK.buildID]/configure_appliance" vadk:template="[VADK.vadkRoot]/etc/build/templates/ubuntu-12.04-server-i386/post.xsl" vadk:output="[VADK.stageDir]/configure_appliance"/>
+		<vadk:PostScriptRepoList>RepositoryList</vadk:PostScriptRepoList>
+		<vadk:PostScriptPackageList>PackageList</vadk:PostScriptPackageList>
+		<vadk:VADKPackages vadk:path="http://[VADK.localIP]/build/[VADK.buildID]/repo/vadkPackages/" vadk:sourceDir="[VADK.vadkRoot]/lib/build/include/deb/" vadk:targetDir="[VADK.stageDir]/repo/vadkPackages/"/>
+		<vadk:ISO vadk:path="file:///opt/vmware/www/ISV/ISO/ubuntu-12.04-server-i386.iso" vadk:md5sum="32184a83c8b5e6031e1264e5c499bc03" vadk:packageRepoPath="" vadk:packageMetadataPath="dists/stable/main/binary-i386/Packages.gz" vadk:containFiles=""/>
+		<vadk:Distribution vadk:vendor="" vadk:OSverMajor="" vadk:OSverMinor="" vadk:arch="i386" vadk:smp="1" vadk:packageFormat="deb" vadk:packageManager="apt" vadk:packageRepoDir="packageRepoDir"/>
+		<vadk:OSPackages>
+			<vadk:PackageGroup vadk:value=""/>
+			<vadk:Package vadk:name="openssl"/>
+			<vadk:Package vadk:name="libglib2.0-0"/>
+			<vadk:Package vadk:name="python-libxml2"/>
+		</vadk:OSPackages>
+	</Section>
+	<Section xsi:type="vadk:BuildSection_Type">
+		<Info/>
+		<vadk:ProvisioningSettings>
+			<vadk:NetworkConnection>VM Network</vadk:NetworkConnection>
+			<vadk:NetworkType>dhcp</vadk:NetworkType>
+			<vadk:IP></vadk:IP>
+			<vadk:Netmask></vadk:Netmask>
+			<vadk:Gateway></vadk:Gateway>
+			<vadk:DNS1></vadk:DNS1>
+			<vadk:DNS2></vadk:DNS2>
+		</vadk:ProvisioningSettings>
+		<vadk:ProvisioningEngine>
+			<vadk:VmhostLan vadk:hostname="VCENTER_HOSTNAME" vadk:port="443" vadk:hostOS="" vadk:login="VCENTER_USERNAME" vadk:password="VCENTER_PASSWORD" vadk:passwordFormat="plaintext" vadk:path="/tmp" vadk:datastore="VCENTER_DATASTROE" vadk:datacenter="VCENTER_DATACENTER" vadk:managedESX="VCENTER_CLUSTER" vadk:resourcePool="" vadk:fileLogin="root" vadk:filePassword="" vadk:filePasswordFormat="plaintext" vadk:fileProto="scp" vadk:filePath="/tmp" vadk:vmrunPath="" vadk:wsXDisplay=":0.0" vadk:provisioningVMName=""/>
+			<vadk:VmhostProduct vadk:name="vCenter" vadk:majorVersion="5"/>
+		</vadk:ProvisioningEngine>
+<!-- all timeouts are in seconds -->
+		<vadk:ProvisioningTimeouts vadk:boot="600" vadk:poweroff="25" vadk:hang="7200" vadk:sshWaitTime="120" vadk:scpOperationTime="300" vadk:scpAutoYesWaitTime="2" vadk:systemCmdWaitTime="60" vadk:systemCmdMaxTime="7200"/>
+		<vadk:removeAgentPackage>false</vadk:removeAgentPackage>
+		<vadk:removeTransientVM>true</vadk:removeTransientVM>
+		<vadk:CheckPostInstallLog>true</vadk:CheckPostInstallLog>
+		<vadk:PreInstallShellScript>#!/bin/bash
+# Un-comment the following lines for reducing the space occupied for the
+# operating system by uninstalling potentially unneeded packages. The script
+# template is located at /opt/vmware/etc/footprint and should be used with
+# appropriate verification.
+#
+cut_pkgs_wrapper=run_cut_pkgs.sh
+cut_pkgs_url=http://[VADK.localIP]/build/[VADK.buildID]/script/$cut_pkgs_wrapper
+wget_err=&quot;/tmp/wget_err.log&quot;
+wget_opt=&quot;-nH --cut-dirs=2 -nv&quot;
+echo Download run_cut_pkgs.sh
+wget $wget_opt -P /tmp $cut_pkgs_url 2&gt;$wget_err 1&gt;/dev/null
+if [ $? -ne 0 ]; then
+  errmsg=`cat $wget_err`
+  echo Abort: $errmsg
+else
+  echo Execute run_cut_pkgs.sh
+  chmod +x /tmp/$cut_pkgs_wrapper
+  /tmp/$cut_pkgs_wrapper
+  rm -f /tmp/$cut_pkgs_wrapper $wget_err
+fi</vadk:PreInstallShellScript>
+		<vadk:PostInstallShellScript>#!/bin/bash
+# Un-comment the following lines for reducing the space occupied for the
+# operating system by deleting potentially unneeded files. The script 
+# template is located at /opt/vmware/etc/footprint and should be used with 
+# appropriate verification.
+#
+cut_files_wrapper=run_cut_files.sh
+cut_files_url=http://[VADK.localIP]/build/[VADK.buildID]/script/$cut_files_wrapper
+wget_err=&quot;/tmp/wget_err.log&quot;
+wget_opt=&quot;-nH --cut-dirs=2 -nv&quot;
+echo Download run_cut_files.sh
+wget $wget_opt -P /tmp $cut_files_url 2&gt;$wget_err 1&gt;/dev/null
+if [ $? -ne 0 ]; then
+  errmsg=`cat $wget_err`
+  echo Abort: $errmsg
+else
+  echo Execute run_cut_files.sh
+  chmod +x /tmp/$cut_files_wrapper
+  /tmp/$cut_files_wrapper
+  rm -f /tmp/$cut_files_wrapper $wget_err
+fi
+
+
+rm -rf /var/cache/apt/*bin
+rm -rf /var/cache/apt/archives/*deb
+rm -rf /var/lib/apt/lists/gb*
+
+dd if=/dev/zero of=/var/log/zerofile || true
+rm /var/log/zerofile</vadk:PostInstallShellScript>
+	</Section>
+<!--
+		The combination of a network device in ovf:VirtualHardwareSection_Type
+		an entry in ovf:NetworkSection_Type describe a network.
+	-->
+	<Section xsi:type="ovf:NetworkSection_Type">
+		<Info>List of logical networks used in the package</Info>
+		<Network ovf:name="Network 1">
+			<Description>Network 1</Description>
+		</Network>
+	</Section>
+<!--
+		The combination of a disk device in ovf:VirtualHardwareSection_Type,
+		an entry in ovf:DiskSection_Type, and optionally entries in
+		vadk:DiskPartitionSection_Type describe a disk, referenced by ovf:diskId
+	-->
+	<Section xsi:type="ovf:DiskSection_Type">
+		<Info>List of the virtual disks and partitions needed</Info>
+		<Disk ovf:diskId="system" ovf:capacity="8192" ovf:capacityAllocationUnits="MegaBytes" ovf:fileRef="system.vmdk" ovf:format="http://www.vmware.com/specifications/vmdk.html#sparse"/>
+	</Section>
+<!--
+	The vadk:DiskPartitioningMechanismSection_Type section is used
+	to declare that disks use LVM, or the default, fdisk.
+
+	For each disk, referenced by vadk:diskId, the vadk:mechanism
+	parameter can be either "fdisk" or "lvm".
+
+	<vadk:Disk vadk:diskId="data1" vadk:mechanism="lvm"/>
+	<vadk:Disk vadk:diskId="data2" vadk:mechanism="lvm"/>
+-->
+	<Section xsi:type="vadk:DiskPartitioningMechanismSection_Type">
+		<Info/>
+		<vadk:Disk vadk:diskId="system" vadk:mechanism="fdisk"/>
+	</Section>
+	<Section xsi:type="vadk:DiskPartitionSection_Type">
+		<Info/>
+		<vadk:Partition vadk:diskId="system" vadk:bootable="1" vadk:fs="ext3" vadk:mount="/boot" vadk:size="128"/>
+		<vadk:Partition vadk:diskId="system" vadk:bootable="0" vadk:fs="swap" vadk:mount="" vadk:size="128"/>
+		<vadk:Partition vadk:diskId="system" vadk:bootable="0" vadk:fs="ext3" vadk:mount="/" vadk:size="grow"/>
+	</Section>
+	<Section xsi:type="vadk:VMWConfigSection_Type">
+		<Info>
+			VMW Config elements in this element will be passed directly
+			to the OVF output descriptor without interpretation
+		</Info>
+<!-- vmw:Config only supports specifying sync time with host for ESX/VC 4.1 -->
+		<vmw:Config ovf:required="false" vmw:key="tools.syncTimeWithHost" vmw:value="TRUE"/>
+	</Section>
+	<Section xsi:type="vadk:ExistingVMSection_Type" vadk:active="false">
+		<Info/>
+		<vadk:EVMInstallScript vadk:template="[VADK.vadkRoot]/etc/build/templates/.unknownOS/linux/apt_deb/evm_install.xsl"/>
+		<vadk:PreInstallScript vadk:template="[VADK.vadkRoot]/etc/build/templates/.unknownOS/linux/apt_deb/preinstall.xsl" vadk:output="[VADK.stageDir]/preinstall.sh"/>
+		<vadk:BaseInfo vadk:buildid="" vadk:agentInstalled="true"/>
+	</Section>
+</ovf:Envelope>
