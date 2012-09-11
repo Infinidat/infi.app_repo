@@ -2,10 +2,12 @@ __import__("pkg_resources").declare_namespace(__name__)
 
 from glob import glob
 from shutil import copy2
-from os import makedirs, path, remove, listdir, pardir
+from os import makedirs, path, remove, listdir, pardir, walk
 from infi.execute import execute_assert_success, ExecutionError
 from pkg_resources import resource_filename
+from fnmatch import fnmatch
 from time import sleep
+from cjson import encode
 from logging import getLogger
 
 logger = getLogger(__name__)
@@ -16,6 +18,13 @@ def log_execute_assert_success(args):
 
 def is_file_open(filepath):
     return log_execute_assert_success(['lsof', filepath]).get_stdout() != ''
+
+def find_files(directory, pattern):
+    for root, dirs, files in walk(directory):
+        for basename in files:
+            if fnmatch(basename, pattern):
+                filename = path.join(root, basename)
+                yield filename
 
 def wait_for_directory_to_stabalize(source_path):
     if path.isdir(source_path):
@@ -58,7 +67,7 @@ class ApplicationRepository(object):
             makedirs(self.base_directory)
         if not path.exists(self.incoming_directory):
             makedirs(self.incoming_directory)
-    
+
     def is_upload_user_exists(self):
         try:
             log_execute_assert_success(['id', 'app_repo'])
@@ -200,8 +209,34 @@ class ApplicationRepository(object):
         self.update_metadata_for_apt_repositories()
 
     def update_metadata_for_views(self):
-        # TODO NotImplementedError
-        pass
+        packages = list(self.gather_metadata_for_views())
+        with open(path.join(self.base_directory, 'metadata.json'), 'w') as fd:
+            fd.write(encode(dict(packages=packages)))
+
+    def gather_metadata_for_views(self):
+        all_files =  []
+        for distribution_type in ['deb', 'rpm', 'msi']:
+            all_files += list(find_files(path.join(self.base_directory, distribution_type),
+                                      '*.{}'.format(distribution_type)))
+        distributions = [parse_filepath(distribution) + (distribution, ) for distribution in all_files]
+        print distributions
+        package_names = set([distribution[0] for distribution in distributions])
+        distributions_by_package = {package_name: [distribution for distribution in distributions
+                                                   if distribution[0] == package_name]
+                                    for package_name in package_names}
+        print distributions_by_package
+        for package_name, package_distributions in distributions_by_package.items():
+            package_versions = set([distribution[1] for distribution in package_distributions])
+            print package_versions
+            distributions_by_version = {package_version: [dict(platform=distribution[2],
+                                                               architecture=distribution[3],
+                                                               extension=distribution[4],
+                                                               filepath=distribution[5])
+                                                          for distribution in package_distributions
+                                                          if distribution[1] == package_version]
+                                        for package_version in package_versions}
+            yield dict(name=package_name, releases=[dict(version=key, distributions=value)
+                                                    for key, value in distributions_by_version.items()])
 
     def update_metadata_for_yum_repositories(self):
         for dirpath in glob(path.join(self.base_directory, 'rpm', '*', '*', '*')):
