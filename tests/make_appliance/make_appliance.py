@@ -27,6 +27,10 @@ def get_product_uuid(self):
 def get_company(self):
     return get_buildout_cfg().get("pack", "company")
 
+def get_deb_filepath(self):
+    [filepath] = filter(lambda item: item.endswith('deb'), listdir('parts'))
+    return filepath
+
 def get_short_version(self):
     from pkg_resources import parse_version
     version_numbers = []
@@ -54,7 +58,7 @@ OVF_TEMPLATE = dict(src=path.join(path.dirname(__file__), 'template.in'),
                     dst='/opt/vmware/var/lib/build/profiles/{}.xml'.format(get_project_name()))
 
 MAKE_APPLIANCE = "/opt/vmware/share/build/vabs.pl"
-SSH_KEYFILE = path.join(path.dirname(__file__), 'id_rsa')
+SSH_KEYFILE = environ['VMWARE_STUDIO_SSH_KEY']
 BUILD_HOST = "{}@{}".format(environ['VMWARE_STUDIO_USER'], environ['VMWARE_STUDIO_HOST'])
 
 def generate_appliance_profile():
@@ -67,6 +71,7 @@ def generate_appliance_profile():
     content = content.replace("FULL_VERSION", get_full_version())
     content = content.replace("PROUDCT_UUID", get_product_uuid())
     content = content.replace("VMX_FILENAME", get_product_name())
+    content = content.replace("DEB_PACKAGE_FILENAME", get_deb_filepath())
     content = content.replace("ROOT_PASSWORD", environ['ROOT_PASSWORD'])
     content = content.replace("PEM_URL", environ['PEM_URL'])
     content = content.replace("VCENTER_HOST", environ['VCENTER_HOST'])

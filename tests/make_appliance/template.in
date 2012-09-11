@@ -110,6 +110,9 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 		</vadk:DistributionFormat>
 		<vadk:ApplicationPackages>
 			<vadk:url vadk:path="dists/precise/main/binary-i386/Packages.gz" vadk:type="ondemand">ftp://li507-149.members.linode.com/ubuntu</vadk:url>
+			<vadk:url vadk:path="dists/precise/main/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu</vadk:url>
+			<vadk:url>ftp://li507-149.members.linode.com/deb/ubuntu/dists/precise/main/binary-i386/vmware-tools-esx-nox_8.6.5-2_i386.deb</vadk:url>
+			<vadk:url>http://[VADK.localIP]/ISV/appliancePackages/PACKAGE_NAME</vadk:url>
 		</vadk:ApplicationPackages>
 		<vadk:OSPackages><!-- Additional OS packages needed by the ISV's application -->
 			<vadk:Package vadk:name="groff-base"/>
@@ -120,8 +123,6 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:Package vadk:name="openssh-client"/>
 			<vadk:Package vadk:name="libossp-uuid16"/>
 			<vadk:Package vadk:name="libuuid1"/>
-			<vadk:Package vadk:name="vmware-tools-esx-nox"/>
-			<vadk:Package vadk:name="infi.app_repo"/>
 		</vadk:OSPackages>
 		<vadk:PackagesToRemove><!-- vadk:Package vadk:name="" / --></vadk:PackagesToRemove>
 		<vadk:BootActions>
