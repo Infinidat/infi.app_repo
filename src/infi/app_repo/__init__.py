@@ -140,6 +140,7 @@ class ApplicationRepository(object):
         self.set_cron_job()
         self.install_upstart_script_for_webserver()
         self.generate_gpg_key()
+        self.update_metadata()
 
     def add(self, source_path):
         """:returns: True if metadata was updates"""
