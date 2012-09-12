@@ -163,8 +163,7 @@ echo This script is executed on first boot only.
 
 #Un comment to run subsequent boot script after first boot
 #/opt/vmware/etc/isv/subsequentboot
-TARGETDIR/bin/post_install
-initctl start app_repo</vadk:FirstBoot>
+TARGETDIR/bin/post_install</vadk:FirstBoot>
 			<vadk:SubsequentBoot>#!/bin/bash
 #Un comment to send the output of this script to a logfile
 #exec &gt; /opt/vmware/var/log/subsequentboot 2&gt;&amp;1
@@ -192,8 +191,8 @@ echo This script is executed on all boots, except the first one.</vadk:Subsequen
 	</Section>
 	<Section xsi:type="vadk:UpdateSection_Type">
 		<Info/>
-		<vadk:Repository vadk:url="ftp://repo.infinidat.com/ova/updates/PROJECT_NAME" vadk:username="anonymous" vadk:password="bm9yZXBseUBpbmZpbmlkYXQuY29t" vadk:passwordFormat="base64"/>
-		<vadk:RepositoryStagingServer vadk:fileProto="scp" vadk:hostname="repo.infinidat.com" vadk:fileLogin="app_repo" vadk:filePassword="YXBwX3JlcG8=" vadk:filePasswordFormat="base64" vadk:filePath="UPDATES_DIRPATH/PROJECT_NAME"/>
+		<vadk:Repository vadk:url="ftp://REPO_HOSTNAME/ova/updates/PRODUCT_NAME" vadk:username="anonymous" vadk:password="bm9yZXBseUBpbmZpbmlkYXQuY29t" vadk:passwordFormat="base64"/>
+		<vadk:RepositoryStagingServer vadk:fileProto="scp" vadk:hostname="REPO_HOSTNAME" vadk:fileLogin="REPO_USERNAME" vadk:filePassword="REPO_PASSWORD" vadk:filePasswordFormat="plaintext" vadk:filePath="UPDATES_DIRPATH/PRODUCT_NAME"/>
 <!--
 		<vadk:RepositoryStagingServer vadk:hostname=""
 			vadk:fileLogin="root" vadk:filePassword=""

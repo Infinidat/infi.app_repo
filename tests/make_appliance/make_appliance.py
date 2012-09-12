@@ -84,6 +84,9 @@ def generate_appliance_profile():
     content = content.replace("VCENTER_PASSWORD", environ['VCENTER_PASSWORD'])
     content = content.replace("VCENTER_USERNAME", environ['VCENTER_USERNAME'])
     content = content.replace("UPDATES_DIRPATH", environ['UPDATES_DIRPATH'])
+    content = content.replace("REPO_HOSTNAME", environ['REPO_HOSTNAME'])
+    content = content.replace("REPO_USERNAME", environ['REPO_USERNAME'])
+    content = content.replace("REPO_PASSWORD", environ['REPO_PASSWORD'])
     content = content.replace("TARGETDIR", '/opt/{}/{}'.format(get_company().lower(),
                                                                '-'.join([item.lower() for item in get_product_name()])))
     fd, filepath = mkstemp(text=True)
