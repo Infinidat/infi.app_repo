@@ -193,7 +193,7 @@ echo This script is executed on all boots, except the first one.</vadk:Subsequen
 	<Section xsi:type="vadk:UpdateSection_Type">
 		<Info/>
 		<vadk:Repository vadk:url="ftp://repo.infinidat.com/ova/updates/PROJECT_NAME" vadk:username="anonymous" vadk:password="bm9yZXBseUBpbmZpbmlkYXQuY29t" vadk:passwordFormat="base64"/>
-		<vadk:RepositoryStagingServer vadk:fileProto="scp" vadk:hostname="repo.infinidat.com" vadk:fileLogin="app_repo" vadk:filePassword="YXBwX3JlcG8=" vadk:filePasswordFormat="base64" vadk:filePath="../ova/updates/PROJECT_NAME"/>
+		<vadk:RepositoryStagingServer vadk:fileProto="scp" vadk:hostname="repo.infinidat.com" vadk:fileLogin="app_repo" vadk:filePassword="YXBwX3JlcG8=" vadk:filePasswordFormat="base64" vadk:filePath="UPDATES_DIRPATH/PROJECT_NAME"/>
 <!--
 		<vadk:RepositoryStagingServer vadk:hostname=""
 			vadk:fileLogin="root" vadk:filePassword=""
