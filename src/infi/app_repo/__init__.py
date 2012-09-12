@@ -13,9 +13,14 @@ from logging import getLogger
 
 logger = getLogger(__name__)
 
-def log_execute_assert_success(args):
+def log_execute_assert_success(args, allow_to_fail=False):
     logger.info("Executing {}".format(' '.join(args)))
-    return execute_assert_success(args)
+    try:
+        return execute_assert_success(args)
+    except ExecutionError:
+        logger.exception("Execution failed")
+        if not allow_to_fail:
+            raise
 
 def is_file_open(filepath):
     return log_execute_assert_success(['lsof', filepath]).get_stdout() != ''
@@ -122,11 +127,18 @@ class ApplicationRepository(object):
 
     def install_upstart_script_for_webserver(self):
         from infi.app_repo.upstart import install
+        log_execute_assert_success(["initctl", "stop", "app_repo"], True)
         install()
+        log_execute_assert_success(["initctl", "start", "app_repo"], True)
 
-    def generate_gpg_key(self):
+    def fix_entropy_generator(self):
+        log_execute_assert_success(['/etc/init.d/rng-tools', 'stop'], True)
         with open("/etc/default/rng-tools", 'a') as fd:
             fd.write("HRNGDEVICE=/dev/urandom\n")
+        log_execute_assert_success(['/etc/init.d/rng-tools', 'start'], True)
+
+    def generate_gpg_key(self):
+        self.fix_entropy_generator()
         rmtree(path.expanduser("~/.gnupg"), ignore_errors=True)
         log_execute_assert_success(['gpg', '--batch', '--gen-key', resource_filename(__name__, 'gpg_batch_file')])
         pid = log_execute_assert_success(['gpg', '--export', '--armor'])
