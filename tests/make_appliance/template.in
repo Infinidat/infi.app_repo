@@ -74,7 +74,7 @@
 	<Section xsi:type="vadk:ApplicationSection_Type">
 		<Info/>
 		<vadk:VMXFilename>VMX_FILENAME.vmx</vadk:VMXFilename>
-		<vadk:DistributionFormat vadk:format="ovf" vadk:enabled="true" vadk:filename="VMX_FILENAME" vadk:directory="">
+		<vadk:DistributionFormat vadk:format="ovf" vadk:enabled="true" vadk:filename="OVA_FILENAME" vadk:directory="">
 			<vadk:PostOutputCreation>
 				<vadk:Script vadk:name="sign" vadk:enabled="true">
 #
@@ -121,28 +121,27 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:url vadk:path="dists/precise-updates/multiverse/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
 			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.0u1/ubuntu/dists/precise/main/binary-i386/vmware-tools-esx-nox_8.6.5-2_i386.deb</vadk:url>
 			<vadk:url>http://[VADK.localIP]/ISV/appliancePackages/DEB_PACKAGE_FILENAME</vadk:url>
-<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/libg/libgcrypt11/libgcrypt11_1.5.0-3ubuntu0.1_i386.deb</vadk:url>
-			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/libt/libtasn1-3/libtasn1-3_2.10-1ubuntu1.1_i386.deb</vadk:url>
-			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/g/gnutls26/libgnutls26_2.12.14-5ubuntu3.1_i386.deb</vadk:url>
-			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/c/cyrus-sasl2/libsasl2-2_2.1.25.dfsg1-3ubuntu0.1_i386.deb</vadk:url>
-			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/o/openldap/libldap-2.4-2_2.4.28-1.1ubuntu4.1_i386.deb</vadk:url>
-			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/n/nspr/libnspr4_4.8.9-1ubuntu2.3_i386.deb</vadk:url>
-			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/n/nss/libnss3_3.13.1.with.ckbi.1.88-1ubuntu6.1_i386.deb</vadk:url>
-			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/c/cyrus-sasl2/libsasl2-modules_2.1.25.dfsg1-3ubuntu0.1_i386.deb</vadk:url>
-			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/a/apparmor/dh-apparmor_2.7.102-0ubuntu3.1_all.deb</vadk:url>
-			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/b/build-essential/build-essential_11.5ubuntu2.1_i386.deb</vadk:url>
-			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/t/trousers/libtspi1_0.3.7-2ubuntu1_i386.deb</vadk:url>
-			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/r/rpm/python-rpm_4.9.1.1-1build1_i386.deb</vadk:url>
-			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/p/python-support/python-support_1.0.14ubuntu2_all.deb</vadk:url>
-			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/y/yum-metadata-parser/python-sqlitecachec_1.1.2-1ubuntu3_i386.deb</vadk:url>
-			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/c/createrepo/createrepo_0.4.11-1_all.deb</vadk:url>
-			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/libc/libconfig-file-perl/libconfig-file-perl_1.50-2_all.deb</vadk:url>
-			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/d/dpkg-sig/dpkg-sig_0.13.1_all.deb</vadk:url>
-			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/s/sqlite/libsqlite0_2.8.17-7fakesync1build1_i386.deb</vadk:url>
-			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/p/python-sqlite/python-sqlite_1.0.1-9_i386.deb</vadk:url>
-			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/y/yum/yum_3.2.25-1ubuntu2_all.deb</vadk:url>
-			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/r/rng-tools/rng-tools_2-unofficial-mt.14-1ubuntu1_i386.deb</vadk:url>
-
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/libg/libgcrypt11/libgcrypt11_1.5.0-3ubuntu0.1_i386.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/libt/libtasn1-3/libtasn1-3_2.10-1ubuntu1.1_i386.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/g/gnutls26/libgnutls26_2.12.14-5ubuntu3.1_i386.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/c/cyrus-sasl2/libsasl2-2_2.1.25.dfsg1-3ubuntu0.1_i386.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/o/openldap/libldap-2.4-2_2.4.28-1.1ubuntu4.1_i386.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/n/nspr/libnspr4_4.8.9-1ubuntu2.3_i386.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/n/nss/libnss3_3.13.1.with.ckbi.1.88-1ubuntu6.1_i386.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/c/cyrus-sasl2/libsasl2-modules_2.1.25.dfsg1-3ubuntu0.1_i386.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/a/apparmor/dh-apparmor_2.7.102-0ubuntu3.1_all.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/b/build-essential/build-essential_11.5ubuntu2.1_i386.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/t/trousers/libtspi1_0.3.7-2ubuntu1_i386.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/r/rpm/python-rpm_4.9.1.1-1build1_i386.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/p/python-support/python-support_1.0.14ubuntu2_all.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/y/yum-metadata-parser/python-sqlitecachec_1.1.2-1ubuntu3_i386.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/c/createrepo/createrepo_0.4.11-1_all.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/libc/libconfig-file-perl/libconfig-file-perl_1.50-2_all.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/d/dpkg-sig/dpkg-sig_0.13.1_all.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/s/sqlite/libsqlite0_2.8.17-7fakesync1build1_i386.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/p/python-sqlite/python-sqlite_1.0.1-9_i386.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/y/yum/yum_3.2.25-1ubuntu2_all.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/r/rng-tools/rng-tools_2-unofficial-mt.14-1ubuntu1_i386.deb</vadk:url>
 		</vadk:ApplicationPackages>
 		<vadk:OSPackages><!-- Additional OS packages needed by the ISV's application -->
 			<vadk:Package vadk:name="groff-base"/>
@@ -193,15 +192,17 @@ echo This script is executed on all boots, except the first one.</vadk:Subsequen
 	</Section>
 	<Section xsi:type="vadk:UpdateSection_Type">
 		<Info/>
-		<vadk:Repository vadk:url="cdrom://" vadk:username="" vadk:password="" vadk:passwordFormat="base64"/>
-		<vadk:RepositoryStagingServer vadk:fileProto="scp" vadk:hostname="" vadk:fileLogin="" vadk:filePassword="" vadk:filePasswordFormat="base64" vadk:filePath=""/>
+		<vadk:Repository vadk:url="ftp://repo.infinidat.com/ova/updates/PROJECT_NAME" vadk:username="anonymous" vadk:password="bm9yZXBseUBpbmZpbmlkYXQuY29t" vadk:passwordFormat="base64"/>
+		<vadk:RepositoryStagingServer vadk:fileProto="scp" vadk:hostname="repo.infinidat.com" vadk:fileLogin="app_repo" vadk:filePassword="YXBwX3JlcG8=" vadk:filePasswordFormat="base64" vadk:filePath="../ova/updates/PROJECT_NAME"/>
 <!--
 		<vadk:RepositoryStagingServer vadk:hostname=""
 			vadk:fileLogin="root" vadk:filePassword=""
 			vadk:filePasswordFormat="plaintext" vadk:fileProto="scp"
 			vadk:filePath="/tmp"/>
 -->
-		<vadk:Info>Update description</vadk:Info>
+		<vadk:Info>Update</vadk:Info>
+		<vadk:RepositoryExport vadk:format="zip" vadk:filename="OVA_FILENAME"/>
+		<vadk:RepositoryExport vadk:format="iso" vadk:filename="OVA_FILENAME"/>
 <!--
 		<vadk:RepositoryExport vadk:format="zip"
 			vadk:filename="VADK_Update"/>

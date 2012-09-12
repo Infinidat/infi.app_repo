@@ -66,6 +66,7 @@ def generate_appliance_profile():
     """:returns: path to generated profile"""
     with open(OVF_TEMPLATE['src']) as fd:
         content = fd.read()
+    content = content.replace("PROJECT_NAME", get_project_name())
     content = content.replace("PRODUCT_NAME", get_product_name())
     content = content.replace("PRODUCT_VENDOR", get_company())
     content = content.replace("SHORT_VERSION", get_short_version())
