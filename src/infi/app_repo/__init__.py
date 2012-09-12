@@ -110,7 +110,7 @@ class ApplicationRepository(object):
             if parent in ['/', '']:
                 break
         log_execute_assert_success(['chmod', '-Rf', '755', self.base_directory])
-        log_execute_assert_success(['chown', '-R', 'app_repo', self.incoming_directory])
+        log_execute_assert_success(['chown', '-R', 'app_repo', self.base_directory])
 
     def set_cron_job(self):
         from crontab import CronTab
