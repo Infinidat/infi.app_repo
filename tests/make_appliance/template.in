@@ -163,7 +163,7 @@ echo This script is executed on first boot only.
 
 #Un comment to run subsequent boot script after first boot
 #/opt/vmware/etc/isv/subsequentboot
-/opt/infinidat/app_repo/bin/post_install
+TARGETDIR/bin/post_install
 initctl start app_repo</vadk:FirstBoot>
 			<vadk:SubsequentBoot>#!/bin/bash
 #Un comment to send the output of this script to a logfile
@@ -418,7 +418,7 @@ preseed/url=[VADK.unattendedCfgURL]
 			<vadk:DNS2></vadk:DNS2>
 		</vadk:ProvisioningSettings>
 		<vadk:ProvisioningEngine>
-			<vadk:VmhostLan vadk:hostname="VCENTER_HOSTNAME" vadk:port="443" vadk:hostOS="" vadk:login="VCENTER_USERNAME" vadk:password="VCENTER_PASSWORD" vadk:passwordFormat="plaintext" vadk:path="/tmp" vadk:datastore="VCENTER_DATASTROE" vadk:datacenter="VCENTER_DATACENTER" vadk:managedESX="VCENTER_CLUSTER" vadk:resourcePool="" vadk:fileLogin="root" vadk:filePassword="" vadk:filePasswordFormat="plaintext" vadk:fileProto="scp" vadk:filePath="/tmp" vadk:vmrunPath="" vadk:wsXDisplay=":0.0" vadk:provisioningVMName=""/>
+			<vadk:VmhostLan vadk:hostname="VCENTER_HOSTNAME" vadk:port="443" vadk:hostOS="" vadk:login="VCENTER_USERNAME" vadk:password="VCENTER_PASSWORD" vadk:passwordFormat="plaintext" vadk:path="/tmp" vadk:datastore="VCENTER_DATASTORE" vadk:datacenter="VCENTER_DATACENTER" vadk:managedESX="VCENTER_CLUSTER" vadk:resourcePool="" vadk:fileLogin="root" vadk:filePassword="" vadk:filePasswordFormat="plaintext" vadk:fileProto="scp" vadk:filePath="/tmp" vadk:vmrunPath="" vadk:wsXDisplay=":0.0" vadk:provisioningVMName=""/>
 			<vadk:VmhostProduct vadk:name="vCenter" vadk:majorVersion="5"/>
 		</vadk:ProvisioningEngine>
 <!-- all timeouts are in seconds -->

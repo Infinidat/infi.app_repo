@@ -72,7 +72,7 @@ def generate_appliance_profile():
     content = content.replace("SHORT_VERSION", get_short_version())
     content = content.replace("FULL_VERSION", get_long_version())
     content = content.replace("PROUDCT_UUID", get_product_uuid())
-    content = content.replace("VMX_FILENAME", get_product_name())
+    content = content.replace("VMX_FILENAME", get_project_name())
     content = content.replace("OVA_FILENAME", get_deb_filepath().replace('.deb', ''))
     content = content.replace("DEB_PACKAGE_FILENAME", get_deb_filepath())
     content = content.replace("ROOT_PASSWORD", environ['ROOT_PASSWORD'])
@@ -84,6 +84,8 @@ def generate_appliance_profile():
     content = content.replace("VCENTER_PASSWORD", environ['VCENTER_PASSWORD'])
     content = content.replace("VCENTER_USERNAME", environ['VCENTER_USERNAME'])
     content = content.replace("UPDATES_DIRPATH", environ['UPDATES_DIRPATH'])
+    content = content.replace("TARGETDIR", '/opt/{}/{}'.format(get_company().lower(),
+                                                               '-'.join([item.lower() for item in get_product_name()])))
     fd, filepath = mkstemp(text=True)
     write(fd, content)
     close(fd)
