@@ -54,14 +54,16 @@ def parse_filepath(filepath):
         return (None, None, None, None, None)
     group = result.groupdict()
     return (group['package_name'], group['package_version'],
-            group['platform_string'], group['architecture'],
-            group['extension'])
+            group['platform_string'] if group['extension'] != 'ova' else 'vmware-esx',
+            group['architecture'], group['extension'])
 
 class ApplicationRepository(object):
     def __init__(self, base_directory):
         super(ApplicationRepository, self).__init__()
         self.base_directory = base_directory
         self.incoming_directory = path.join(base_directory, 'incoming')
+        self.appliances_directory = path.join(base_directory, 'appliances')
+        self.appliances_updates_directory = path.join(self.appliances_directory, 'updates')
 
     def initialize(self):
         if not path.exists(self.base_directory):
@@ -183,6 +185,7 @@ class ApplicationRepository(object):
                                           'rpm': self.add_package__rpm,
                                           'deb': self.add_package__deb,
                                           'tar.gz': self.add_package__tar_gz,
+                                          'ova': self.add_package__ova
                                          }
         [factory] = [value for key, value in add_package_by_postfix.items()
                      if filepath.endswith(key)]
@@ -227,6 +230,14 @@ class ApplicationRepository(object):
     def add_package__tar_gz(self, filepath):
         package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
         destination_directory = path.join(self.base_directory, 'archives')
+        if not path.exists(destination_directory):
+            makedirs(destination_directory)
+        logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
+        copy2(filepath, destination_directory)
+
+    def add_package__ova(self, filepath):
+        package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
+        destination_directory = path.join(self.base_directory, 'ova')
         if not path.exists(destination_directory):
             makedirs(destination_directory)
         logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
