@@ -87,7 +87,10 @@ class ApplicationRepository(object):
 
     def copy_vsftp_config_file(self):
         src = resource_filename(__name__, 'vsftpd.conf')
-        copy2(src, '/etc/')
+        with open(src) as fd:
+            content = fd.read()
+        with open('/etc/vsftpd.conf', 'w') as fd:
+            fd.write(content.replace("anon_root=", "anon_root={}".format(self.base_directory)))
 
     def restart_vsftpd(self):
         log_execute_assert_success(['service', 'vsftpd', 'restart'])
