@@ -15,26 +15,26 @@ def get_buildout_cfg():
     buildout.read("buildout.cfg")
     return buildout
 
-def get_project_name(self):
+def get_project_name():
     return get_buildout_cfg().get("project", "name")
 
-def get_product_name(self):
+def get_product_name():
     return get_buildout_cfg().get("project", "product_name")
 
-def get_product_uuid(self):
+def get_product_uuid():
     return get_buildout_cfg().get("project", "upgrade_code")
 
-def get_company(self):
+def get_company():
     return get_buildout_cfg().get("project", "company")
 
-def get_deb_filepath(self):
+def get_deb_filepath():
     [filepath] = filter(lambda item: item.endswith('deb'), listdir('parts'))
     return filepath
 
-def get_short_version(self):
+def get_short_version():
     from pkg_resources import parse_version
     version_numbers = []
-    parsed_version = list(parse_version(self.long_version))
+    parsed_version = list(parse_version(get_long_version()))
     for item in parsed_version:
         if not item.isdigit():
             break
@@ -48,10 +48,11 @@ def get_short_version(self):
             break
     return '.'.join([str(item) for item in  version_numbers])
 
-def get_long_version(self):
-    __version__ = __import__("{}.__version__".format(get_project_name()))
-    with open(__version__.__file__.replace('.pyc', '.py')) as fd:
-        exec fd.read()
+def get_long_version():
+    with open(path.join('src', 'infi', 'app_repo', '__version__.py')) as fd:
+        content = fd.read()
+        print content
+        exec content
         return locals()['__version__']
 
 OVF_TEMPLATE = dict(src=path.join(path.dirname(__file__), 'template.in'),
@@ -68,7 +69,7 @@ def generate_appliance_profile():
     content = content.replace("PRODUCT_NAME", get_product_name())
     content = content.replace("PRODUCT_VENDOR", get_company())
     content = content.replace("SHORT_VERSION", get_short_version())
-    content = content.replace("FULL_VERSION", get_full_version())
+    content = content.replace("FULL_VERSION", get_long_version())
     content = content.replace("PROUDCT_UUID", get_product_uuid())
     content = content.replace("VMX_FILENAME", get_product_name())
     content = content.replace("DEB_PACKAGE_FILENAME", get_deb_filepath())
@@ -80,7 +81,6 @@ def generate_appliance_profile():
     content = content.replace("VCENTER_CLUSTER", environ['VCENTER_CLUSTER'])
     content = content.replace("VCENTER_PASSWORD", environ['VCENTER_PASSWORD'])
     content = content.replace("VCENTER_USERNAME", environ['VCENTER_USERNAME'])
-    _replace_versions_in_content(content)
     fd, filepath = mkstemp(text=True)
     write(fd, content)
     close(fd)
@@ -96,7 +96,7 @@ def get_job_name():
     return environ.get('JOB_NAME', 'powertools').split('/')[0]
 
 def get_build_number():
-    return environ.get('BUILD_NUMBER', info.get_project_version())
+    return environ.get('BUILD_NUMBER', get_short_version())
 
 def build_appliance():
     args = ['ssh', '-i', SSH_KEYFILE, BUILD_HOST,

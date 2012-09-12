@@ -109,10 +109,40 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:PostOutputCreation/>
 		</vadk:DistributionFormat>
 		<vadk:ApplicationPackages>
-			<vadk:url vadk:path="dists/precise/main/binary-i386/Packages.gz" vadk:type="ondemand">ftp://li507-149.members.linode.com/ubuntu</vadk:url>
-			<vadk:url vadk:path="dists/precise/main/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu</vadk:url>
-			<vadk:url>ftp://li507-149.members.linode.com/deb/ubuntu/dists/precise/main/binary-i386/vmware-tools-esx-nox_8.6.5-2_i386.deb</vadk:url>
-			<vadk:url>http://[VADK.localIP]/ISV/appliancePackages/PACKAGE_NAME</vadk:url>
+			<vadk:url vadk:path="dists/precise/main/binary-i386/Packages.gz" vadk:type="ondemand">http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.0u1/ubuntu/</vadk:url>
+			<vadk:url vadk:path="dists/precise/main/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
+			<vadk:url vadk:path="dists/precise/universe/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
+			<vadk:url vadk:path="dists/precise/multiverse/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
+			<vadk:url vadk:path="dists/precise-updates/main/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
+			<vadk:url vadk:path="dists/precise-backports/main/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
+			<vadk:url vadk:path="dists/precise-backports/universe/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
+			<vadk:url vadk:path="dists/precise-backports/multiverse/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
+			<vadk:url vadk:path="dists/precise-updates/universe/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
+			<vadk:url vadk:path="dists/precise-updates/multiverse/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
+			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.0u1/ubuntu/dists/precise/main/binary-i386/vmware-tools-esx-nox_8.6.5-2_i386.deb</vadk:url>
+			<vadk:url>http://[VADK.localIP]/ISV/appliancePackages/DEB_PACKAGE_FILENAME</vadk:url>
+<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/libg/libgcrypt11/libgcrypt11_1.5.0-3ubuntu0.1_i386.deb</vadk:url>
+			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/libt/libtasn1-3/libtasn1-3_2.10-1ubuntu1.1_i386.deb</vadk:url>
+			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/g/gnutls26/libgnutls26_2.12.14-5ubuntu3.1_i386.deb</vadk:url>
+			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/c/cyrus-sasl2/libsasl2-2_2.1.25.dfsg1-3ubuntu0.1_i386.deb</vadk:url>
+			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/o/openldap/libldap-2.4-2_2.4.28-1.1ubuntu4.1_i386.deb</vadk:url>
+			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/n/nspr/libnspr4_4.8.9-1ubuntu2.3_i386.deb</vadk:url>
+			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/n/nss/libnss3_3.13.1.with.ckbi.1.88-1ubuntu6.1_i386.deb</vadk:url>
+			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/c/cyrus-sasl2/libsasl2-modules_2.1.25.dfsg1-3ubuntu0.1_i386.deb</vadk:url>
+			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/a/apparmor/dh-apparmor_2.7.102-0ubuntu3.1_all.deb</vadk:url>
+			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/b/build-essential/build-essential_11.5ubuntu2.1_i386.deb</vadk:url>
+			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/t/trousers/libtspi1_0.3.7-2ubuntu1_i386.deb</vadk:url>
+			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/r/rpm/python-rpm_4.9.1.1-1build1_i386.deb</vadk:url>
+			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/p/python-support/python-support_1.0.14ubuntu2_all.deb</vadk:url>
+			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/y/yum-metadata-parser/python-sqlitecachec_1.1.2-1ubuntu3_i386.deb</vadk:url>
+			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/c/createrepo/createrepo_0.4.11-1_all.deb</vadk:url>
+			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/libc/libconfig-file-perl/libconfig-file-perl_1.50-2_all.deb</vadk:url>
+			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/d/dpkg-sig/dpkg-sig_0.13.1_all.deb</vadk:url>
+			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/s/sqlite/libsqlite0_2.8.17-7fakesync1build1_i386.deb</vadk:url>
+			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/p/python-sqlite/python-sqlite_1.0.1-9_i386.deb</vadk:url>
+			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/y/yum/yum_3.2.25-1ubuntu2_all.deb</vadk:url>
+			 <vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/r/rng-tools/rng-tools_2-unofficial-mt.14-1ubuntu1_i386.deb</vadk:url>
+
 		</vadk:ApplicationPackages>
 		<vadk:OSPackages><!-- Additional OS packages needed by the ISV's application -->
 			<vadk:Package vadk:name="groff-base"/>
@@ -135,7 +165,7 @@ echo This script is executed on first boot only.
 #Un comment to run subsequent boot script after first boot
 #/opt/vmware/etc/isv/subsequentboot
 /opt/infinidat/app_repo/bin/post_install
-initctl restart app_repo</vadk:FirstBoot>
+initctl start app_repo</vadk:FirstBoot>
 			<vadk:SubsequentBoot>#!/bin/bash
 #Un comment to send the output of this script to a logfile
 #exec &gt; /opt/vmware/var/log/subsequentboot 2&gt;&amp;1
