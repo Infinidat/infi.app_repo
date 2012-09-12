@@ -102,7 +102,7 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 		<vadk:DistributionFormat vadk:format="vmx" vadk:enabled="false" vadk:filename="VM" vadk:directory="">
 			<vadk:PostOutputCreation/>
 		</vadk:DistributionFormat>
-		<vadk:DistributionFormat vadk:format="ova" vadk:enabled="true" vadk:filename="VMX_FILENAME" vadk:directory="">
+		<vadk:DistributionFormat vadk:format="ova" vadk:enabled="true" vadk:filename="OVA_FILENAME" vadk:directory="">
 			<vadk:PostOutputCreation/>
 		</vadk:DistributionFormat>
 		<vadk:DistributionFormat vadk:format="zip" vadk:enabled="false" vadk:filename="VM" vadk:directory="">

@@ -72,6 +72,7 @@ def generate_appliance_profile():
     content = content.replace("FULL_VERSION", get_long_version())
     content = content.replace("PROUDCT_UUID", get_product_uuid())
     content = content.replace("VMX_FILENAME", get_product_name())
+    content = content.replace("OVA_FILENAME", get_deb_filepath().replace('.deb'. ''))
     content = content.replace("DEB_PACKAGE_FILENAME", get_deb_filepath())
     content = content.replace("ROOT_PASSWORD", environ['ROOT_PASSWORD'])
     content = content.replace("PEM_URL", environ['PEM_URL'])
