@@ -22,8 +22,6 @@ yum() {
     enabled=1
     gpgcheck=1
     gpgkey=ftp://${fqdn}/gpg.key" > /etc/yum.repos.d/${fqdn}.repo
-    echo Fetching package metadata...
-    yum update > /dev/null 2>&1
 }
 
 if [ -f "/etc/lsb-release" ]
