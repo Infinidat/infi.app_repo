@@ -139,10 +139,12 @@ class ApplicationRepository(object):
 
     def generate_gpg_key(self):
         self.fix_entropy_generator()
-        rmtree(path.expanduser("~/.gnupg"), ignore_errors=True)
-        log_execute_assert_success(['gpg', '--batch', '--gen-key', resource_filename(__name__, 'gpg_batch_file')])
-        pid = log_execute_assert_success(['gpg', '--export', '--armor'])
-        with open(path.join(self.base_directory, 'gpg.key'), 'w') as fd:
+        gnupg_directory = path.join(self.incoming_directory, ".gnupg")
+        rmtree(gnupg_directory, ignore_errors=True)
+        log_execute_assert_success(['sudo', '-u' 'app_repo', 'gpg', '--batch', '--gen-key',
+                                    resource_filename(__name__, 'gpg_batch_file')])
+        pid = log_execute_assert_success(['sudo', '-u', 'gpg', '--export', '--armor'])
+        with open(path.join(e_directory, 'gpg.key'), 'w') as fd:
             fd.write(pid.get_stdout())
 
     def setup(self):
