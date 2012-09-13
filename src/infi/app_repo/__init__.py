@@ -44,8 +44,8 @@ def wait_for_directory_to_stabalize(source_path):
         break
 
 NAME = r"""(?P<package_name>[a-z][a-z\-]+[a-z])"""
-VERSION = r"""(?P<package_version>(?:\d|\d\.\d|\d\.\d.\d)(?:|-develop-\d+-g[a-z0-9]{7}))"""
-PLATFORM = r"""(?P<platform_string>windows|linux-ubuntu-[a-z]+|linux-redhat-\d|linux-centos-\d)"""
+VERSION = r"""v?(?P<package_version>(?:[\d\.]+)(?:|-develop-\d+-g[a-z0-9]{7}))"""
+PLATFORM = r"""(?P<platform_string>windows|linux-ubuntu-[a-z]+|linux-redhat-\d|linux-centos-\d|osx-\d+\.\d+)"""
 ARCHITECTURE = r"""(?P<architecture>x86|x64|x86_OVF10|x64_OVF_10)"""
 EXTENSION = r"""(?P<extension>rpm|deb|msi|tar\.gz|ova|iso|zip)"""
 TEMPLATE = r"""^{}-{}-{}-{}\.{}$"""
