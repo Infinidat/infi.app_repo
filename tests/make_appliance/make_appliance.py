@@ -22,7 +22,7 @@ def get_product_name():
     return get_buildout_cfg().get("project", "product_name")
 
 def get_product_name_in_one_word():
-    return '-'.join([item.lower() for item in get_product_name()])
+    return '-'.join([item.lower() for item in get_product_name().split()])
 
 def get_product_uuid():
     return get_buildout_cfg().get("project", "upgrade_code")
