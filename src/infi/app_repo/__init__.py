@@ -190,7 +190,7 @@ class ApplicationRepository(object):
         _, _, platform_string, _, _ = parse_filepath(filepath)
         logger.debug("Platform string is {!r}".format(platform_string))
         if platform_string is None:
-            return No
+            return None
         add_package_by_postfix = {'msi': self.add_package__msi,
                                           'rpm': self.add_package__rpm,
                                           'deb': self.add_package__deb,
