@@ -182,11 +182,9 @@ class ApplicationRepository(object):
                 logger.error("Rejecting file {!r} due to unsupported file format".format(filepath))
             else:
                 factory(filepath)
+                remove(filepath)
         except Exception:
             logger.exception("Failed to add {!r} to repository".format(filepath))
-        finally:
-            pass
-            remove(filepath)
 
     def get_factory_for_incoming_distribution(self,filepath):
         _, _, platform_string, _, _ = parse_filepath(filepath)
