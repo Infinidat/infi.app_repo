@@ -21,6 +21,9 @@ def get_project_name():
 def get_product_name():
     return get_buildout_cfg().get("project", "product_name")
 
+def get_product_name_in_one_word():
+    return '-'.join([item.lower() for item in get_product_name()])))
+
 def get_product_uuid():
     return get_buildout_cfg().get("project", "upgrade_code")
 
@@ -68,6 +71,7 @@ def generate_appliance_profile():
         content = fd.read()
     content = content.replace("PROJECT_NAME", get_project_name())
     content = content.replace("PRODUCT_NAME", get_product_name())
+    content = content.replace("PRODUCT_SHORT_NAME", get_product_name_in_one_word())
     content = content.replace("PRODUCT_VENDOR", get_company())
     content = content.replace("SHORT_VERSION", get_short_version())
     content = content.replace("FULL_VERSION", get_long_version())
@@ -88,7 +92,8 @@ def generate_appliance_profile():
     content = content.replace("REPO_USERNAME", environ['REPO_USERNAME'])
     content = content.replace("REPO_PASSWORD", environ['REPO_PASSWORD'])
     content = content.replace("TARGETDIR", '/opt/{}/{}'.format(get_company().lower(),
-                                                               '-'.join([item.lower() for item in get_product_name()])))
+                                                               get_product_name_in_one_word()))
+
     fd, filepath = mkstemp(text=True)
     write(fd, content)
     close(fd)
