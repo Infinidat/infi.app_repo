@@ -44,8 +44,8 @@ def wait_for_directory_to_stabalize(source_path):
         break
 
 NAME = r"""(?P<package_name>[a-z][a-z\-]+[a-z])"""
-VERSION = r"""v?(?P<package_version>(?:[\d\.]+)(?:|-develop-\d+-g[a-z0-9]{7}))"""
-PLATFORM = r"""(?P<platform_string>windows|linux-ubuntu-[a-z]+|linux-redhat-\d|linux-centos-\d|osx-\d+\.\d+)"""
+VERSION = r"""(?P<package_version>(?:\d|\d\.\d|\d\.\d.\d)(?:|-develop-\d+-g[a-z0-9]{7}))"""
+PLATFORM = r"""(?P<platform_string>windows|linux-ubuntu-[a-z]+|linux-redhat-\d|linux-centos-\d)"""
 ARCHITECTURE = r"""(?P<architecture>x86|x64|x86_OVF10|x64_OVF_10)"""
 EXTENSION = r"""(?P<extension>rpm|deb|msi|tar\.gz|ova|iso|zip)"""
 TEMPLATE = r"""^{}-{}-{}-{}\.{}$"""
@@ -182,15 +182,17 @@ class ApplicationRepository(object):
                 logger.error("Rejecting file {!r} due to unsupported file format".format(filepath))
             else:
                 factory(filepath)
-                remove(filepath)
         except Exception:
             logger.exception("Failed to add {!r} to repository".format(filepath))
+        finally:
+            pass
+            remove(filepath)
 
     def get_factory_for_incoming_distribution(self,filepath):
         _, _, platform_string, _, _ = parse_filepath(filepath)
         logger.debug("Platform string is {!r}".format(platform_string))
         if platform_string is None:
-            return None
+            return No
         add_package_by_postfix = {'msi': self.add_package__msi,
                                           'rpm': self.add_package__rpm,
                                           'deb': self.add_package__deb,
