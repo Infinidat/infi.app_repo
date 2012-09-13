@@ -33,6 +33,7 @@ class Frontend(object):
 def start(develop=False):
     cherrypy.config['server.socket_host'] = '0.0.0.0'
     cherrypy.config['server.socket_port'] = 8080 if develop else 80
+    cherrypy.config['engine.autoreload_on'] = develop
     application_config = {
                          '/static': {'tools.staticdir.on': True,
                                      'tools.staticdir.dir': os.path.join(os.path.dirname(__file__), 'static')},
