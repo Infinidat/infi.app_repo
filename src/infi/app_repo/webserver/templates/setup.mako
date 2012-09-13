@@ -2,7 +2,7 @@
 
 apt() {
     echo Setting up...
-    distribution=`lsb_release -i | awk '{print tolower($2)}'`
+    distribution=`lsb_release -i | awk '{print tolower($3)}'`
     codename=`lsb_release -c | awk '{print tolower($2)}'`
     echo "deb ftp://${fqdn}/deb/$distribution $codename main" > /etc/apt/sources.list.d/${fqdn}.list
     echo Installing GPG key...
@@ -35,5 +35,6 @@ if [ -f "/etc/redhat-release" ]
 then
     yum
     exit 0
+fi
 echo "OS not supported"
 exit 1
