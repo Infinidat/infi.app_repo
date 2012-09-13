@@ -144,7 +144,9 @@ class ApplicationRepository(object):
         log_execute_assert_success(['sudo', '-u' 'app_repo', 'gpg', '--batch', '--gen-key',
                                     resource_filename(__name__, 'gpg_batch_file')])
         pid = log_execute_assert_success(['sudo', '-u', 'gpg', '--export', '--armor'])
-        with open(path.join(e_directory, 'gpg.key'), 'w') as fd:
+        with open(path.join(self.incoming_directory), ".rpmmacros") as fd:
+            fd.write("%_gpg_name app_repo")
+        with open(path.join(self.base_directory, 'gpg.key'), 'w') as fd:
             fd.write(pid.get_stdout())
 
     def setup(self):
