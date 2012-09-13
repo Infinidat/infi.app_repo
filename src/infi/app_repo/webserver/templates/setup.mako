@@ -1,6 +1,6 @@
 #!/bin/sh
 
-func apt() {
+apt() {
     echo Setting up...
     distribution=`lsb_release -i | awk '{print tolower($2)}'`
     codename=`lsb_release -c | awk '{print tolower($2)}'`
@@ -11,7 +11,7 @@ func apt() {
     apt-get update > /dev/null 2>&1
 }
 
-func yum() {
+yum() {
     echo Setting up...
     distribution=`python -c "import platform; print platform.dist()[0].lower()"`
     version=`python -c "import platform; print platform.dist()[1].split('.')[0].lower()"`
@@ -28,12 +28,12 @@ func yum() {
 
 if [ -f "/etc/lsb-release" ]
 then
-    apt()
+    apt
     exit 0
 fi
 if [ -f "/etc/redhat-release" ]
 then
-    apt()
+    yum
     exit 0
 echo "OS not supported"
 exit 1
