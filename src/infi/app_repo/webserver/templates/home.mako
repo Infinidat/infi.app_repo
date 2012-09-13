@@ -3,13 +3,9 @@
 </head>
 <body>
     <div>
-        <h1>Setting up APT repository</h1>
-        <p>curl ${apt_url} | sh -</p>
+        <h1>Setting up APT/YUM repository</h1>
+        <p>curl ${setup_url} | sh -</p>
     </div>
-    <div>
-        <h1>Setting up YUM repository</h1>
-        <p>curl ${yum_url} | sh -</p>
-    <div>
         <h1>Packages</h1>
         % for package in metadata['packages']:
         <div>

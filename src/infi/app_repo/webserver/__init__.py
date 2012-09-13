@@ -15,26 +15,20 @@ class Frontend(object):
 
     def index(self):
         host = cherrypy.request.headers['HOST']
-        apt_url = 'http://{}/apt_source'.format(host)
-        yum_url = 'http://{}/yum_repo'.format(host)
+        setup_url = 'http://{}/setup'.format(host)
         ftp_url = 'ftp://{}'.format(host.split(':')[0])
         metadata = get_metadata()
-        return self.template_lookup.get_template("home.mako").render(apt_url=apt_url, yum_url=yum_url,
-                                                                     metadata=metadata, ftp_url=ftp_url)
+        return self.template_lookup.get_template("home.mako").render(setup_url=setup_url, ftp_url=ftp_url, metadata=metadata)
 
-    def apt_source(self):
+    def setup(self):
         cherrypy.response.headers['Content-Type'] = 'text/plain'
         fqdn = cherrypy.request.headers['HOST'].split(':')[0]
-        return self.template_lookup.get_template("apt.mako").render(fqdn=fqdn)
-
-    def yum_repo(self):
-        cherrypy.response.headers['Content-Type'] = 'text/plain'
-        fqdn = cherrypy.request.headers['HOST'].split(':')[0]
-        return self.template_lookup.get_template("yum.mako").render(fqdn=fqdn)
+        return self.template_lookup.get_template("setup.mako").render(fqdn=fqdn)
 
     index.exposed = True
-    apt_source.exposed = True
-    yum_repo.exposed = True
+    setup.exposed = True
+
+
 
 def start(develop=False):
     cherrypy.config['server.socket_host'] = '0.0.0.0'
