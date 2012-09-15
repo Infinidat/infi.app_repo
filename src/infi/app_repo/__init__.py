@@ -215,7 +215,6 @@ class ApplicationRepository(object):
         logger.info("Signing {!r}".format(filepath))
         log_execute_assert_success(['dpkg-sig', '--sign', 'builder', filepath])
         logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
-        log_execute_assert_success(['chmod', '644', filepath])
         copy2(filepath, destination_directory)
 
     def add_package__rpm(self, filepath):
@@ -232,7 +231,6 @@ class ApplicationRepository(object):
         pid.wait()
         assert pid.exitstatus == 0
         logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
-        log_execute_assert_success(['chmod', '644', filepath])
         copy2(filepath, destination_directory)
 
     def add_package__msi(self, filepath):
@@ -241,7 +239,6 @@ class ApplicationRepository(object):
         if not path.exists(destination_directory):
             makedirs(destination_directory)
         logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
-        log_execute_assert_success(['chmod', '644', filepath])
         copy2(filepath, destination_directory)
 
     def add_package__tar_gz(self, filepath):
@@ -250,7 +247,6 @@ class ApplicationRepository(object):
         if not path.exists(destination_directory):
             makedirs(destination_directory)
         logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
-        log_execute_assert_success(['chmod', '644', filepath])
         copy2(filepath, destination_directory)
 
     def add_package__ova(self, filepath):
@@ -259,7 +255,6 @@ class ApplicationRepository(object):
         if not path.exists(destination_directory):
             makedirs(destination_directory)
         logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
-        log_execute_assert_success(['chmod', '644', filepath])
         copy2(filepath, destination_directory)
 
     def update_metadata(self):
