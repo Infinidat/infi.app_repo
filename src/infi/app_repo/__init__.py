@@ -198,7 +198,8 @@ class ApplicationRepository(object):
         add_package_by_postfix = {'msi': self.add_package__msi,
                                           'rpm': self.add_package__rpm,
                                           'deb': self.add_package__deb,
-                                          'tar.gz': self.add_package__tar_gz,
+                                          'tar.gz': self.add_package__archives,
+                                          'zip': self.add_package__archives,
                                           'ova': self.add_package__ova
                                          }
         [factory] = [value for key, value in add_package_by_postfix.items()
@@ -241,7 +242,7 @@ class ApplicationRepository(object):
         logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
         copy2(filepath, destination_directory)
 
-    def add_package__tar_gz(self, filepath):
+    def add_package__archives(self, filepath):
         package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
         destination_directory = path.join(self.base_directory, 'archives')
         if not path.exists(destination_directory):
