@@ -42,7 +42,7 @@ def get_short_version():
         if not item.isdigit():
             break
         version_numbers.append(int(item))
-    while len(version_numbers) < 3:
+    while len(version_numbers) < 4:
         version_numbers.append(0)
     index = parsed_version.index(item)
     for item in parsed_version[index:]:
