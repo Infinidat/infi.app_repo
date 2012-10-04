@@ -118,7 +118,7 @@ class ApplicationRepository(object):
         crontab = CronTab("app_repo")
         crontab.lines = []
         command = crontab.new('{} > /dev/null 2>&1 '.format(path.join(PROJECT_DIRECTORY, 'bin', 'process_incoming')))
-        command.minute.on('*')
+        command.minute.on('0 10 20 30 40 50')
         command.hour.on('*')
         command.month.on('*')
         command.dom.on('*')
