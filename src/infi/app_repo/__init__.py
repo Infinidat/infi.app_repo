@@ -295,7 +295,12 @@ class ApplicationRepository(object):
             if not path.isdir(dirpath):
                 continue
             if path.exists(path.join(dirpath, 'repodata')):
-                log_execute_assert_success(['createrepo', '--update', dirpath])
+                try:
+                    log_execute_assert_success(['createrepo', '--update', dirpath])
+                except:
+                    logger.exception("Failed to update metadata, will attempt to remove it and create it from scratch")
+                    rmtree(path.join(dirpath, 'repodata'), ignore_errors=True)
+                    log_execute_assert_success(['createrepo', dirpath])
             else:
                 log_execute_assert_success(['createrepo', dirpath])
 
