@@ -10,6 +10,7 @@ from fnmatch import fnmatch
 from time import sleep
 from cjson import encode, decode
 from logging import getLogger
+from pkg_resources import parse_version
 
 logger = getLogger(__name__)
 
@@ -287,8 +288,12 @@ class ApplicationRepository(object):
                                                           for distribution in package_distributions
                                                           if distribution[1] == package_version]
                                         for package_version in package_versions}
-            yield dict(name=package_name, releases=[dict(version=key, distributions=value)
-                                                    for key, value in distributions_by_version.items()])
+            yield dict(name=package_name,
+                       display_name=' '.join([item.capitalize() for item in package_name.split('-')]),
+                       releases=[dict(version=key, distributions=value)
+                                 for key, value in sorted(distributions_by_version.items(),
+                                                          key=lambda key, value: parse_version(key),
+                                                          reverse=True)])
 
     def update_metadata_for_yum_repositories(self):
         for dirpath in glob(path.join(self.base_directory, 'rpm', '*', '*', '*')):
