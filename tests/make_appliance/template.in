@@ -124,6 +124,7 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/libg/libgcrypt11/libgcrypt11_1.5.0-3ubuntu0.1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/libt/libtasn1-3/libtasn1-3_2.10-1ubuntu1.1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/g/gnutls26/libgnutls26_2.12.14-5ubuntu3.1_i386.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/t/trousers/libtspi1_0.3.7-2ubuntu1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/c/cyrus-sasl2/libsasl2-2_2.1.25.dfsg1-3ubuntu0.1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/o/openldap/libldap-2.4-2_2.4.28-1.1ubuntu4.1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/n/nspr/libnspr4_4.8.9-1ubuntu2.3_i386.deb</vadk:url>
@@ -131,7 +132,6 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/c/cyrus-sasl2/libsasl2-modules_2.1.25.dfsg1-3ubuntu0.1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/a/apparmor/dh-apparmor_2.7.102-0ubuntu3.1_all.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/b/build-essential/build-essential_11.5ubuntu2.1_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/t/trousers/libtspi1_0.3.7-2ubuntu1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/r/rpm/python-rpm_4.9.1.1-1build1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/p/python-support/python-support_1.0.14ubuntu2_all.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/y/yum-metadata-parser/python-sqlitecachec_1.1.2-1ubuntu3_i386.deb</vadk:url>
