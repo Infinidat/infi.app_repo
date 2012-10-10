@@ -1,6 +1,6 @@
 #!/bin/sh
 
-apt() {
+_apt() {
     echo Setting up...
     distribution=`lsb_release -i | awk '{print tolower($3)}'`
     codename=`lsb_release -c | awk '{print tolower($2)}'`
@@ -22,17 +22,18 @@ baseurl=ftp://${fqdn}/rpm/$distribution/$version/$arch/
 enabled=1
 gpgcheck=1
 gpgkey=ftp://${fqdn}/gpg.key" > /etc/yum.repos.d/${fqdn}.repo
+    echo Fetching package metadata...
     yum makecache > /dev/null 2>&1
 }
 
 if [ -f "/etc/lsb-release" ]
 then
-    apt
+    _apt
     exit 0
 fi
 if [ -f "/etc/redhat-release" ]
 then
-    yum
+    _yum
     exit 0
 fi
 echo "OS not supported"
