@@ -55,6 +55,9 @@
         <div class="span3">
           <div class="well sidebar-nav affix">
             <ul class="nav nav-list">
+              <li class="">
+                <a href="#hero">Setting up the repository</a>
+              </li>
               <li class="nav-header">
                 Available packages
               </li>
@@ -69,7 +72,7 @@
             </ul>
           </div>
         </div>
-        <div class="span9">
+        <div class="span9" id="hero">
           <div class="hero-unit">
             <div>
               <h1>
