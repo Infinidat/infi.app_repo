@@ -492,7 +492,7 @@ rm /var/log/zerofile</vadk:PostInstallShellScript>
 	-->
 	<Section xsi:type="ovf:DiskSection_Type">
 		<Info>List of the virtual disks and partitions needed</Info>
-		<Disk ovf:diskId="system" ovf:capacity="8192" ovf:capacityAllocationUnits="MegaBytes" ovf:fileRef="system.vmdk" ovf:format="http://www.vmware.com/specifications/vmdk.html#sparse"/>
+		<Disk ovf:diskId="system" ovf:capacity="102400" ovf:capacityAllocationUnits="MegaBytes" ovf:fileRef="system.vmdk" ovf:format="http://www.vmware.com/specifications/vmdk.html#sparse"/>
 	</Section>
 <!--
 	The vadk:DiskPartitioningMechanismSection_Type section is used
