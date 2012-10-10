@@ -276,7 +276,7 @@ class ApplicationRepository(object):
                                                    if distribution[0] == package_name]
                                     for package_name in package_names}
         for package_name, package_distributions in sorted(distributions_by_package.items(),
-                                                          key=lambda key, value: key):
+                                                          key=lambda item: item[0]):
             package_versions = set([distribution[1] for distribution in package_distributions])
             distributions_by_version = {package_version: [dict(platform=distribution[2],
                                                                architecture=distribution[3],
@@ -289,7 +289,7 @@ class ApplicationRepository(object):
                        display_name=' '.join([item.capitalize() for item in package_name.split('-')]),
                        releases=[dict(version=key, distributions=value)
                                  for key, value in sorted(distributions_by_version.items(),
-                                                          key=lambda key, value: parse_version(key),
+                                                          key=lambda item: parse_version(item[0]),
                                                           reverse=True)])
 
     def update_metadata_for_yum_repositories(self):
