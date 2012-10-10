@@ -279,7 +279,8 @@ class ApplicationRepository(object):
         distributions_by_package = {package_name: [distribution for distribution in distributions
                                                    if distribution[0] == package_name]
                                     for package_name in package_names}
-        for package_name, package_distributions in distributions_by_package.items():
+        for package_name, package_distributions in sorted(distributions_by_package.items(),
+                                                          key=lambda key, value: key):
             package_versions = set([distribution[1] for distribution in package_distributions])
             distributions_by_version = {package_version: [dict(platform=distribution[2],
                                                                architecture=distribution[3],
