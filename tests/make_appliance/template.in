@@ -120,7 +120,6 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:url vadk:path="dists/precise-updates/universe/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
 			<vadk:url vadk:path="dists/precise-updates/multiverse/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
 			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.0u1/ubuntu/dists/precise/main/binary-i386/vmware-tools-esx-nox_8.6.5-2_i386.deb</vadk:url>
-			<vadk:url>http://[VADK.localIP]/ISV/appliancePackages/DEB_PACKAGE_FILENAME</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/libg/libgcrypt11/libgcrypt11_1.5.0-3ubuntu0.1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/libt/libtasn1-3/libtasn1-3_2.10-1ubuntu1.1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/g/gnutls26/libgnutls26_2.12.14-5ubuntu3.1_i386.deb</vadk:url>
@@ -142,6 +141,7 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/p/python-sqlite/python-sqlite_1.0.1-9_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/y/yum/yum_3.2.25-1ubuntu2_all.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/r/rng-tools/rng-tools_2-unofficial-mt.14-1ubuntu1_i386.deb</vadk:url>
+			<vadk:url>http://[VADK.localIP]/ISV/appliancePackages/DEB_PACKAGE_FILENAME</vadk:url>
 		</vadk:ApplicationPackages>
 		<vadk:OSPackages><!-- Additional OS packages needed by the ISV's application -->
 			<vadk:Package vadk:name="groff-base"/>
