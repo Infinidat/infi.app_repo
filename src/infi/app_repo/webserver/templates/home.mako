@@ -160,6 +160,7 @@
         options.bProcessing = false;
         options.bInfo = false;
         options.bAutoWidth = true;
+        options.aoColumnDefs = [ {"asSorting": ['desc']}];
         $(document).ready(function() {$(".download-links").dataTable(options);});
     </script>
   </body>
