@@ -156,11 +156,11 @@
     <script>
         var options = new Object();
         options.bPaginate = false;
-        options.bSort = true;
+        options.bSort = false;
         options.bProcessing = false;
         options.bInfo = false;
         options.bAutoWidth = true;
-        options.aoColumnDefs = [ {"asSorting": ['desc']}];
+        /*options.aoColumnDefs = [ {"asSorting": ['desc']}];*/
         $(document).ready(function() {$(".download-links").dataTable(options);});
     </script>
   </body>
