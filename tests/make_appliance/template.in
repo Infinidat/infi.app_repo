@@ -109,7 +109,7 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:PostOutputCreation/>
 		</vadk:DistributionFormat>
 		<vadk:ApplicationPackages>
-			<vadk:url vadk:path="dists/lucid/main/binary-i386/Packages.gz" vadk:type="ondemand">http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.1latest/ubuntu/</vadk:url>
+			<vadk:url vadk:path="dists/lucid/main/binary-i386/Packages.gz" vadk:type="ondemand">http://packages.vmware.com/tools/esx/5.1/ubuntu/</vadk:url>
 			<vadk:url vadk:path="dists/lucid/main/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
 			<vadk:url vadk:path="dists/lucid/universe/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
 			<vadk:url vadk:path="dists/lucid/multiverse/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
@@ -118,7 +118,7 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:url vadk:path="dists/lucid-backports/multiverse/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
 			<vadk:url vadk:path="dists/lucid-updates/universe/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
 			<vadk:url vadk:path="dists/lucid-updates/multiverse/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
-			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-esx-nox_9.0.0-2_i386.deb</vadk:url>
+			<vadk:url>http://packages.vmware.com/tools/esx/5.1/ubuntu/dists/lucid/main/binary-i386/vmware-tools-esx-nox_9.0.0-2_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/t/trousers/libtspi1_0.3.5-4_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/r/rpm/python-rpm_4.9.0-7_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/y/yum-metadata-parser/python-sqlitecachec_1.1.2-1ubuntu3_i386.deb</vadk:url>
