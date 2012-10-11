@@ -109,16 +109,16 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:PostOutputCreation/>
 		</vadk:DistributionFormat>
 		<vadk:ApplicationPackages>
-			<vadk:url vadk:path="dists/precise/main/binary-i386/Packages.gz" vadk:type="ondemand">http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.0u1/ubuntu/</vadk:url>
-			<vadk:url vadk:path="dists/precise/main/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
-			<vadk:url vadk:path="dists/precise/universe/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
-			<vadk:url vadk:path="dists/precise/multiverse/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
-			<vadk:url vadk:path="dists/precise-backports/main/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
-			<vadk:url vadk:path="dists/precise-backports/universe/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
-			<vadk:url vadk:path="dists/precise-backports/multiverse/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
-			<vadk:url vadk:path="dists/precise-updates/universe/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
-			<vadk:url vadk:path="dists/precise-updates/multiverse/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
-			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.0u1/ubuntu/dists/precise/main/binary-i386/vmware-tools-esx-nox_8.6.5-2_i386.deb</vadk:url>
+			<vadk:url vadk:path="dists/oneiric/main/binary-i386/Packages.gz" vadk:type="ondemand">http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.0u1/ubuntu/</vadk:url>
+			<vadk:url vadk:path="dists/oneiric/main/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
+			<vadk:url vadk:path="dists/oneiric/universe/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
+			<vadk:url vadk:path="dists/oneiric/multiverse/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
+			<vadk:url vadk:path="dists/oneiric-backports/main/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
+			<vadk:url vadk:path="dists/oneiric-backports/universe/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
+			<vadk:url vadk:path="dists/oneiric-backports/multiverse/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
+			<vadk:url vadk:path="dists/oneiric-updates/universe/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
+			<vadk:url vadk:path="dists/oneiric-updates/multiverse/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
+			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.0u1/ubuntu/dists/oneiric/main/binary-i386/vmware-tools-esx-nox_8.6.5-2_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/libg/libgcrypt11/libgcrypt11_1.5.0-3ubuntu0.1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/libt/libtasn1-3/libtasn1-3_2.10-1ubuntu1.1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/g/gnutls26/libgnutls26_2.12.14-5ubuntu3.1_i386.deb</vadk:url>
@@ -293,7 +293,7 @@ openssl dgst -sha1 -verify &quot;$3&quot; -signature &quot;$2&quot;  &quot;$1&qu
 <!-- Defined by  CIM_OperatingSystem.OsType -->
 	<Section ovf:id="101" ovf:version="" vmw:osType="ubuntuGuest" xsi:type="ovf:OperatingSystemSection_Type">
 		<Info>Guest Operating System</Info>
-		<Description>ubuntu-12.04-server-i386</Description>
+		<Description>ubuntu-11.10-server-i386</Description>
 	</Section>
 	<Section xsi:type="ovf:VirtualHardwareSection_Type" ovf:transport="com.vmware.guestInfo iso">
 		<Info>Virtual Hardware Requirements</Info>
@@ -389,13 +389,13 @@ preseed/url=[VADK.unattendedCfgURL]
 --
 		</vadk:BootArgsDHCP>
 		<vadk:BootFiles vadk:relPath="install/netboot" vadk:kernel="ubuntu-installer/i386/linux"/>
-		<vadk:UnattendedInstallTemplate>[VADK.vadkRoot]/etc/build/templates/ubuntu-12.04-server-i386/ubuntu-12.04-server-i386.xsl</vadk:UnattendedInstallTemplate>
-		<vadk:PreInstallScript vadk:template="[VADK.vadkRoot]/etc/build/templates/ubuntu-12.04-server-i386/preinstall.xsl" vadk:output="[VADK.stageDir]/preinstall.sh"/>
-		<vadk:PostInstallScript vadk:path="http://[VADK.localIP]/build/[VADK.buildID]/configure_appliance" vadk:template="[VADK.vadkRoot]/etc/build/templates/ubuntu-12.04-server-i386/post.xsl" vadk:output="[VADK.stageDir]/configure_appliance"/>
+		<vadk:UnattendedInstallTemplate>[VADK.vadkRoot]/etc/build/templates/ubuntu-11.10-server-i386/ubuntu-11.10-server-i386.xsl</vadk:UnattendedInstallTemplate>
+		<vadk:PreInstallScript vadk:template="[VADK.vadkRoot]/etc/build/templates/ubuntu-11.10-server-i386/preinstall.xsl" vadk:output="[VADK.stageDir]/preinstall.sh"/>
+		<vadk:PostInstallScript vadk:path="http://[VADK.localIP]/build/[VADK.buildID]/configure_appliance" vadk:template="[VADK.vadkRoot]/etc/build/templates/ubuntu-11.10-server-i386/post.xsl" vadk:output="[VADK.stageDir]/configure_appliance"/>
 		<vadk:PostScriptRepoList>RepositoryList</vadk:PostScriptRepoList>
 		<vadk:PostScriptPackageList>PackageList</vadk:PostScriptPackageList>
 		<vadk:VADKPackages vadk:path="http://[VADK.localIP]/build/[VADK.buildID]/repo/vadkPackages/" vadk:sourceDir="[VADK.vadkRoot]/lib/build/include/deb/" vadk:targetDir="[VADK.stageDir]/repo/vadkPackages/"/>
-		<vadk:ISO vadk:path="file:///opt/vmware/www/ISV/ISO/ubuntu-12.04-server-i386.iso" vadk:md5sum="32184a83c8b5e6031e1264e5c499bc03" vadk:packageRepoPath="" vadk:packageMetadataPath="dists/stable/main/binary-i386/Packages.gz" vadk:containFiles=""/>
+		<vadk:ISO vadk:path="file:///opt/vmware/www/ISV/ISO/ubuntu-11.10-server-i386.iso" vadk:md5sum="32184a83c8b5e6031e1264e5c499bc03" vadk:packageRepoPath="" vadk:packageMetadataPath="dists/stable/main/binary-i386/Packages.gz" vadk:containFiles=""/>
 		<vadk:Distribution vadk:vendor="" vadk:OSverMajor="" vadk:OSverMinor="" vadk:arch="i386" vadk:smp="1" vadk:packageFormat="deb" vadk:packageManager="apt" vadk:packageRepoDir="packageRepoDir"/>
 		<vadk:OSPackages>
 			<vadk:PackageGroup vadk:value=""/>
