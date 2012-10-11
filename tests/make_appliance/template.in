@@ -130,7 +130,6 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/r/rng-tools/rng-tools_2-unofficial-mt.14-1ubuntu1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/r/rpm/rpm-common_4.7.2-1lbuild1_all.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/r/rpm/librpm0_4.7.2-1lbuild1_i386.deb</vadk:url>
-			<vadk:url>http://security.ubuntu.com/ubuntu/pool/main/o/openssl/libssl-dev_0.9.8k-7ubuntu8.13_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/r/rpm/librpmbuild0_4.7.2-1lbuild1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/r/rpm/librpmio0_4.7.2-1lbuild1_i386.deb</vadk:url>
 			<vadk:url>http://[VADK.localIP]/ISV/appliancePackages/DEB_PACKAGE_FILENAME</vadk:url>
