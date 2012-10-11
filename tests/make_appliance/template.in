@@ -143,7 +143,7 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:Package vadk:name="libgcrypt11"/>
 			<vadk:Package vadk:name="libtasn1-3"/>
 			<vadk:Package vadk:name="libgnutls26"/>
-			<vadk:Package vadk:name="libsasl2"/>
+			<vadk:Package vadk:name="libsasl2-2"/>
 			<vadk:Package vadk:name="libsasl2-modules"/>
 			<vadk:Package vadk:name="libldap-2.4-2"/>
 			<vadk:Package vadk:name="libnspr4"/>
