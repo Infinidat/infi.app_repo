@@ -395,7 +395,7 @@ preseed/url=[VADK.unattendedCfgURL]
 		<vadk:PostScriptRepoList>RepositoryList</vadk:PostScriptRepoList>
 		<vadk:PostScriptPackageList>PackageList</vadk:PostScriptPackageList>
 		<vadk:VADKPackages vadk:path="http://[VADK.localIP]/build/[VADK.buildID]/repo/vadkPackages/" vadk:sourceDir="[VADK.vadkRoot]/lib/build/include/deb/" vadk:targetDir="[VADK.stageDir]/repo/vadkPackages/"/>
-		<vadk:ISO vadk:path="file:///opt/vmware/www/ISV/ISO/ubuntu-11.10-server-i386.iso" vadk:md5sum="32184a83c8b5e6031e1264e5c499bc03" vadk:packageRepoPath="" vadk:packageMetadataPath="dists/stable/main/binary-i386/Packages.gz" vadk:containFiles=""/>
+		<vadk:ISO vadk:path="file:///opt/vmware/www/ISV/ISO/ubuntu-11.10-server-i386.iso" vadk:md5sum="881d188cb1ca5fb18e3d9132275dceda" vadk:packageRepoPath="" vadk:packageMetadataPath="dists/stable/main/binary-i386/Packages.gz" vadk:containFiles=""/>
 		<vadk:Distribution vadk:vendor="" vadk:OSverMajor="" vadk:OSverMinor="" vadk:arch="i386" vadk:smp="1" vadk:packageFormat="deb" vadk:packageManager="apt" vadk:packageRepoDir="packageRepoDir"/>
 		<vadk:OSPackages>
 			<vadk:PackageGroup vadk:value=""/>
