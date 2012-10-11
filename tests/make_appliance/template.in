@@ -159,7 +159,7 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:Package vadk:name="libpopt0"/>
 			<vadk:Package vadk:name="libelf1"/>
 			<vadk:Package vadk:name="libmagic1"/>
-			<vadk:Package vadk:name="libbz2"/>
+			<vadk:Package vadk:name="bzip2"/>
 			<vadk:Package vadk:name="liblua5.1-0"/>
 			<vadk:Package vadk:name="liblzma1"/>
 			<vadk:Package vadk:name="zlib1g"/>
