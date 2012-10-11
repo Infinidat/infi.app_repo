@@ -148,6 +148,7 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:Package vadk:name="libnss3-1d"/>
 			<vadk:Package vadk:name="python-support"/>
 			<vadk:Package vadk:name="libsqlite0"/>
+			<vadk:Package vadk:name="libssl0.9.8"/>
 		</vadk:OSPackages>
 		<vadk:PackagesToRemove><!-- vadk:Package vadk:name="" / --></vadk:PackagesToRemove>
 		<vadk:BootActions>
