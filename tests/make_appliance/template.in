@@ -119,23 +119,12 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:url vadk:path="dists/oneiric-updates/universe/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
 			<vadk:url vadk:path="dists/oneiric-updates/multiverse/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
 			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.0u1/ubuntu/dists/oneiric/main/binary-i386/vmware-tools-esx-nox_8.6.5-2_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/libg/libgcrypt11/libgcrypt11_1.5.0-1ubuntu0.1_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/libt/libtasn1-3/libtasn1-3_2.9-4ubuntu0.1_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/g/gnutls26/libgnutls26_2.10.5-1ubuntu3.1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/t/trousers/libtspi1_0.3.5-4_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/c/cyrus-sasl2/libsasl2-2_2.1.24~rc1.dfsg1+cvs2011-05-23-4ubuntu2_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/o/openldap/libldap-2.4-2_2.4.25-1.1ubuntu4.1_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/n/nspr/libnspr4_4.8.7-0ubuntu3_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/n/nss/libnss3_3.12.9+ckbi-1.82-0ubuntu6.1_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/c/cyrus-sasl2/libsasl2-modules_2.1.24~rc1.dfsg1+cvs2011-05-23-4ubuntu2_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/b/build-essential/build-essential_11.5ubuntu1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/r/rpm/python-rpm_4.9.0-7_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/p/python-support/python-support_1.0.14ubuntu2_all.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/y/yum-metadata-parser/python-sqlitecachec_1.1.2-1ubuntu3_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/c/createrepo/createrepo_0.4.11-1_all.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/libc/libconfig-file-perl/libconfig-file-perl_1.50-2_all.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/d/dpkg-sig/dpkg-sig_0.13.1_all.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/s/sqlite/libsqlite0_2.8.17-6.1ubuntu1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/p/python-sqlite/python-sqlite_1.0.1-8_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/y/yum/yum_3.2.25-1ubuntu2_all.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/r/rng-tools/rng-tools_2-unofficial-mt.14-1ubuntu1_i386.deb</vadk:url>
