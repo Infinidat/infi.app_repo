@@ -128,11 +128,11 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/p/python-sqlite/python-sqlite_1.0.1-8_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/y/yum/yum_3.2.25-1ubuntu2_all.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/r/rng-tools/rng-tools_2-unofficial-mt.14-1ubuntu1_i386.deb</vadk:url>
+			<vadk:url>http://security.ubuntu.com/ubuntu/pool/main/o/openssl/libssl-dev_0.9.8k-7ubuntu8.13_i386.deb</vadk:url>
 			<vadk:url>http://[VADK.localIP]/ISV/appliancePackages/DEB_PACKAGE_FILENAME</vadk:url>
 		</vadk:ApplicationPackages>
 		<vadk:OSPackages><!-- Additional OS packages needed by the ISV's application -->
 			<vadk:Package vadk:name="groff-base"/>
-			<vadk:Package vadk:name="libssl-dev"/>
 			<vadk:Package vadk:name="binutils"/>
 			<vadk:Package vadk:name="libexpat1"/>
 			<vadk:Package vadk:name="openssh-server"/>
