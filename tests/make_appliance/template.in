@@ -139,6 +139,17 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:Package vadk:name="openssh-client"/>
 			<vadk:Package vadk:name="libossp-uuid16"/>
 			<vadk:Package vadk:name="libuuid1"/>
+			<vadk:Package vadk:name="build-essential"/>
+			<vadk:Package vadk:name="libgrcypt11"/>
+			<vadk:Package vadk:name="libtasn1-3"/>
+			<vadk:Package vadk:name="libgnutls26"/>
+			<vadk:Package vadk:name="libsasl2"/>
+			<vadk:Package vadk:name="libsasl2-modules"/>
+			<vadk:Package vadk:name="libldap-2.4-2"/>
+			<vadk:Package vadk:name="libnspr4"/>
+			<vadk:Package vadk:name="libnss3"/>
+			<vadk:Package vadk:name="python-support"/>
+			<vadk:Package vadk:name="libsqlite0"/>
 		</vadk:OSPackages>
 		<vadk:PackagesToRemove><!-- vadk:Package vadk:name="" / --></vadk:PackagesToRemove>
 		<vadk:BootActions>
