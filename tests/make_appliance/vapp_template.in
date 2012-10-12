@@ -125,7 +125,7 @@ wget PEM_URL -O /tmp/my_pem_file.pem
             </vadk:Script>
     </vadk:PostOutputCreation>
   </vadk:DistributionFormat>
-  <vadk:DistributionFormat vadk:format="ova" vadk:enabled="true" vadk:filename="OVA_FILENAME.vapp">
+  <vadk:DistributionFormat vadk:format="ova" vadk:enabled="true" vadk:filename="OVA_FILENAME_vapp">
     <vadk:PostOutputCreation/>
   </vadk:DistributionFormat>
 </vadk:MultiVM>
