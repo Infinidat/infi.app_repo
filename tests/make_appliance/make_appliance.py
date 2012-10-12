@@ -60,16 +60,18 @@ def get_long_version():
         exec content
         return locals()['__version__']
 
-OVF_TEMPLATE = dict(src=path.join(path.dirname(__file__), 'template.in'),
+VM_TEMPLATE = dict(src=path.join(path.dirname(__file__), 'vm_template.in'),
+                    dst='/opt/vmware/var/lib/build/profiles/{}.xml'.format(get_project_name()))
+VAPP_TEMPLATE = dict(src=path.join(path.dirname(__file__), 'vm_template.in'),
                     dst='/opt/vmware/var/lib/build/profiles/{}.xml'.format(get_project_name()))
 
 MAKE_APPLIANCE = "/opt/vmware/share/build/vabs.pl"
 SSH_KEYFILE = environ['VMWARE_STUDIO_SSH_KEY']
 BUILD_HOST = "{}@{}".format(environ['VMWARE_STUDIO_USER'], environ['VMWARE_STUDIO_HOST'])
 
-def generate_appliance_profile():
+def generate_template(profile):
     """:returns: path to generated profile"""
-    with open(OVF_TEMPLATE['src']) as fd:
+    with open(profile['src']) as fd:
         content = fd.read()
     content = content.replace("PROJECT_NAME", get_project_name())
     content = content.replace("PRODUCT_NAME", get_product_name())
@@ -101,8 +103,9 @@ def generate_appliance_profile():
     close(fd)
     return filepath
 
-def override_profile_on_build_host(src):
-    args = ['scp', '-i', SSH_KEYFILE, src, '{}:{}'.format(BUILD_HOST, path.join(BUILD_HOST, OVF_TEMPLATE['dst']))]
+def override_profile_on_build_host(profile):
+    src = generate_template(profile)
+    args = ['scp', '-i', SSH_KEYFILE, src, '{}:{}'.format(BUILD_HOST, path.join(BUILD_HOST, profile['dst']))]
     logger.info(' '.join(args))
     assert Popen(args).wait() == 0
 
@@ -113,9 +116,9 @@ def get_job_name():
 def get_build_number():
     return environ.get('BUILD_NUMBER', get_short_version())
 
-def build_appliance():
+def build_profile(profile):
     args = ['ssh', '-i', SSH_KEYFILE, BUILD_HOST,
-            '{} --createbuild --verbose --profile {} --instance {}-{}'.format(MAKE_APPLIANCE, OVF_TEMPLATE['dst'],
+            '{} --createbuild --verbose --profile {} --instance {}-{}'.format(MAKE_APPLIANCE, profile['dst'],
                                                                               get_job_name(), get_build_number())]
     if environ.has_key('VABS_ADDITIONAL_PARAMETERS'):
         args += environ['VABS_ADDITIONAL_PARAMETERS'].split(' ')
@@ -125,9 +128,11 @@ def build_appliance():
 @traceback_decorator
 def main(argv=argv[1:]):
     basicConfig(stream=stderr, level=DEBUG)
-    profile = generate_appliance_profile()
-    override_profile_on_build_host(profile)
-    build_appliance()
+    vm_profile = generate_vm_template()
+    vapp_profile = generate_vapp_template()
+    override_profile_on_build_host(VM_TEMPLATE)
+    override_profile_on_build_host(VAPP_TEMPLATE)
+    build_profile(VAPP_TEMPLATE)
 
 if __name__ == "__main__":
     main()
