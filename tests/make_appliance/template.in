@@ -401,26 +401,22 @@ preseed/url=[VADK.unattendedCfgURL]
 --
 		</vadk:BootArgsDHCP>
 		<vadk:BootFiles vadk:relPath="install/netboot" vadk:kernel="ubuntu-installer/i386/linux"/>
-        <vadk:UnattendedInstallTemplate>
-            [VADK.vadkRoot]/etc/build/templates/ubuntu/10/ubuntu.xsl
-        </vadk:UnattendedInstallTemplate>
-		<vadk:PreInstallScript vadk:template="[VADK.vadkRoot]/etc/build/templates/ubuntu-11.10-server-i386/preinstall.xsl" vadk:output="[VADK.stageDir]/preinstall.sh"/>
-        <vadk:PreInstallScript vadk:template="[VADK.vadkRoot]/etc/build/templates/ubuntu/10/preinstall.xsl" vadk:ou
+		<vadk:UnattendedInstallTemplate>[VADK.vadkRoot]/etc/build/templates/ubuntu/10/ubuntu.xsl</vadk:UnattendedInstallTemplate>
+		<vadk:PreInstallScript vadk:template="[VADK.vadkRoot]/etc/build/templates/ubuntu/10/preinstall.xsl" vadk:ou
 tput="[VADK.stageDir]/preinstall.sh"/>
-        <vadk:PostInstallScript vadk:path="http://[VADK.localIP]/build/[VADK.buildID]/configure_appliance" vadk:tem
+		<vadk:PostInstallScript vadk:path="http://[VADK.localIP]/build/[VADK.buildID]/configure_appliance" vadk:tem
 plate="[VADK.vadkRoot]/etc/build/templates/ubuntu/10/post.xsl" vadk:output="[VADK.stageDir]/configure_appliance"/>
 		<vadk:PostScriptRepoList>RepositoryList</vadk:PostScriptRepoList>
 		<vadk:PostScriptPackageList>PackageList</vadk:PostScriptPackageList>
 		<vadk:VADKPackages vadk:path="http://[VADK.localIP]/build/[VADK.buildID]/repo/vadkPackages/" vadk:sourceDir="[VADK.vadkRoot]/lib/build/include/deb/" vadk:targetDir="[VADK.stageDir]/repo/vadkPackages/"/>
 		<vadk:ISO vadk:path="file:///opt/vmware/www/ISV/ISO/ubuntu-10.04.4-server-i386.iso" vadk:md5sum="fc08a01e78348e3918180ea91a6883bb" vadk:packageRepoPath="" vadk:packageMetadataPath="dists/stable/main/binary-i386/Packages.gz" vadk:containFiles=""/>
-        <vadk:Distribution vadk:vendor="Ubuntu" vadk:OSverMajor="10" vadk:OSverMinor="041" vadk:arch="i386" vadk:sm
-p="1" vadk:packageFormat="deb" vadk:packageManager="apt" vadk:packageRepoDir="packageRepoDir"/>
-        <vadk:OSPackages>
-                <vadk:PackageGroup vadk:value="ubuntu-minimal"/>
-                <vadk:Package vadk:name="openssl"/>
-                <vadk:Package vadk:name="python-libxml2"/>
-                <vadk:Package vadk:name="libglib2.0-0"/>
-        </vadk:OSPackages>
+		<vadk:Distribution vadk:vendor="Ubuntu" vadk:OSverMajor="10" vadk:OSverMinor="041" vadk:arch="i386" vadk:smp="1" vadk:packageFormat="deb" vadk:packageManager="apt" vadk:packageRepoDir="packageRepoDir"/>
+		<vadk:OSPackages>
+			<vadk:PackageGroup vadk:value="ubuntu-minimal"/>
+			<vadk:Package vadk:name="openssl"/>
+			<vadk:Package vadk:name="python-libxml2"/>
+			<vadk:Package vadk:name="libglib2.0-0"/>
+		</vadk:OSPackages>
 	</Section>
 	<Section xsi:type="vadk:BuildSection_Type">
 		<Info/>
