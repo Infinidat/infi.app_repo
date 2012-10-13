@@ -163,8 +163,6 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:Package vadk:name="liblzma1"/>
 			<vadk:Package vadk:name="zlib1g"/>
 			<vadk:Package vadk:name="ssl-cert"/>
-			<vadk:Package vadk:name="telnet"/>
-			<vadk:Package vadk:name="tcpdump"/>
 		</vadk:OSPackages>
 		<vadk:PackagesToRemove><!-- vadk:Package vadk:name="" / --></vadk:PackagesToRemove>
 		<vadk:BootActions>
