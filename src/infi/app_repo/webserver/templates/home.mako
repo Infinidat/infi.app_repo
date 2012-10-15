@@ -112,6 +112,7 @@
                     </h1>
                     % for package in metadata['packages']:
                     <hr id="${package['name']}">
+                    <br>
                     <div class="row-fluid">
                         <div class="span9">
                             <h2>${package['display_name']}
