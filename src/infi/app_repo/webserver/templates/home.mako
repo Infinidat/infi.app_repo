@@ -46,7 +46,7 @@
                         <span class="icon-bar">
                         </span>
                     </a>
-                    <a class="brand" href="#">Application Repository</a>
+                    <a class="brand" href="#"></a>
                 </div>
             </div>
         </div>
@@ -105,6 +105,8 @@
                         </p>
                     </div>
                     <br>
+                    <div style="height: 1080px">
+                    </div>
                     <h1>
                         Available packages
                     </h1>
