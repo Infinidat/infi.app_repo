@@ -160,7 +160,7 @@
                                             Download and install the <a href="${ftp_url}${x64['filepath']}"> package for 64-bit Windows</a>
                                         </span>
                                         <span class="windows-undef" style="display:none;">
-                                            Download the install the <a href="${ftp_url}${x86['filepath']}"> package for 32-bit Windows</a>
+                                            Download and install the <a href="${ftp_url}${x86['filepath']}"> package for 32-bit Windows</a>
                                             or <a href="${ftp_url}${x64['filepath']}"> package for 64-bit Windows</a>
                                         </span>
                                     </div>
