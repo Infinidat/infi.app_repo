@@ -11,7 +11,7 @@ _apt() {
     apt-get update > /dev/null 2>&1
 }
 
-yum() {
+_yum() {
     echo Setting up...
     distribution=`python -c "import platform; print platform.dist()[0].lower()"`
     version=`python -c "import platform; print platform.dist()[1].split('.')[0].lower()"`
