@@ -109,7 +109,7 @@
                         Available packages
                     </h1>
                     % for package in metadata['packages']:
-                    <hr id="${package[ 'name']}">
+                    <hr id="${package['name']}">
                     <div class="row-fluid">
                         <div class="span9">
                             <h2>${package['display_name']}
@@ -151,14 +151,14 @@
                                                           if distribution['platform'] == 'windows' and distribution['architecture'] == 'x64']
                                         %>
                                         <span class="windows-x86" style="display:none;">
-                                            Download and install the <a href="${ftp_url}${x86[ 'filepath']}"> package for 32-bit Windows</a>
+                                            Download and install the <a href="${ftp_url}${x86['filepath']}"> package for 32-bit Windows</a>
                                         </span>
                                         <span class="windows-x64" style="display:none;">
-                                            Download and install the <a href="${ftp_url}${x64[ 'filepath']}"> package for 64-bit Windows</a>
+                                            Download and install the <a href="${ftp_url}${x64['filepath']}"> package for 64-bit Windows</a>
                                         </span>
                                         <span class="windows-undef" style="display:none;">
-                                            Download the install the <a href="${ftp_url}${x86[ 'filepath']}"> package for 32-bit Windows</a>
-                                            or <a href="${ftp_url}${x64[ 'filepath']}"> package for 64-bit Windows</a>
+                                            Download the install the <a href="${ftp_url}${x86['filepath']}"> package for 32-bit Windows</a>
+                                            or <a href="${ftp_url}${x64['filepath']}"> package for 64-bit Windows</a>
                                         </span>
                                     </div>
                                 </div>
@@ -223,7 +223,7 @@
             options.bProcessing = false;
             options.bInfo = false;
             options.bAutoWidth = true;
-            /*options.aoColumnDefs = [ {"asSorting ": ['desc']}];*/
+            /*options.aoColumnDefs = [{"asSorting ": ['desc']}];*/
             $(document).ready(function() {
                 $.fn.dataTableExt.oStdClasses.sPagePrevEnabled = "btn btn-info";
                 $.fn.dataTableExt.oStdClasses.sPagePrevDisabled = "btn btn-info";
@@ -233,25 +233,25 @@
             });
         </script>
         <script>
-          $(function() {
-            $(".show-other").click(function() {
-              $(".dataTables_wrapper", $(this).parent()).toggle();
-              })
+            $(function() {
+                $(".show-other").click(function() {
+                    $(".dataTables_wrapper", $(this).parent()).toggle();
+                })
             })
         </script>
         <script>
-        var OSName="Unknown OS";
-        if (navigator.appVersion.indexOf("Win")!=-1) {
-          if (navigator.userAgent.indexOf('WOW64')>-1 || window.navigator.platform=='Win64') {
-            $(".windows-x64").show();
-          }
-          else {
-            $(".windows-x86").show();
-          }
-        }
-          else {
-            $(".windows-undef").show();
-          }
+            var OSName="Unknown OS";
+            if (navigator.appVersion.indexOf("Win")!=-1) {
+                if (navigator.userAgent.indexOf('WOW64')>-1 || window.navigator.platform=='Win64') {
+                    $(".windows-x64").show();
+                }
+                else {
+                    $(".windows-x86").show();
+                }
+            }
+            else {
+                $(".windows-undef").show();
+            }
         </script>
     </body>
 </html>
