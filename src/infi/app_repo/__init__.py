@@ -265,10 +265,15 @@ class ApplicationRepository(object):
         with open(path.join(self.base_directory, 'metadata.json'), 'w') as fd:
             fd.write(encode(dict(packages=packages)))
 
+    def _exclude_filepath_from_views(self, filepath):
+        return filepath.startswith(self.incoming_directory) or \
+               path.join("ova", "updates") in filepath or \
+               "archives" in filepath
+
     def gather_metadata_for_views(self):
         all_files =  []
         all_files = [filepath for filepath in find_files(self.base_directory, '*')
-                     if not filepath.startswith(self.incoming_directory)
+                     if not self._exclude_filepath_from_views(filepath)
                      and parse_filepath(filepath) != (None, None, None, None, None)]
         distributions = [parse_filepath(distribution) + (distribution, ) for distribution in all_files]
         package_names = set([distribution[0] for distribution in distributions])
