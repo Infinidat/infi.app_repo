@@ -215,6 +215,18 @@ class ApplicationRepository(object):
         logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
         copy2(filepath, destination_directory)
 
+    def sign_rpm_package(self, filepath, sudo=False):
+        logger.info("Signing {!r}".format(filepath))
+        command = '{} rpm --addsign {}'.format(' '.join(SUDO_PREFIX) if sudo else '', filepath)
+        logger.debug("Spawning {}".format(command))
+        pid = spawn(command)
+        pid.expect("Enter pass phrase:")
+        pid.sendline("\n")
+        pid.wait()
+        assert pid.exitstatus == 0
+        prefix = SUDO_PREFIX if sudo else []
+        execute_assert_success(prefix + ['rpm', '-vv', '--checksig', filepath])
+
     def add_package__rpm(self, filepath):
         package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
         _, distribution_name, major_version = platform_string.split('-')
@@ -222,12 +234,7 @@ class ApplicationRepository(object):
                                           'i686' if architecture == 'x86' else 'x86_64')
         if not path.exists(destination_directory):
             makedirs(destination_directory)
-        logger.info("Signing {!r}".format(filepath))
-        pid = spawn('rpm --addsign {}'.format(filepath))
-        pid.expect("Enter pass phrase:")
-        pid.sendline("\n")
-        pid.wait()
-        assert pid.exitstatus == 0
+        self.sign_rpm_package(filepath)
         logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
         copy2(filepath, destination_directory)
 
