@@ -127,7 +127,7 @@
                                         <span class="label label-important">centos</span>
                                     </div>
                                     <div class="span10">
-                                        <code>yum install -y ${package['name']}</code>
+                                        <code>sudo yum install -y ${package['name']}</code>
                                     </div>
                                 </div>
                                 % endif
@@ -137,7 +137,7 @@
                                         <span class="label label-warning">ubuntu</span>
                                     </div>
                                     <div class="span10">
-                                        <code>apt-get install -y ${package['name']}</code>
+                                        <code>sudo apt-get install -y ${package['name']}</code>
                                     </div>
                                 </div>
                                 % endif
