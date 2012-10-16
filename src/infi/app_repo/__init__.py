@@ -24,6 +24,7 @@ GPG_TEMPLATE = """
 """
 
 SUDO_PREFIX = ['sudo', '-H', '-u', 'app_repo']
+GPG_FILENAMES = ['gpg.conf', 'pubring.gpg', 'random_seed', 'secring.gpg', 'trustdb.gpg']
 
 def log_execute_assert_success(args, allow_to_fail=False):
     logger.info("Executing {}".format(' '.join(args)))
@@ -145,12 +146,14 @@ class ApplicationRepository(object):
             fd.write("HRNGDEVICE=/dev/urandom\n")
         log_execute_assert_success(['/etc/init.d/rng-tools', 'start'], True)
 
-    def generate_gpg_key(self):
+    def generate_gpg_key_if_does_not_exist(self):
         self.fix_entropy_generator()
         gnupg_directory = path.join(self.incoming_directory, ".gnupg")
+        if all([path.exists(path.join(gnupg_directory, filename)) for filename in GPG_FILENAMES]):
+            return
         rmtree(gnupg_directory, ignore_errors=True)
         log_execute_assert_success(SUDO_PREFIX + ['gpg', '--batch', '--gen-key',
-                                    resource_filename(__name__, 'gpg_batch_file')])
+                                   resource_filename(__name__, 'gpg_batch_file')])
         pid = log_execute_assert_success(SUDO_PREFIX + ['gpg', '--export', '--armor'])
         with open(path.join(self.incoming_directory, ".rpmmacros"), 'w') as fd:
             fd.write(GPG_TEMPLATE)
@@ -178,7 +181,7 @@ class ApplicationRepository(object):
         self.restart_vsftpd()
         self.set_cron_job()
         self.install_upstart_script_for_webserver()
-        self.generate_gpg_key()
+        self.generate_gpg_key_if_does_not_exist()
         self.import_gpg_key_to_rpm_database()
         self.sign_all_existing_deb_and_rpm_packages()
         self.update_metadata()
