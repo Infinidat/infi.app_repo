@@ -249,7 +249,7 @@ class ApplicationRepository(object):
         logger.info("Signing {!r}".format(filepath))
         command = '{} rpm --addsign {}'.format(' '.join(SUDO_PREFIX) if sudo else '', filepath)
         logger.debug("Spawning {}".format(command))
-        pid = spawn(command)
+        pid = spawn(command, timeout=120)
         pid.expect("Enter pass phrase:")
         pid.sendline("\n")
         pid.wait()
