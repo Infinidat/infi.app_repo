@@ -14,6 +14,17 @@ from pkg_resources import parse_version
 
 logger = getLogger(__name__)
 
+GPG_TEMPLATE = """
+%_signature gpg
+%_gpg_name  app_repo
+%__gpg_sign_cmd %{__gpg} \
+    gpg --force-v3-sigs --digest-algo=sha1 --batch --no-verbose --no-armor \
+    --passphrase-fd 3 --no-secmem-warning -u "%{_gpg_name}" \
+    -sbo %{__signature_filename} %{__plaintext_filename}
+"""
+
+SUDO_PREFIX = ['sudo', '-H', '-u', 'app_repo']
+
 def log_execute_assert_success(args, allow_to_fail=False):
     logger.info("Executing {}".format(' '.join(args)))
     try:
@@ -138,13 +149,26 @@ class ApplicationRepository(object):
         self.fix_entropy_generator()
         gnupg_directory = path.join(self.incoming_directory, ".gnupg")
         rmtree(gnupg_directory, ignore_errors=True)
-        log_execute_assert_success(['sudo', '-H', '-u', 'app_repo', 'gpg', '--batch', '--gen-key',
+        log_execute_assert_success(SUDO_PREFIX + ['gpg', '--batch', '--gen-key',
                                     resource_filename(__name__, 'gpg_batch_file')])
-        pid = log_execute_assert_success(['sudo', '-H', '-u', 'app_repo', 'gpg', '--export', '--armor'])
+        pid = log_execute_assert_success(SUDO_PREFIX + ['gpg', '--export', '--armor'])
         with open(path.join(self.incoming_directory, ".rpmmacros"), 'w') as fd:
-            fd.write("%_gpg_name Real Name")
+            fd.write(GPG_TEMPLATE)
         with open(path.join(self.base_directory, 'gpg.key'), 'w') as fd:
             fd.write(pid.get_stdout())
+
+    def import_gpg_key_to_rpm_database(self):
+        key = path.join(self.base_directory, 'gpg.key')
+        for prefix in [[], SUDO_PREFIX]:
+            log_execute_assert_success(prefix + ['rpm', '--import', key])
+
+
+    def sign_all_existing_deb_and_rpm_packages(self):
+        # this is necessary because we replaced the gpg key
+        for filepath in find_files(path.join(self.base_directory, 'rpm'), '*.rpm'):
+            self.sign_rpm_package(filepath, sudo=True)
+        for filepath in find_files(path.join(self.base_directory, 'deb'), '*.deb'):
+            self.sign_deb_package(filepath, sudo=True)
 
     def setup(self):
         self.initialize()
@@ -155,6 +179,8 @@ class ApplicationRepository(object):
         self.set_cron_job()
         self.install_upstart_script_for_webserver()
         self.generate_gpg_key()
+        self.import_gpg_key_to_rpm_database()
+        self.sign_all_existing_deb_and_rpm_packages()
         self.update_metadata()
 
     def add(self, source_path):
@@ -203,6 +229,11 @@ class ApplicationRepository(object):
                      if filepath.endswith(key)]
         return factory
 
+    def sign_deb_package(self, filepath, sudo=False):
+        logger.info("Signing {!r}".format(filepath))
+        prefix = SUDO_PREFIX if sudo else []
+        log_execute_assert_success(prefix + ['dpkg-sig', '--sign', 'builder', filepath])
+
     def add_package__deb(self, filepath):
         package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
         _, distribution_name, codename = platform_string.split('-')
@@ -210,8 +241,7 @@ class ApplicationRepository(object):
                                          'main', 'binary-i386' if architecture == 'x86' else 'binary-amd64')
         if not path.exists(destination_directory):
             makedirs(destination_directory)
-        logger.info("Signing {!r}".format(filepath))
-        log_execute_assert_success(['dpkg-sig', '--sign', 'builder', filepath])
+        self.sign_deb_package(filepath)
         logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
         copy2(filepath, destination_directory)
 
