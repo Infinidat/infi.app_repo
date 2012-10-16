@@ -22,7 +22,7 @@ logger = getLogger(__name__)
 def console_script(func):
     @wraps(func)
     def decorator(*args, **kwargs):
-        filename = datetime.now().strftime("%Y-%m-%d:%H-%m-%S")
+        filename = datetime.now().strftime("%Y-%m-%d.%H-%m-%S")
         basicConfig(level=DEBUG, filemode='w', filename='/tmp/{}_{}.log'.format(func.__name__, filename))
         logger.info("Logging started")
         with traceback_context():
