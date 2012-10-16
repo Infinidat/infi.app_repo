@@ -250,14 +250,16 @@ class ApplicationRepository(object):
 
     def sign_rpm_package(self, filepath, sudo=False):
         logger.info("Signing {!r}".format(filepath))
-        command = '{} rpm --addsign {}'.format(' '.join(SUDO_PREFIX) if sudo else '', filepath)
+        prefix = SUDO_PREFIX if sudo else []
+        command = prefix + ['rpm', '--addsign', filepath]
         logger.debug("Spawning {}".format(command))
-        pid = spawn(command, timeout=120)
+        pid = spawn(command[0], command[1:], timeout=120)
+        logger.debug("Waiting for passphrase request")
         pid.expect("Enter pass phrase:")
         pid.sendline("\n")
-        pid.wait()
+        logger.debug("Passphrase entered, waiting for rpm to exit")
+        pid.wait() if pid.isalive() else None
         assert pid.exitstatus == 0
-        prefix = SUDO_PREFIX if sudo else []
         execute_assert_success(prefix + ['rpm', '-vv', '--checksig', filepath])
 
     def add_package__rpm(self, filepath):
