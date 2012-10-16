@@ -82,7 +82,7 @@
                                 <span class="label label-warning">ubuntu</span>
                             </div>
                             <div class="span9">
-                                [First time only] Execute in shell: <code>curl ${setup_url} | sh -</code>
+                                [First time only] Execute in shell: <code>curl ${setup_url} | sudo sh -</code>
                             </div>
                         </div>
                         <hr style="margin:0px; margin-bottom: 10px;">
