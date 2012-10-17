@@ -148,20 +148,41 @@
                                     </div>
                                     <div class="span10">
                                         <%
-                                        [x86] = [distribution for distribution in package['releases'][0]['distributions']
-                                                          if distribution['platform'] == 'windows' and distribution['architecture'] == 'x86'] or [{'filepath': ''}]
-                                        [x64] = [distribution for distribution in package['releases'][0]['distributions']
-                                                          if distribution['platform'] == 'windows' and distribution['architecture'] == 'x64'] or [{'filepath': ''}]
+                                        [x86] = [item for item in package['releases'][0]['distributions']
+                                                          if item['platform'] == 'windows' and item['architecture'] == 'x86'] or [None]
+                                        [x64] = [item for item in package['releases'][0]['distributions']
+                                                          if item['platform'] == 'windows' and item['architecture'] == 'x64'] or [None]
                                         %>
                                         <span class="windows-x86" style="display:none;">
+                                            % if x86:
                                             Download and install the <a href="${ftp_url}${x86['filepath']}"> package for 32-bit Windows</a>
+                                            % else:
+                                            There is no package for 32-bit windows.
+                                            % endif
                                         </span>
                                         <span class="windows-x64" style="display:none;">
+                                            % if x64:
                                             Download and install the <a href="${ftp_url}${x64['filepath']}"> package for 64-bit Windows</a>
+                                            % else:
+                                            There is no package for 64-bit windows.
+                                            % endif
                                         </span>
                                         <span class="windows-undef" style="display:none;">
-                                            Download and install the <a href="${ftp_url}${x86['filepath']}"> package for 32-bit Windows</a>
-                                            or <a href="${ftp_url}${x64['filepath']}"> package for 64-bit Windows</a>
+                                            % if x86 is None and x64 is None:
+                                            There are no packages available for Windows.
+                                            % else:
+                                            <%
+                                            available_packages = []
+                                            if x86:
+                                                available_packages.append(dict(filepath=x86['filepath'],
+                                                                          description = 'package for 32-bit Windows'))
+                                            if x64:
+                                                available_packages.append(dict(filepath=x64['filepath'],
+                                                                          description = 'package for 64-bit Windows'))
+                                            formatted = ' or '.join(['<a href="{}{}">{}</a>'.format(ftp_url, item['filepath'], item['description']) for item in available_packages])
+                                            %>
+                                            % endif
+                                            Download and install the ${formatted}.
                                         </span>
                                     </div>
                                 </div>
@@ -174,7 +195,7 @@
                                     <div class="span10">
                                         <%
                                         [distribution] = [distribution for distribution in package['releases'][0]['distributions']
-                                                          if distribution['platform'] == 'vmware-esx'] or [{'filepath': ''}]
+                                                          if distribution['platform'] == 'vmware-esx']
                                          %>
                                         Download and deploy <a href="${ftp_url}${distribution['filepath']}">this</a> appliance in vCenter.
                                     </div>
