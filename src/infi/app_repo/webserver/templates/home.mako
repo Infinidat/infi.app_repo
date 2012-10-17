@@ -149,9 +149,9 @@
                                     <div class="span10">
                                         <%
                                         [x86] = [distribution for distribution in package['releases'][0]['distributions']
-                                                          if distribution['platform'] == 'windows' and distribution['architecture'] == 'x86']
+                                                          if distribution['platform'] == 'windows' and distribution['architecture'] == 'x86'] or [{'filepath': ''}]
                                         [x64] = [distribution for distribution in package['releases'][0]['distributions']
-                                                          if distribution['platform'] == 'windows' and distribution['architecture'] == 'x64']
+                                                          if distribution['platform'] == 'windows' and distribution['architecture'] == 'x64'] or [{'filepath': ''}]
                                         %>
                                         <span class="windows-x86" style="display:none;">
                                             Download and install the <a href="${ftp_url}${x86['filepath']}"> package for 32-bit Windows</a>
@@ -174,7 +174,7 @@
                                     <div class="span10">
                                         <%
                                         [distribution] = [distribution for distribution in package['releases'][0]['distributions']
-                                                          if distribution['platform'] == 'vmware-esx']
+                                                          if distribution['platform'] == 'vmware-esx'] or [{'filepath': ''}]
                                          %>
                                         Download and deploy <a href="${ftp_url}${distribution['filepath']}">this</a> appliance in vCenter.
                                     </div>
