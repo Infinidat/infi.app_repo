@@ -60,3 +60,11 @@ def webserver(argv=argv[1:]):
         from infi.app_repo.upstart import signal_init_that_i_am_ready
         signal_init_that_i_am_ready()
     start(develop)
+
+@console_script
+def print_metadata(argv=argv[1:]):
+    from cjson import decode
+    from pprint import pprint
+    metadata_filepath = join(REPOSITORY_BASE_DIRECTORY, "metadata.json")
+    with open(metadata_filepath) as fd:
+        pprint(decode(fd.read()))
