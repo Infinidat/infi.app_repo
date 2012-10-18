@@ -37,6 +37,8 @@ def start(develop=False):
     application_config = {
                          '/static': {'tools.staticdir.on': True,
                                      'tools.staticdir.dir': os.path.join(os.path.dirname(__file__), 'static')},
+                         '/assets': {'tools.staticdir.on': True,
+                                     'tools.staticdir.dir': os.path.join(os.path.dirname(__file__), 'assets')},
                          '/favicon.ico': {'tools.staticfile.on': True,
                                           'tools.staticfile.filename': os.path.join(os.path.dirname(__file__), 'static', 'favicon.ico')},
                          }

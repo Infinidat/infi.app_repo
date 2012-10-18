@@ -5,7 +5,6 @@ description "Infinidat Application Repository"
 version {version}
 chdir {chdir}
 exec {exec}
-kill signal INT
 expect stop
 respawn
 respawn limit 5 1

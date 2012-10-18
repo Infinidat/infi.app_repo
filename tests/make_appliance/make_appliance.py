@@ -49,6 +49,8 @@ def get_short_version():
         if item.isdigit():
             version_numbers.append(int(item))
             break
+    while len(version_numbers) < 4:
+        version_numbers.append(0)
     return '.'.join([str(item) for item in  version_numbers])
 
 def get_long_version():
@@ -115,6 +117,8 @@ def build_appliance():
     args = ['ssh', '-i', SSH_KEYFILE, BUILD_HOST,
             '{} --createbuild --verbose --profile {} --instance {}-{}'.format(MAKE_APPLIANCE, OVF_TEMPLATE['dst'],
                                                                               get_job_name(), get_build_number())]
+    if environ.has_key('VABS_ADDITIONAL_PARAMETERS'):
+        args += environ['VABS_ADDITIONAL_PARAMETERS'].split(' ')
     logger.info(' '.join(args))
     assert Popen(args).wait() == 0
 

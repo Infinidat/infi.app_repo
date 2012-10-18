@@ -10,8 +10,21 @@ from fnmatch import fnmatch
 from time import sleep
 from cjson import encode, decode
 from logging import getLogger
+from pkg_resources import parse_version
 
 logger = getLogger(__name__)
+
+GPG_TEMPLATE = """
+%_signature gpg
+%_gpg_name  app_repo
+%__gpg_sign_cmd %{__gpg} \
+    gpg --force-v3-sigs --digest-algo=sha1 --batch --no-verbose --no-armor \
+    --passphrase-fd 3 --no-secmem-warning -u "%{_gpg_name}" \
+    -sbo %{__signature_filename} %{__plaintext_filename}
+"""
+
+SUDO_PREFIX = ['sudo', '-H', '-u', 'app_repo']
+GPG_FILENAMES = ['gpg.conf', 'pubring.gpg', 'random_seed', 'secring.gpg', 'trustdb.gpg']
 
 def log_execute_assert_success(args, allow_to_fail=False):
     logger.info("Executing {}".format(' '.join(args)))
@@ -44,7 +57,7 @@ def wait_for_directory_to_stabalize(source_path):
         break
 
 NAME = r"""(?P<package_name>[a-z][a-z\-]+[a-z])"""
-VERSION = r"""v?(?P<package_version>(?:[\d\.]+)(?:|-develop-\d+-g[a-z0-9]{7}))"""
+VERSION = r"""v?(?P<package_version>(?:[\d\.]+)(?:|-develop|-develop-\d+-g[a-z0-9]{7}))"""
 PLATFORM = r"""(?P<platform_string>windows|linux-ubuntu-[a-z]+|linux-redhat-\d|linux-centos-\d|osx-\d+\.\d+)"""
 ARCHITECTURE = r"""(?P<architecture>x86|x64|x86_OVF10|x64_OVF_10)"""
 EXTENSION = r"""(?P<extension>rpm|deb|msi|tar\.gz|ova|iso|zip)"""
@@ -118,11 +131,7 @@ class ApplicationRepository(object):
         crontab = CronTab("app_repo")
         crontab.lines = []
         command = crontab.new('{} > /dev/null 2>&1 '.format(path.join(PROJECT_DIRECTORY, 'bin', 'process_incoming')))
-        command.minute.on('*')
-        command.hour.on('*')
-        command.month.on('*')
-        command.dom.on('*')
-        command.dow.on('*')
+        command.minute.every(10)
         crontab.write()
 
     def install_upstart_script_for_webserver(self):
@@ -137,17 +146,32 @@ class ApplicationRepository(object):
             fd.write("HRNGDEVICE=/dev/urandom\n")
         log_execute_assert_success(['/etc/init.d/rng-tools', 'start'], True)
 
-    def generate_gpg_key(self):
+    def generate_gpg_key_if_does_not_exist(self):
         self.fix_entropy_generator()
         gnupg_directory = path.join(self.incoming_directory, ".gnupg")
+        if all([path.exists(path.join(gnupg_directory, filename)) for filename in GPG_FILENAMES]):
+            return
         rmtree(gnupg_directory, ignore_errors=True)
-        log_execute_assert_success(['sudo', '-H', '-u', 'app_repo', 'gpg', '--batch', '--gen-key',
-                                    resource_filename(__name__, 'gpg_batch_file')])
-        pid = log_execute_assert_success(['sudo', '-H', '-u', 'app_repo', 'gpg', '--export', '--armor'])
+        log_execute_assert_success(SUDO_PREFIX + ['gpg', '--batch', '--gen-key',
+                                   resource_filename(__name__, 'gpg_batch_file')])
+        pid = log_execute_assert_success(SUDO_PREFIX + ['gpg', '--export', '--armor'])
         with open(path.join(self.incoming_directory, ".rpmmacros"), 'w') as fd:
-            fd.write("%_gpg_name Real Name")
+            fd.write(GPG_TEMPLATE)
         with open(path.join(self.base_directory, 'gpg.key'), 'w') as fd:
             fd.write(pid.get_stdout())
+
+    def import_gpg_key_to_rpm_database(self):
+        key = path.join(self.base_directory, 'gpg.key')
+        for prefix in [[], SUDO_PREFIX]:
+            log_execute_assert_success(prefix + ['rpm', '--import', key])
+
+
+    def sign_all_existing_deb_and_rpm_packages(self):
+        # this is necessary because we replaced the gpg key
+        for filepath in find_files(path.join(self.base_directory, 'rpm'), '*.rpm'):
+            self.sign_rpm_package(filepath, sudo=True)
+        for filepath in find_files(path.join(self.base_directory, 'deb'), '*.deb'):
+            self.sign_deb_package(filepath, sudo=True)
 
     def setup(self):
         self.initialize()
@@ -157,7 +181,9 @@ class ApplicationRepository(object):
         self.restart_vsftpd()
         self.set_cron_job()
         self.install_upstart_script_for_webserver()
-        self.generate_gpg_key()
+        self.generate_gpg_key_if_does_not_exist()
+        self.import_gpg_key_to_rpm_database()
+        self.sign_all_existing_deb_and_rpm_packages()
         self.update_metadata()
 
     def add(self, source_path):
@@ -198,12 +224,18 @@ class ApplicationRepository(object):
         add_package_by_postfix = {'msi': self.add_package__msi,
                                           'rpm': self.add_package__rpm,
                                           'deb': self.add_package__deb,
-                                          'tar.gz': self.add_package__tar_gz,
+                                          'tar.gz': self.add_package__archives,
+                                          'zip': self.add_package__archives,
                                           'ova': self.add_package__ova
                                          }
         [factory] = [value for key, value in add_package_by_postfix.items()
                      if filepath.endswith(key)]
         return factory
+
+    def sign_deb_package(self, filepath, sudo=False):
+        logger.info("Signing {!r}".format(filepath))
+        prefix = SUDO_PREFIX if sudo else []
+        log_execute_assert_success(prefix + ['dpkg-sig', '--sign', 'builder', filepath])
 
     def add_package__deb(self, filepath):
         package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
@@ -212,10 +244,23 @@ class ApplicationRepository(object):
                                          'main', 'binary-i386' if architecture == 'x86' else 'binary-amd64')
         if not path.exists(destination_directory):
             makedirs(destination_directory)
-        logger.info("Signing {!r}".format(filepath))
-        log_execute_assert_success(['dpkg-sig', '--sign', 'builder', filepath])
+        self.sign_deb_package(filepath)
         logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
         copy2(filepath, destination_directory)
+
+    def sign_rpm_package(self, filepath, sudo=False):
+        logger.info("Signing {!r}".format(filepath))
+        prefix = SUDO_PREFIX if sudo else []
+        command = prefix + ['rpm', '--addsign', filepath]
+        logger.debug("Spawning {}".format(command))
+        pid = spawn(command[0], command[1:], timeout=120)
+        logger.debug("Waiting for passphrase request")
+        pid.expect("Enter pass phrase:")
+        pid.sendline("\n")
+        logger.debug("Passphrase entered, waiting for rpm to exit")
+        pid.wait() if pid.isalive() else None
+        assert pid.exitstatus == 0
+        execute_assert_success(prefix + ['rpm', '-vv', '--checksig', filepath])
 
     def add_package__rpm(self, filepath):
         package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
@@ -224,12 +269,7 @@ class ApplicationRepository(object):
                                           'i686' if architecture == 'x86' else 'x86_64')
         if not path.exists(destination_directory):
             makedirs(destination_directory)
-        logger.info("Signing {!r}".format(filepath))
-        pid = spawn('rpm --addsign {}'.format(filepath))
-        pid.expect("Enter pass phrase:")
-        pid.sendline("\n")
-        pid.wait()
-        assert pid.exitstatus == 0
+        self.sign_rpm_package(filepath)
         logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
         copy2(filepath, destination_directory)
 
@@ -241,7 +281,7 @@ class ApplicationRepository(object):
         logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
         copy2(filepath, destination_directory)
 
-    def add_package__tar_gz(self, filepath):
+    def add_package__archives(self, filepath):
         package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
         destination_directory = path.join(self.base_directory, 'archives')
         if not path.exists(destination_directory):
@@ -267,17 +307,23 @@ class ApplicationRepository(object):
         with open(path.join(self.base_directory, 'metadata.json'), 'w') as fd:
             fd.write(encode(dict(packages=packages)))
 
+    def _exclude_filepath_from_views(self, filepath):
+        return filepath.startswith(self.incoming_directory) or \
+               path.join("ova", "updates") in filepath or \
+               "archives" in filepath
+
     def gather_metadata_for_views(self):
         all_files =  []
         all_files = [filepath for filepath in find_files(self.base_directory, '*')
-                     if not filepath.startswith(self.incoming_directory)
+                     if not self._exclude_filepath_from_views(filepath)
                      and parse_filepath(filepath) != (None, None, None, None, None)]
         distributions = [parse_filepath(distribution) + (distribution, ) for distribution in all_files]
         package_names = set([distribution[0] for distribution in distributions])
         distributions_by_package = {package_name: [distribution for distribution in distributions
                                                    if distribution[0] == package_name]
                                     for package_name in package_names}
-        for package_name, package_distributions in distributions_by_package.items():
+        for package_name, package_distributions in sorted(distributions_by_package.items(),
+                                                          key=lambda item: item[0]):
             package_versions = set([distribution[1] for distribution in package_distributions])
             distributions_by_version = {package_version: [dict(platform=distribution[2],
                                                                architecture=distribution[3],
@@ -286,15 +332,24 @@ class ApplicationRepository(object):
                                                           for distribution in package_distributions
                                                           if distribution[1] == package_version]
                                         for package_version in package_versions}
-            yield dict(name=package_name, releases=[dict(version=key, distributions=value)
-                                                    for key, value in distributions_by_version.items()])
+            yield dict(name=package_name,
+                       display_name=' '.join([item.capitalize() for item in package_name.split('-')]),
+                       releases=[dict(version=key, distributions=value)
+                                 for key, value in sorted(distributions_by_version.items(),
+                                                          key=lambda item: parse_version(item[0]),
+                                                          reverse=True)])
 
     def update_metadata_for_yum_repositories(self):
         for dirpath in glob(path.join(self.base_directory, 'rpm', '*', '*', '*')):
             if not path.isdir(dirpath):
                 continue
             if path.exists(path.join(dirpath, 'repodata')):
-                log_execute_assert_success(['createrepo', '--update', dirpath])
+                try:
+                    log_execute_assert_success(['createrepo', '--update', dirpath])
+                except:
+                    logger.exception("Failed to update metadata, will attempt to remove it and create it from scratch")
+                    rmtree(path.join(dirpath, 'repodata'), ignore_errors=True)
+                    log_execute_assert_success(['createrepo', dirpath])
             else:
                 log_execute_assert_success(['createrepo', dirpath])
 

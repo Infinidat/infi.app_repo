@@ -109,49 +109,60 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:PostOutputCreation/>
 		</vadk:DistributionFormat>
 		<vadk:ApplicationPackages>
-			<vadk:url vadk:path="dists/precise/main/binary-i386/Packages.gz" vadk:type="ondemand">http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.0u1/ubuntu/</vadk:url>
-			<vadk:url vadk:path="dists/precise/main/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
-			<vadk:url vadk:path="dists/precise/universe/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
-			<vadk:url vadk:path="dists/precise/multiverse/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
-			<vadk:url vadk:path="dists/precise-updates/main/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
-			<vadk:url vadk:path="dists/precise-backports/main/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
-			<vadk:url vadk:path="dists/precise-backports/universe/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
-			<vadk:url vadk:path="dists/precise-backports/multiverse/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
-			<vadk:url vadk:path="dists/precise-updates/universe/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
-			<vadk:url vadk:path="dists/precise-updates/multiverse/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
-			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.0u1/ubuntu/dists/precise/main/binary-i386/vmware-tools-esx-nox_8.6.5-2_i386.deb</vadk:url>
-			<vadk:url>http://[VADK.localIP]/ISV/appliancePackages/DEB_PACKAGE_FILENAME</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/libg/libgcrypt11/libgcrypt11_1.5.0-3ubuntu0.1_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/libt/libtasn1-3/libtasn1-3_2.10-1ubuntu1.1_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/g/gnutls26/libgnutls26_2.12.14-5ubuntu3.1_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/c/cyrus-sasl2/libsasl2-2_2.1.25.dfsg1-3ubuntu0.1_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/o/openldap/libldap-2.4-2_2.4.28-1.1ubuntu4.1_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/n/nspr/libnspr4_4.8.9-1ubuntu2.3_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/n/nss/libnss3_3.13.1.with.ckbi.1.88-1ubuntu6.1_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/c/cyrus-sasl2/libsasl2-modules_2.1.25.dfsg1-3ubuntu0.1_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/a/apparmor/dh-apparmor_2.7.102-0ubuntu3.1_all.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/b/build-essential/build-essential_11.5ubuntu2.1_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/t/trousers/libtspi1_0.3.7-2ubuntu1_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/r/rpm/python-rpm_4.9.1.1-1build1_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/p/python-support/python-support_1.0.14ubuntu2_all.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/y/yum-metadata-parser/python-sqlitecachec_1.1.2-1ubuntu3_i386.deb</vadk:url>
+			<vadk:url vadk:path="dists/lucid/main/binary-i386/Packages.gz" vadk:type="ondemand">http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.1latest/ubuntu/</vadk:url>
+			<vadk:url vadk:path="dists/lucid/main/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
+			<vadk:url vadk:path="dists/lucid/universe/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
+			<vadk:url vadk:path="dists/lucid/multiverse/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
+			<vadk:url vadk:path="dists/lucid-backports/main/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
+			<vadk:url vadk:path="dists/lucid-backports/universe/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
+			<vadk:url vadk:path="dists/lucid-backports/multiverse/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
+			<vadk:url vadk:path="dists/lucid-updates/universe/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
+			<vadk:url vadk:path="dists/lucid-updates/multiverse/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
+			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-esx-nox_9.0.0-2_i386.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/t/trousers/libtspi1_0.3.1-7ubuntu4_i386.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/r/rpm/python-rpm_4.7.2-1lbuild1_i386.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/y/yum-metadata-parser/python-sqlitecachec_1.1.2-1ubuntu1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/c/createrepo/createrepo_0.4.11-1_all.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/libc/libconfig-file-perl/libconfig-file-perl_1.50-2_all.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/d/dpkg-sig/dpkg-sig_0.13.1_all.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/s/sqlite/libsqlite0_2.8.17-7fakesync1build1_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/p/python-sqlite/python-sqlite_1.0.1-9_i386.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/p/python-sqlite/python-sqlite_1.0.1-7ubuntu1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/y/yum/yum_3.2.25-1ubuntu2_all.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/r/rng-tools/rng-tools_2-unofficial-mt.14-1ubuntu1_i386.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/r/rpm/rpm-common_4.7.2-1lbuild1_all.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/r/rpm/librpm0_4.7.2-1lbuild1_i386.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/r/rpm/librpmbuild0_4.7.2-1lbuild1_i386.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/r/rpm/librpmio0_4.7.2-1lbuild1_i386.deb</vadk:url>
+			<vadk:url>http://[VADK.localIP]/ISV/appliancePackages/DEB_PACKAGE_FILENAME</vadk:url>
 		</vadk:ApplicationPackages>
 		<vadk:OSPackages><!-- Additional OS packages needed by the ISV's application -->
 			<vadk:Package vadk:name="groff-base"/>
-			<vadk:Package vadk:name="libssl-dev"/>
 			<vadk:Package vadk:name="binutils"/>
 			<vadk:Package vadk:name="libexpat1"/>
 			<vadk:Package vadk:name="openssh-server"/>
 			<vadk:Package vadk:name="openssh-client"/>
 			<vadk:Package vadk:name="libossp-uuid16"/>
 			<vadk:Package vadk:name="libuuid1"/>
+			<vadk:Package vadk:name="build-essential"/>
+			<vadk:Package vadk:name="libgcrypt11"/>
+			<vadk:Package vadk:name="libtasn1-3"/>
+			<vadk:Package vadk:name="libgnutls26"/>
+			<vadk:Package vadk:name="libsasl2-2"/>
+			<vadk:Package vadk:name="libsasl2-modules"/>
+			<vadk:Package vadk:name="libldap-2.4-2"/>
+			<vadk:Package vadk:name="libnspr4-0d"/>
+			<vadk:Package vadk:name="libnss3-1d"/>
+			<vadk:Package vadk:name="python-support"/>
+			<vadk:Package vadk:name="libsqlite0"/>
+			<vadk:Package vadk:name="libssl0.9.8"/>
+			<vadk:Package vadk:name="libdb4.8"/>
+			<vadk:Package vadk:name="libpopt0"/>
+			<vadk:Package vadk:name="libelf1"/>
+			<vadk:Package vadk:name="libmagic1"/>
+			<vadk:Package vadk:name="bzip2"/>
+			<vadk:Package vadk:name="liblua5.1-0"/>
+			<vadk:Package vadk:name="liblzma1"/>
+			<vadk:Package vadk:name="zlib1g"/>
+			<vadk:Package vadk:name="ssl-cert"/>
 		</vadk:OSPackages>
 		<vadk:PackagesToRemove><!-- vadk:Package vadk:name="" / --></vadk:PackagesToRemove>
 		<vadk:BootActions>
@@ -191,7 +202,7 @@ echo This script is executed on all boots, except the first one.</vadk:Subsequen
 	</Section>
 	<Section xsi:type="vadk:UpdateSection_Type">
 		<Info/>
-		<vadk:Repository vadk:url="ftp://REPO_HOSTNAME/ova/updates/PRODUCT_NAME" vadk:username="anonymous" vadk:password="bm9yZXBseUBpbmZpbmlkYXQuY29t" vadk:passwordFormat="base64"/>
+		<vadk:Repository vadk:url="ftp://REPO_HOSTNAME/ova/updates/PRODUCT_SHORT_NAME" vadk:username="anonymous" vadk:password="bm9yZXBseUBpbmZpbmlkYXQuY29t" vadk:passwordFormat="base64"/>
 		<vadk:RepositoryStagingServer vadk:fileProto="scp" vadk:hostname="REPO_HOSTNAME" vadk:fileLogin="REPO_USERNAME" vadk:filePassword="REPO_PASSWORD" vadk:filePasswordFormat="plaintext" vadk:filePath="UPDATES_DIRPATH/PRODUCT_SHORT_NAME"/>
 <!--
 		<vadk:RepositoryStagingServer vadk:hostname=""
@@ -294,7 +305,7 @@ openssl dgst -sha1 -verify &quot;$3&quot; -signature &quot;$2&quot;  &quot;$1&qu
 <!-- Defined by  CIM_OperatingSystem.OsType -->
 	<Section ovf:id="101" ovf:version="" vmw:osType="ubuntuGuest" xsi:type="ovf:OperatingSystemSection_Type">
 		<Info>Guest Operating System</Info>
-		<Description>ubuntu-12.04-server-i386</Description>
+		<Description>ubuntu-11.10-server-i386</Description>
 	</Section>
 	<Section xsi:type="ovf:VirtualHardwareSection_Type" ovf:transport="com.vmware.guestInfo iso">
 		<Info>Virtual Hardware Requirements</Info>
@@ -390,19 +401,19 @@ preseed/url=[VADK.unattendedCfgURL]
 --
 		</vadk:BootArgsDHCP>
 		<vadk:BootFiles vadk:relPath="install/netboot" vadk:kernel="ubuntu-installer/i386/linux"/>
-		<vadk:UnattendedInstallTemplate>[VADK.vadkRoot]/etc/build/templates/ubuntu-12.04-server-i386/ubuntu-12.04-server-i386.xsl</vadk:UnattendedInstallTemplate>
-		<vadk:PreInstallScript vadk:template="[VADK.vadkRoot]/etc/build/templates/ubuntu-12.04-server-i386/preinstall.xsl" vadk:output="[VADK.stageDir]/preinstall.sh"/>
-		<vadk:PostInstallScript vadk:path="http://[VADK.localIP]/build/[VADK.buildID]/configure_appliance" vadk:template="[VADK.vadkRoot]/etc/build/templates/ubuntu-12.04-server-i386/post.xsl" vadk:output="[VADK.stageDir]/configure_appliance"/>
+		<vadk:UnattendedInstallTemplate>[VADK.vadkRoot]/etc/build/templates/ubuntu/10/ubuntu.xsl</vadk:UnattendedInstallTemplate>
+		<vadk:PreInstallScript vadk:template="[VADK.vadkRoot]/etc/build/templates/ubuntu/10/preinstall.xsl" vadk:output="[VADK.stageDir]/preinstall.sh"/>
+		<vadk:PostInstallScript vadk:path="http://[VADK.localIP]/build/[VADK.buildID]/configure_appliance" vadk:template="[VADK.vadkRoot]/etc/build/templates/ubuntu/10/post.xsl" vadk:output="[VADK.stageDir]/configure_appliance"/>
 		<vadk:PostScriptRepoList>RepositoryList</vadk:PostScriptRepoList>
 		<vadk:PostScriptPackageList>PackageList</vadk:PostScriptPackageList>
 		<vadk:VADKPackages vadk:path="http://[VADK.localIP]/build/[VADK.buildID]/repo/vadkPackages/" vadk:sourceDir="[VADK.vadkRoot]/lib/build/include/deb/" vadk:targetDir="[VADK.stageDir]/repo/vadkPackages/"/>
-		<vadk:ISO vadk:path="file:///opt/vmware/www/ISV/ISO/ubuntu-12.04-server-i386.iso" vadk:md5sum="32184a83c8b5e6031e1264e5c499bc03" vadk:packageRepoPath="" vadk:packageMetadataPath="dists/stable/main/binary-i386/Packages.gz" vadk:containFiles=""/>
-		<vadk:Distribution vadk:vendor="" vadk:OSverMajor="" vadk:OSverMinor="" vadk:arch="i386" vadk:smp="1" vadk:packageFormat="deb" vadk:packageManager="apt" vadk:packageRepoDir="packageRepoDir"/>
+		<vadk:ISO vadk:path="file:///opt/vmware/www/ISV/ISO/ubuntu-10.04.4-server-i386.iso" vadk:md5sum="fc08a01e78348e3918180ea91a6883bb" vadk:packageRepoPath="" vadk:packageMetadataPath="dists/stable/main/binary-i386/Packages.gz" vadk:containFiles=""/>
+		<vadk:Distribution vadk:vendor="Ubuntu" vadk:OSverMajor="10" vadk:OSverMinor="041" vadk:arch="i386" vadk:smp="1" vadk:packageFormat="deb" vadk:packageManager="apt" vadk:packageRepoDir="packageRepoDir"/>
 		<vadk:OSPackages>
-			<vadk:PackageGroup vadk:value=""/>
+			<vadk:PackageGroup vadk:value="ubuntu-minimal"/>
 			<vadk:Package vadk:name="openssl"/>
-			<vadk:Package vadk:name="libglib2.0-0"/>
 			<vadk:Package vadk:name="python-libxml2"/>
+			<vadk:Package vadk:name="libglib2.0-0"/>
 		</vadk:OSPackages>
 	</Section>
 	<Section xsi:type="vadk:BuildSection_Type">
@@ -493,7 +504,7 @@ rm /var/log/zerofile</vadk:PostInstallShellScript>
 	-->
 	<Section xsi:type="ovf:DiskSection_Type">
 		<Info>List of the virtual disks and partitions needed</Info>
-		<Disk ovf:diskId="system" ovf:capacity="8192" ovf:capacityAllocationUnits="MegaBytes" ovf:fileRef="system.vmdk" ovf:format="http://www.vmware.com/specifications/vmdk.html#sparse"/>
+		<Disk ovf:diskId="system" ovf:capacity="102400" ovf:capacityAllocationUnits="MegaBytes" ovf:fileRef="system.vmdk" ovf:format="http://www.vmware.com/specifications/vmdk.html#sparse"/>
 	</Section>
 <!--
 	The vadk:DiskPartitioningMechanismSection_Type section is used
