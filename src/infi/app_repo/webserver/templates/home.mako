@@ -70,7 +70,7 @@
                 </div>
                 <div class="span9" id="hero">
                     <div class="hero-unit">
-                        <h1>Installation instructions</h1>
+                        <h1>Install instructions</h1>
                         <br>
                         <h2>
                             Step 1
@@ -200,7 +200,7 @@
                                 </div>
                             </div>
                             % endif
-                            <h3>Uprade instructions:</h3>
+                            <h3>Upgrade instructions:</h3>
                             % if any([('redhat' in distribution['platform'] or 'centos' in distribution['platform']) for distribution in package['releases'][0]['distributions']]):
                             <div class="row-fluid">
                                 <div class="span2">
