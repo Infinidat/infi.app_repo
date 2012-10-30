@@ -52,7 +52,7 @@
         </div>
         <div class="container-fluid">
             <div class="row-fluid">
-                <div class="span3">
+                <div class="span2">
                     <div class="well sidebar-nav affix">
                         <ul class="nav nav-list">
                             <li class="">
@@ -68,7 +68,7 @@
                             % endfor
                     </div>
                 </div>
-                <div class="span9" id="hero">
+                <div class="span10" id="hero">
                     <div class="hero-unit">
                         <h1>Install instructions</h1>
                         <br>
