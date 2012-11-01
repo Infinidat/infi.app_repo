@@ -52,7 +52,7 @@
         </div>
         <div class="container-fluid">
             <div class="row-fluid">
-                <div class="span3">
+                <div class="span2">
                     <div class="well sidebar-nav affix">
                         <ul class="nav nav-list">
                             <li class="">
@@ -68,9 +68,9 @@
                             % endfor
                     </div>
                 </div>
-                <div class="span9" id="hero">
+                <div class="span10" id="hero">
                     <div class="hero-unit">
-                        <h1>Installation instructions</h1>
+                        <h1>Install instructions</h1>
                         <br>
                         <h2>
                             Step 1
@@ -119,115 +119,197 @@
                                 <span class="label">${package['releases'][0]['version']}</span>
                             </h2>
                             <h3>Installation instructions:</h3>
-                            <p>
-                                % if any([('redhat' in distribution['platform'] or 'centos' in distribution['platform']) for distribution in package['releases'][0]['distributions']]):
-                                <div class="row-fluid">
-                                    <div class="span2">
-                                        <span class="label label-important">redhat</span>
-                                        <span class="label label-important">centos</span>
-                                    </div>
-                                    <div class="span10">
-                                        <code>sudo yum install -y ${package['name']}</code>
-                                    </div>
+                            % if any([('redhat' in distribution['platform'] or 'centos' in distribution['platform']) for distribution in package['releases'][0]['distributions']]):
+                            <div class="row-fluid">
+                                <div class="span2">
+                                    <span class="label label-important">redhat</span>
+                                    <span class="label label-important">centos</span>
                                 </div>
-                                % endif
-                                % if any([('ubuntu' in distribution['platform']) for distribution in package['releases'][0]['distributions']]):
-                                <div class="row-fluid">
-                                    <div class="span2">
-                                        <span class="label label-warning">ubuntu</span>
-                                    </div>
-                                    <div class="span10">
-                                        <code>sudo apt-get install -y ${package['name']}</code>
-                                    </div>
+                                <div class="span10">
+                                    <code>sudo yum install -y ${package['name']}</code>
                                 </div>
-                                % endif
-                                % if any([('windows' in distribution['platform']) for distribution in package['releases'][0]['distributions']]):
-                                <div class="row-fluid">
-                                    <div class="span2">
-                                        <span class="label label-success">windows</span>
-                                    </div>
-                                    <div class="span10">
+                            </div>
+                            % endif
+                            % if any([('ubuntu' in distribution['platform']) for distribution in package['releases'][0]['distributions']]):
+                            <div class="row-fluid">
+                                <div class="span2">
+                                    <span class="label label-warning">ubuntu</span>
+                                </div>
+                                <div class="span10">
+                                    <code>sudo apt-get install -y ${package['name']}</code>
+                                </div>
+                            </div>
+                            % endif
+                            % if any([('windows' in distribution['platform']) for distribution in package['releases'][0]['distributions']]):
+                            <div class="row-fluid">
+                                <div class="span2">
+                                    <span class="label label-success">windows</span>
+                                </div>
+                                <div class="span10">
+                                    <%
+                                    [x86] = [item for item in package['releases'][0]['distributions']
+                                                      if item['platform'] == 'windows' and item['architecture'] == 'x86'] or [None]
+                                    [x64] = [item for item in package['releases'][0]['distributions']
+                                                      if item['platform'] == 'windows' and item['architecture'] == 'x64'] or [None]
+                                    %>
+                                    <span class="windows-x86" style="display:none;">
+                                        % if x86:
+                                        Download and install the <a href="${ftp_url}${x86['filepath']}"> package for 32-bit Windows</a>
+                                        % else:
+                                        There is no package for 32-bit windows.
+                                        % endif
+                                    </span>
+                                    <span class="windows-x64" style="display:none;">
+                                        % if x64:
+                                        Download and install the <a href="${ftp_url}${x64['filepath']}"> package for 64-bit Windows</a>
+                                        % else:
+                                        There is no package for 64-bit windows.
+                                        % endif
+                                    </span>
+                                    <span class="windows-undef" style="display:none;">
+                                        % if x86 is None and x64 is None:
+                                        There are no packages available for Windows.
+                                        % else:
                                         <%
-                                        [x86] = [item for item in package['releases'][0]['distributions']
-                                                          if item['platform'] == 'windows' and item['architecture'] == 'x86'] or [None]
-                                        [x64] = [item for item in package['releases'][0]['distributions']
-                                                          if item['platform'] == 'windows' and item['architecture'] == 'x64'] or [None]
+                                        available_packages = []
+                                        if x86:
+                                            available_packages.append(dict(filepath=x86['filepath'],
+                                                                      description = 'package for 32-bit Windows'))
+                                        if x64:
+                                            available_packages.append(dict(filepath=x64['filepath'],
+                                                                      description = 'package for 64-bit Windows'))
+                                        formatted = ' or '.join(['<a href="{}{}">{}</a>'.format(ftp_url, item['filepath'], item['description']) for item in available_packages])
                                         %>
-                                        <span class="windows-x86" style="display:none;">
-                                            % if x86:
-                                            Download and install the <a href="${ftp_url}${x86['filepath']}"> package for 32-bit Windows</a>
-                                            % else:
-                                            There is no package for 32-bit windows.
-                                            % endif
-                                        </span>
-                                        <span class="windows-x64" style="display:none;">
-                                            % if x64:
-                                            Download and install the <a href="${ftp_url}${x64['filepath']}"> package for 64-bit Windows</a>
-                                            % else:
-                                            There is no package for 64-bit windows.
-                                            % endif
-                                        </span>
-                                        <span class="windows-undef" style="display:none;">
-                                            % if x86 is None and x64 is None:
-                                            There are no packages available for Windows.
-                                            % else:
-                                            <%
-                                            available_packages = []
-                                            if x86:
-                                                available_packages.append(dict(filepath=x86['filepath'],
-                                                                          description = 'package for 32-bit Windows'))
-                                            if x64:
-                                                available_packages.append(dict(filepath=x64['filepath'],
-                                                                          description = 'package for 64-bit Windows'))
-                                            formatted = ' or '.join(['<a href="{}{}">{}</a>'.format(ftp_url, item['filepath'], item['description']) for item in available_packages])
-                                            %>
-                                            % endif
-                                            Download and install the ${formatted}.
-                                        </span>
-                                    </div>
+                                        % endif
+                                        Download and install the ${formatted}.
+                                    </span>
                                 </div>
-                                % endif
-                                % if any([('vmware' in distribution['platform']) for distribution in package['releases'][0]['distributions']]):
-                                <div class="row-fluid">
-                                    <div class="span2">
-                                        <span class="label label-info">vmware</span>
-                                    </div>
-                                    <div class="span10">
+                            </div>
+                            % endif
+                            % if any([('vmware' in distribution['platform']) for distribution in package['releases'][0]['distributions']]):
+                            <div class="row-fluid">
+                                <div class="span2">
+                                    <span class="label label-info">vmware</span>
+                                </div>
+                                <div class="span10">
+                                    <%
+                                    [distribution] = [distribution for distribution in package['releases'][0]['distributions']
+                                                      if distribution['platform'] == 'vmware-esx']
+                                     %>
+                                    Download and deploy <a href="${ftp_url}${distribution['filepath']}">this</a> appliance in vCenter.
+                                </div>
+                            </div>
+                            % endif
+                            <h3>Upgrade instructions:</h3>
+                            % if any([('redhat' in distribution['platform'] or 'centos' in distribution['platform']) for distribution in package['releases'][0]['distributions']]):
+                            <div class="row-fluid">
+                                <div class="span2">
+                                    <span class="label label-important">redhat</span>
+                                    <span class="label label-important">centos</span>
+                                </div>
+                                <div class="span10">
+                                    <code>sudo yum update -y ${package['name']}</code>
+                                </div>
+                            </div>
+                            % endif
+                            % if any([('ubuntu' in distribution['platform']) for distribution in package['releases'][0]['distributions']]):
+                            <div class="row-fluid">
+                                <div class="span2">
+                                    <span class="label label-warning">ubuntu</span>
+                                </div>
+                                <div class="span10">
+                                    <code>sudo apt-get upgrade -y ${package['name']}</code>
+                                </div>
+                            </div>
+                            % endif
+                            % if any([('windows' in distribution['platform']) for distribution in package['releases'][0]['distributions']]):
+                            <div class="row-fluid">
+                                <div class="span2">
+                                    <span class="label label-success">windows</span>
+                                </div>
+                                <div class="span10">
+                                    <%
+                                    [x86] = [item for item in package['releases'][0]['distributions']
+                                                      if item['platform'] == 'windows' and item['architecture'] == 'x86'] or [None]
+                                    [x64] = [item for item in package['releases'][0]['distributions']
+                                                      if item['platform'] == 'windows' and item['architecture'] == 'x64'] or [None]
+                                    %>
+                                    <span class="windows-x86" style="display:none;">
+                                        % if x86:
+                                        Download and install the <a href="${ftp_url}${x86['filepath']}"> package for 32-bit Windows</a>
+                                        % else:
+                                        There is no package for 32-bit windows.
+                                        % endif
+                                    </span>
+                                    <span class="windows-x64" style="display:none;">
+                                        % if x64:
+                                        Download and install the <a href="${ftp_url}${x64['filepath']}"> package for 64-bit Windows</a>
+                                        % else:
+                                        There is no package for 64-bit windows.
+                                        % endif
+                                    </span>
+                                    <span class="windows-undef" style="display:none;">
+                                        % if x86 is None and x64 is None:
+                                        There are no packages available for Windows.
+                                        % else:
                                         <%
-                                        [distribution] = [distribution for distribution in package['releases'][0]['distributions']
-                                                          if distribution['platform'] == 'vmware-esx']
-                                         %>
-                                        Download and deploy <a href="${ftp_url}${distribution['filepath']}">this</a> appliance in vCenter.
-                                    </div>
+                                        available_packages = []
+                                        if x86:
+                                            available_packages.append(dict(filepath=x86['filepath'],
+                                                                      description = 'package for 32-bit Windows'))
+                                        if x64:
+                                            available_packages.append(dict(filepath=x64['filepath'],
+                                                                      description = 'package for 64-bit Windows'))
+                                        formatted = ' or '.join(['<a href="{}{}">{}</a>'.format(ftp_url, item['filepath'], item['description']) for item in available_packages])
+                                        %>
+                                        % endif
+                                        Download and install the ${formatted}.
+                                    </span>
                                 </div>
-                                % endif
-                                <div class="btn btn-primary show-other">
-                                    Show/Hide other versions and platforms
+                            </div>
+                            % endif
+                            % if any([('vmware' in distribution['platform']) for distribution in package['releases'][0]['distributions']]):
+                            <div class="row-fluid">
+                                <div class="span2">
+                                    <span class="label label-info">vmware</span>
                                 </div>
-                                <br>
-                                <br>
-                                <table class="table download-links">
-                                    <thead>
-                                        <tr>
-                                            <th>version</th>
-                                            <th>platform</th>
-                                            <th>architecture</th>
-                                            <th>link</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        % for release in package['releases']:
-                                        % for distribution in release['distributions']:
-                                        <tr>
-                                            <td>${release['version']}</td>
-                                            <td>${distribution['platform']}</td>
-                                            <td>${distribution['architecture']}</td>
-                                            <td><a href="${ftp_url}${distribution['filepath']}">download</a></td>
-                                        </tr>
-                                        % endfor
-                                        % endfor
-                                    </tbody>
-                                </table>
+                                <div class="span10">
+                                    <%
+                                    [distribution] = [distribution for distribution in package['releases'][0]['distributions']
+                                                      if distribution['platform'] == 'vmware-esx']
+                                     %>
+                                    Upgrade the appliance through vCenter by using the VMware Update Manager Plug-in.
+                                </div>
+                            </div>
+                            % endif
+
+                            <div class="btn btn-primary show-other">
+                                Show/Hide other versions and platforms
+                            </div>
+                            <br>
+                            <br>
+                            <table class="table download-links">
+                                <thead>
+                                    <tr>
+                                        <th>version</th>
+                                        <th>platform</th>
+                                        <th>architecture</th>
+                                        <th>link</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    % for release in package['releases']:
+                                    % for distribution in release['distributions']:
+                                    <tr>
+                                        <td>${release['version']}</td>
+                                        <td>${distribution['platform']}</td>
+                                        <td>${distribution['architecture']}</td>
+                                        <td><a href="${ftp_url}${distribution['filepath']}">download</a></td>
+                                    </tr>
+                                    % endfor
+                                    % endfor
+                                </tbody>
+                            </table>
                             </div>
                         </div>
                         % endfor

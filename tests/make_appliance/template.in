@@ -485,7 +485,9 @@ rm -rf /var/cache/apt/archives/*deb
 rm -rf /var/lib/apt/lists/gb*
 
 dd if=/dev/zero of=/var/log/zerofile || true
-rm /var/log/zerofile</vadk:PostInstallShellScript>
+rm /var/log/zerofile
+ln -sf /usr/lib/vmware-tools/sbin/vmware-rpctool /usr/sbin/vmware-rpctool
+</vadk:PostInstallShellScript>
 	</Section>
 <!--
 		The combination of a network device in ovf:VirtualHardwareSection_Type

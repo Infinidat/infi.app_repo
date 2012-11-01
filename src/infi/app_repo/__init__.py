@@ -26,6 +26,8 @@ GPG_TEMPLATE = """
 SUDO_PREFIX = ['sudo', '-H', '-u', 'app_repo']
 GPG_FILENAMES = ['gpg.conf', 'pubring.gpg', 'random_seed', 'secring.gpg', 'trustdb.gpg']
 
+RELEASE_FILE_HEADER = "Codename: {}\nArchitectures: am64 i386\nComponents: main"
+
 def log_execute_assert_success(args, allow_to_fail=False):
     logger.info("Executing {}".format(' '.join(args)))
     try:
@@ -353,20 +355,47 @@ class ApplicationRepository(object):
             else:
                 log_execute_assert_success(['createrepo', dirpath])
 
+    def _write_packages_gz_file(self, dirpath, ftp_base):
+        import gzip
+        cache = path.join(self.incoming_directory, "apt_cache.db")
+        # pid = log_execute_assert_success(['apt-ftparchive', '--db', cache, 'packages', dirpath])
+        pid = log_execute_assert_success(['dpkg-scanpackages', dirpath, '/dev/null'])
+        content = pid.get_stdout()
+        content = content.replace(ftp_base + '/', '')
+        packages = path.join(dirpath, 'Packages')
+        with open(packages, 'w') as fd:
+            fd.write(content)
+        fd = gzip.open(packages + '.gz', 'wb')
+        fd.write(content)
+        fd.close()
+        
+    def _write_release_file(self, dirpath, ):
+        base, deb, distribution_name, dists, codename = dirpath.rsplit('/', 4)
+        cache = path.join(self.incoming_directory, "apt_cache.db")
+        pid = log_execute_assert_success(['apt-ftparchive', '--db', cache, 'release', dirpath])
+        content = pid.get_stdout()
+        release = path.join(dirpath, 'Release')
+        with open(release, 'w') as fd:
+            fd.write((RELEASE_FILE_HEADER + "\n{}").format(codename, content))
+        in_release = path.join(dirpath, 'InRelease')
+        release_gpg = path.join(dirpath, 'Release.gpg')
+        for filepath in [in_release, release_gpg]:
+            if path.exists(filepath):
+                remove(filepath)
+        log_execute_assert_success(['gpg', '--clearsign', '-o', in_release, release])
+        log_execute_assert_success(['gpg', '-abs', '-o', release_gpg, release])
+        
     def update_metadata_for_apt_repositories(self):
-        from gzip import open
         for dirpath in glob(path.join(self.base_directory, 'deb', '*', 'dists', '*', 'main', 'binary-*')):
-           if not path.isdir(dirpath):
-               continue
-           base, deb, distribution_name, dists, codename, main, binary = dirpath.rsplit('/', 6)
-           packages_gz = path.join(dirpath, 'Packages.gz')
-           pid = log_execute_assert_success(['dpkg-scanpackages', dirpath, '/dev/null'])
-           content = pid.get_stdout()
-           ftp_base = path.join(base, deb, distribution_name)
-           content = content.replace(ftp_base + '/', '')
-           package_gz_fd = open(packages_gz, 'wb')
-           package_gz_fd.write(content)
-           package_gz_fd.close()
+            if not path.isdir(dirpath):     
+                continue
+            base, deb, distribution_name, dists, codename, main, binary = dirpath.rsplit('/', 6)
+            ftp_base = path.join(base, deb, distribution_name)
+            self._write_packages_gz_file(dirpath, ftp_base)
+        for dirpath in glob(path.join(self.base_directory, 'deb', '*', 'dists', '*')):
+            if not path.isdir(dirpath):     
+                continue
+            self._write_release_file(dirpath)
 
     def get_views_metadata(self):
         with open(path.join(self.base_directory, 'metadata.json')) as fd:
