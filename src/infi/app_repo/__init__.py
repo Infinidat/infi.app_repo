@@ -27,6 +27,7 @@ SUDO_PREFIX = ['sudo', '-H', '-u', 'app_repo']
 GPG_FILENAMES = ['gpg.conf', 'pubring.gpg', 'random_seed', 'secring.gpg', 'trustdb.gpg']
 
 RELEASE_FILE_HEADER = "Codename: {}\nArchitectures: am64 i386\nComponents: main"
+RPMDB_PATH = "/var/lib/rpm"
 
 def log_execute_assert_success(args, allow_to_fail=False):
     logger.info("Executing {}".format(' '.join(args)))
@@ -162,11 +163,13 @@ class ApplicationRepository(object):
         with open(path.join(self.base_directory, 'gpg.key'), 'w') as fd:
             fd.write(pid.get_stdout())
 
+    def chown_rpm_db(self):
+        if path.exists(RPMDB_PATH):
+            log_execute_assert_success(['chown', '-R', 'app_repo', RPMDB_PATH])
+
     def import_gpg_key_to_rpm_database(self):
         key = path.join(self.base_directory, 'gpg.key')
-        for prefix in [[], SUDO_PREFIX]:
-            log_execute_assert_success(prefix + ['rpm', '--import', key])
-
+        log_execute_assert_success(SUDO_PREFIX + ['rpm', '--import', key])
 
     def sign_all_existing_deb_and_rpm_packages(self):
         # this is necessary because we replaced the gpg key
@@ -184,6 +187,7 @@ class ApplicationRepository(object):
         self.set_cron_job()
         self.install_upstart_script_for_webserver()
         self.generate_gpg_key_if_does_not_exist()
+        self.chown_rpm_db()
         self.import_gpg_key_to_rpm_database()
         self.sign_all_existing_deb_and_rpm_packages()
         self.update_metadata()
@@ -368,7 +372,7 @@ class ApplicationRepository(object):
         fd = gzip.open(packages + '.gz', 'wb')
         fd.write(content)
         fd.close()
-        
+
     def _write_release_file(self, dirpath, ):
         base, deb, distribution_name, dists, codename = dirpath.rsplit('/', 4)
         cache = path.join(self.incoming_directory, "apt_cache.db")
@@ -384,16 +388,16 @@ class ApplicationRepository(object):
                 remove(filepath)
         log_execute_assert_success(['gpg', '--clearsign', '-o', in_release, release])
         log_execute_assert_success(['gpg', '-abs', '-o', release_gpg, release])
-        
+
     def update_metadata_for_apt_repositories(self):
         for dirpath in glob(path.join(self.base_directory, 'deb', '*', 'dists', '*', 'main', 'binary-*')):
-            if not path.isdir(dirpath):     
+            if not path.isdir(dirpath):
                 continue
             base, deb, distribution_name, dists, codename, main, binary = dirpath.rsplit('/', 6)
             ftp_base = path.join(base, deb, distribution_name)
             self._write_packages_gz_file(dirpath, ftp_base)
         for dirpath in glob(path.join(self.base_directory, 'deb', '*', 'dists', '*')):
-            if not path.isdir(dirpath):     
+            if not path.isdir(dirpath):
                 continue
             self._write_release_file(dirpath)
 
