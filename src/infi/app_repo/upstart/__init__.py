@@ -12,17 +12,30 @@ start on (local-filesystems and net-device-up IFACE!=lo)
 stop on runlevel [016]
 """
 
-def install(): # pragma: no cover
+def install(base_directory, service_name, exec_cmd): # pragma: no cover
     from infi.app_repo import __version__
-    from infi.app_repo.scripts import PROJECT_DIRECTORY
     from os.path import join, sep
     kwargs = {'version':__version__.__version__,
-              'chdir':PROJECT_DIRECTORY,
-              'exec':join(PROJECT_DIRECTORY, 'bin', 'webserver'),
+              'chdir':base_directory,
+              'exec': exec_cmd,
               }
     config = TEMPLATE.format(**kwargs)
-    with open(join(sep, 'etc', 'init', 'app_repo.conf'), 'w') as fd:
+    with open(join(sep, 'etc', 'init', service_name + '.conf'), 'w') as fd:
         fd.write(config)
+
+def get_executable(base_directory):
+    from os.path import join, sep
+    join(base_directory, 'bin', 'app_repo')
+
+def install_webserver(base_directory):
+    executable = get_executable(base_directory)
+    exec_cmd = "{} -f /etc/app_repo.conf webserver start"
+    install(base_directory, "app_repo_webserver", exec_cmd)
+
+def install_worker(base_directory):
+    executable = get_executable(base_directory)
+    exec_cmd = "{} -f /etc/app_repo.conf worker start"
+    install(base_directory, "app_repo_worker", exec_cmd)
 
 def signal_init_that_i_am_ready(): # pragma: no cover
     # http://upstart.ubuntu.com/cookbook/#expect-stop

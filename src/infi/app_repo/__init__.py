@@ -23,7 +23,6 @@ GPG_TEMPLATE = """
     -sbo %{__signature_filename} %{__plaintext_filename}
 """
 
-SUDO_PREFIX = ['sudo', '-H', '-u', 'app_repo']
 GPG_FILENAMES = ['gpg.conf', 'pubring.gpg', 'random_seed', 'secring.gpg', 'trustdb.gpg']
 
 RELEASE_FILE_HEADER = "Codename: {}\nArchitectures: am64 i386\nComponents: main"
@@ -118,30 +117,26 @@ class ApplicationRepository(object):
     def restart_vsftpd(self):
         log_execute_assert_success(['service', 'vsftpd', 'restart'])
 
-    def fix_permissions(self):
-        parent = self.base_directory
-        while True:
-            parent = path.abspath(path.join(parent, pardir))
-            log_execute_assert_success(['chmod', '755', parent])
-            if parent in ['/', '']:
-                break
-        log_execute_assert_success(['chmod', '-Rf', '755', self.base_directory])
-        log_execute_assert_success(['chown', '-R', 'app_repo', self.base_directory])
-
     def set_cron_job(self):
         from crontab import CronTab
-        from infi.app_repo.scripts import PROJECT_DIRECTORY
+        from infi.app_repo.config import get_projectroot
         crontab = CronTab("app_repo")
         crontab.lines = []
-        command = crontab.new('{} > /dev/null 2>&1 '.format(path.join(PROJECT_DIRECTORY, 'bin', 'process_incoming')))
+        cmd = path.join(get_projectroot(), 'bin', 'app_repo')
+        entry = '{} -f /etc/app_repo.conf process incoming > /dev/null 2>&1 '.format(cmd)
+        command = crontab.new(entry)
         command.minute.every(10)
         crontab.write()
 
     def install_upstart_script_for_webserver(self):
-        from infi.app_repo.upstart import install
-        log_execute_assert_success(["initctl", "stop", "app_repo"], True)
-        install()
-        log_execute_assert_success(["initctl", "start", "app_repo"], True)
+        from infi.app_repo.upstart import install_webserver, install_worker
+        services = ['app_repo_webserver', 'app_repo_worker']
+        for service in services:
+            log_execute_assert_success(["initctl", "stop", service], True)
+        install_webserver(self.base_directory)
+        install_worker(self.base_directory)
+        for service in services:
+            log_execute_assert_success(["initctl", "start", service], True)
 
     def fix_entropy_generator(self):
         log_execute_assert_success(['/etc/init.d/rng-tools', 'stop'], True)
@@ -155,42 +150,37 @@ class ApplicationRepository(object):
         if all([path.exists(path.join(gnupg_directory, filename)) for filename in GPG_FILENAMES]):
             return
         rmtree(gnupg_directory, ignore_errors=True)
-        log_execute_assert_success(SUDO_PREFIX + ['gpg', '--batch', '--gen-key',
+        log_execute_assert_success(['gpg', '--batch', '--gen-key',
                                    resource_filename(__name__, 'gpg_batch_file')])
-        pid = log_execute_assert_success(SUDO_PREFIX + ['gpg', '--export', '--armor'])
+        pid = log_execute_assert_success(['gpg', '--export', '--armor'])
         with open(path.join(self.incoming_directory, ".rpmmacros"), 'w') as fd:
             fd.write(GPG_TEMPLATE)
         with open(path.join(self.base_directory, 'gpg.key'), 'w') as fd:
             fd.write(pid.get_stdout())
 
-    def chown_rpm_db(self):
-        if path.exists(RPMDB_PATH):
-            log_execute_assert_success(['chown', '-R', 'app_repo', RPMDB_PATH])
-
     def import_gpg_key_to_rpm_database(self):
         key = path.join(self.base_directory, 'gpg.key')
-        log_execute_assert_success(SUDO_PREFIX + ['rpm', '--import', key])
+        log_execute_assert_success(['rpm', '--import', key])
 
     def sign_all_existing_deb_and_rpm_packages(self):
         # this is necessary because we replaced the gpg key
         for filepath in find_files(path.join(self.base_directory, 'rpm'), '*.rpm'):
-            self.sign_rpm_package(filepath, sudo=True)
+            self.sign_rpm_package(filepath)
         for filepath in find_files(path.join(self.base_directory, 'deb'), '*.deb'):
-            self.sign_deb_package(filepath, sudo=True)
+            self.sign_deb_package(filepath)
 
     def setup(self):
         self.initialize()
         self.create_upload_user()
-        self.fix_permissions()
         self.copy_vsftp_config_file()
         self.restart_vsftpd()
         self.set_cron_job()
         self.install_upstart_script_for_webserver()
         self.generate_gpg_key_if_does_not_exist()
-        self.chown_rpm_db()
         self.import_gpg_key_to_rpm_database()
         self.sign_all_existing_deb_and_rpm_packages()
         self.update_metadata()
+        self.write_configuration_file()
 
     def add(self, source_path):
         """:returns: True if metadata was updates"""
@@ -238,10 +228,9 @@ class ApplicationRepository(object):
                      if filepath.endswith(key)]
         return factory
 
-    def sign_deb_package(self, filepath, sudo=False):
+    def sign_deb_package(self, filepath):
         logger.info("Signing {!r}".format(filepath))
-        prefix = SUDO_PREFIX if sudo else []
-        log_execute_assert_success(prefix + ['dpkg-sig', '--sign', 'builder', filepath])
+        log_execute_assert_success(['dpkg-sig', '--sign', 'builder', filepath])
 
     def add_package__deb(self, filepath):
         package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
@@ -254,10 +243,9 @@ class ApplicationRepository(object):
         logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
         copy2(filepath, destination_directory)
 
-    def sign_rpm_package(self, filepath, sudo=False):
+    def sign_rpm_package(self, filepath):
         logger.info("Signing {!r}".format(filepath))
-        prefix = SUDO_PREFIX if sudo else []
-        command = prefix + ['rpm', '--addsign', filepath]
+        command = ['rpm', '--addsign', filepath]
         logger.debug("Spawning {}".format(command))
         pid = spawn(command[0], command[1:], timeout=120)
         logger.debug("Waiting for passphrase request")
@@ -402,6 +390,17 @@ class ApplicationRepository(object):
             self._write_release_file(dirpath)
 
     def get_views_metadata(self):
-        with open(path.join(self.base_directory, 'metadata.json')) as fd:
+        filepath = path.join(self.base_directory, 'metadata.json')
+        if not path.exists(filepath):
+            return dict(packages=())
+        with open(filepath) as fd:
             return decode(fd.read())
 
+    def write_configuration_file(self):
+        from infi.execute import execute_assert_success
+        app_repo = path.join(get_projectroot(), 'bin', 'app_repo')
+        execute_assert_success("{} dump defaults > /etc/app_repo.conf".format(app_repo), shell=True)
+
+# TODO
+# * Replace the metadata json file with redis
+# * Replace multiprocessing and the process incoming cron job with Celery

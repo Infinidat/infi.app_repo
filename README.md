@@ -36,7 +36,7 @@ You will also need to install the Python package `infi.projector` by running `ea
 After sorting all these requirements, run:
 
     projector devenv build
-    bin/post_install
+    bin/app_repo install
 
 The `post_install` script does the following:
 * creates user `app_repo`

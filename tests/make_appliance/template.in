@@ -163,6 +163,20 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:Package vadk:name="liblzma1"/>
 			<vadk:Package vadk:name="zlib1g"/>
 			<vadk:Package vadk:name="ssl-cert"/>
+			<vadk:Package vadk:name="libcurl3"/>
+			<vadk:Package vadk:name="curl"/>
+			<vadk:Package vadk:name="erlang-base"/>
+			<vadk:Package vadk:name="erlang-crypto"/>
+			<vadk:Package vadk:name="erlang-mnesia"/>
+			<vadk:Package vadk:name="erlang-os-mon"/>
+			<vadk:Package vadk:name="erlang-public-key"/>
+			<vadk:Package vadk:name="erlang-runtime-tools"/>
+			<vadk:Package vadk:name="erlang-snmp"/>
+			<vadk:Package vadk:name="erlang-ssl"/>
+			<vadk:Package vadk:name="erlang-syntax-tools"/>
+			<vadk:Package vadk:name="libsctp1"/>
+			<vadk:Package vadk:name="lksctp-tools"/>
+			<vadk:Package vadk:name="rabbitmq-server"/>
 		</vadk:OSPackages>
 		<vadk:PackagesToRemove><!-- vadk:Package vadk:name="" / --></vadk:PackagesToRemove>
 		<vadk:BootActions>
@@ -174,7 +188,7 @@ echo This script is executed on first boot only.
 
 #Un comment to run subsequent boot script after first boot
 #/opt/vmware/etc/isv/subsequentboot
-TARGETDIR/bin/post_install</vadk:FirstBoot>
+TARGETDIR/bin/app_repo install</vadk:FirstBoot>
 			<vadk:SubsequentBoot>#!/bin/bash
 #Un comment to send the output of this script to a logfile
 #exec &gt; /opt/vmware/var/log/subsequentboot 2&gt;&amp;1
@@ -459,8 +473,8 @@ else
 fi</vadk:PreInstallShellScript>
 		<vadk:PostInstallShellScript>#!/bin/bash
 # Un-comment the following lines for reducing the space occupied for the
-# operating system by deleting potentially unneeded files. The script 
-# template is located at /opt/vmware/etc/footprint and should be used with 
+# operating system by deleting potentially unneeded files. The script
+# template is located at /opt/vmware/etc/footprint and should be used with
 # appropriate verification.
 #
 cut_files_wrapper=run_cut_files.sh
@@ -506,7 +520,7 @@ ln -sf /usr/lib/vmware-tools/sbin/vmware-rpctool /usr/sbin/vmware-rpctool
 	-->
 	<Section xsi:type="ovf:DiskSection_Type">
 		<Info>List of the virtual disks and partitions needed</Info>
-		<Disk ovf:diskId="system" ovf:capacity="102400" ovf:capacityAllocationUnits="MegaBytes" ovf:fileRef="system.vmdk" ovf:format="http://www.vmware.com/specifications/vmdk.html#sparse"/>
+		<Disk ovf:diskId="system" ovf:capacity="307200" ovf:capacityAllocationUnits="MegaBytes" ovf:fileRef="system.vmdk" ovf:format="http://www.vmware.com/specifications/vmdk.html#sparse"/>
 	</Section>
 <!--
 	The vadk:DiskPartitioningMechanismSection_Type section is used
