@@ -132,6 +132,7 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/r/rpm/librpm0_4.7.2-1lbuild1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/r/rpm/librpmbuild0_4.7.2-1lbuild1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/r/rpm/librpmio0_4.7.2-1lbuild1_i386.deb</vadk:url>
+			<vadk:url>http://il.archive.ubuntu.com/ubuntu/pool/universe/r/redis/redis-server_1.2.0-1_i386.deb</vadk:url>
 			<vadk:url>http://[VADK.localIP]/ISV/appliancePackages/DEB_PACKAGE_FILENAME</vadk:url>
 		</vadk:ApplicationPackages>
 		<vadk:OSPackages><!-- Additional OS packages needed by the ISV's application -->
@@ -165,18 +166,6 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:Package vadk:name="ssl-cert"/>
 			<vadk:Package vadk:name="libcurl3"/>
 			<vadk:Package vadk:name="curl"/>
-			<vadk:Package vadk:name="erlang-base"/>
-			<vadk:Package vadk:name="erlang-crypto"/>
-			<vadk:Package vadk:name="erlang-mnesia"/>
-			<vadk:Package vadk:name="erlang-os-mon"/>
-			<vadk:Package vadk:name="erlang-public-key"/>
-			<vadk:Package vadk:name="erlang-runtime-tools"/>
-			<vadk:Package vadk:name="erlang-snmp"/>
-			<vadk:Package vadk:name="erlang-ssl"/>
-			<vadk:Package vadk:name="erlang-syntax-tools"/>
-			<vadk:Package vadk:name="libsctp1"/>
-			<vadk:Package vadk:name="lksctp-tools"/>
-			<vadk:Package vadk:name="rabbitmq-server"/>
 		</vadk:OSPackages>
 		<vadk:PackagesToRemove><!-- vadk:Package vadk:name="" / --></vadk:PackagesToRemove>
 		<vadk:BootActions>
