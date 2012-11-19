@@ -36,7 +36,7 @@ class TasksTestCase(TestCase):
         if not environ.get("JENKINS_URL"):
             raise SkipTest("runs on our jenkins only")
         with self.with_new_devlopment_config_file() as configfile:
-            cmd = "bin/app_repo -f {} install".format(tempfile)
+            cmd = "bin/app_repo -f {} install".format(configfile)
             execute_assert_success(cmd, shell=True)
             execute_assert_success("service app_repo_worker stop", shell=True)
             execute_assert_success("service app_repo_webserver stop", shell=True)
