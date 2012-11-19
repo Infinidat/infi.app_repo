@@ -36,9 +36,9 @@ class WebserverConfiguration(Model):
     favicon = StringType(default=os.path.join(get_webserver_directory(), "static", "favicon.ico"))
 
 class RemoteConfiguration(Model):
-    fqdn = StringType()
-    username = StringType()
-    password = StringType()
+    fqdn = StringType(default="repo.infinidat.com")
+    username = StringType(default="not")
+    password = StringType(default="really")
 
 class WorkerConfig(Model):
     number_of_workers = IntType(default=1)
