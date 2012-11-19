@@ -1,4 +1,4 @@
-from unittest impot SkipTest
+from unittest import SkipTest
 from .test_case import TestCase
 from infi.app_repo.config import Configuration
 from infi.app_repo import worker
