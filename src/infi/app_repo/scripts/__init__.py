@@ -143,7 +143,8 @@ def remote_set(args):
 
 def install(args):
     from .. import ApplicationRepository
-    config = get_config(args)
+    from ..config import Configuration
+    config = Configuration()
     app_repo = ApplicationRepository(config.base_directory)
     app_repo.setup()
 

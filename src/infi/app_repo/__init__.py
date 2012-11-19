@@ -117,26 +117,15 @@ class ApplicationRepository(object):
     def restart_vsftpd(self):
         log_execute_assert_success(['service', 'vsftpd', 'restart'])
 
-    def set_cron_job(self):
-        from crontab import CronTab
-        from infi.app_repo.config import get_projectroot
-        crontab = CronTab("app_repo")
-        crontab.lines = []
-        cmd = path.join(get_projectroot(), 'bin', 'app_repo')
-        entry = '{} -f /etc/app_repo.conf process incoming > /dev/null 2>&1 '.format(cmd)
-        command = crontab.new(entry)
-        command.minute.every(10)
-        crontab.write()
-
     def install_upstart_script_for_webserver(self):
         from infi.app_repo.upstart import install_webserver, install_worker
         services = ['app_repo_webserver', 'app_repo_worker']
         for service in services:
-            log_execute_assert_success(["initctl", "stop", service], True)
+            log_execute_assert_success(["service", service, "stop"], True)
         install_webserver(self.base_directory)
         install_worker(self.base_directory)
         for service in services:
-            log_execute_assert_success(["initctl", "start", service], True)
+            log_execute_assert_success(["service", service, "start"], True)
 
     def fix_entropy_generator(self):
         log_execute_assert_success(['/etc/init.d/rng-tools', 'stop'], True)
@@ -171,16 +160,15 @@ class ApplicationRepository(object):
 
     def setup(self):
         self.initialize()
+        self.write_configuration_file()
         self.create_upload_user()
         self.copy_vsftp_config_file()
         self.restart_vsftpd()
-        self.set_cron_job()
         self.install_upstart_script_for_webserver()
         self.generate_gpg_key_if_does_not_exist()
         self.import_gpg_key_to_rpm_database()
         self.sign_all_existing_deb_and_rpm_packages()
         self.update_metadata()
-        self.write_configuration_file()
 
     def add(self, source_path):
         """:returns: True if metadata was updates"""
@@ -398,6 +386,7 @@ class ApplicationRepository(object):
 
     def write_configuration_file(self):
         from infi.execute import execute_assert_success
+        from .config import get_projectroot
         app_repo = path.join(get_projectroot(), 'bin', 'app_repo')
         execute_assert_success("{} dump defaults > /etc/app_repo.conf".format(app_repo), shell=True)
 
