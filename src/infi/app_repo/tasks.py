@@ -12,15 +12,17 @@ def sleep(seconds):
 @worker.celery.task
 def pull_package(remote_fqdn, base_directory, packge_uri):
     from infi.execute import execute_assert_success
-    from os import remove, path, chown
+    from os import path, makedirs
     from shutil import move
     with temporary_directory_context():
         filename = path.basename(packge_uri)
         if path.exists(filename):
             return
-        url = "ftp://{0}/{1}".format(remote_fqdn, packge_uri)
+        url = "ftp://{0}/{1}".format(remote_fqdn, packge_uri.strip('/'))
         execute_assert_success(["wget", url])
         dst = path.join(base_directory, "incoming", filename)
+        if not path.exists(path.dirname(dst)):
+            makedirs(path.dirname(dst))
         move(filename, dst)
 
 @worker.celery.task
@@ -29,7 +31,7 @@ def push_package(remote_fqdn, remote_username, remote_password, base_directory, 
     from os import path
     src = path.join(base_directory, packge_uri)
     url = "ftp://{0}:{1}@{2}:".format(remote_username, remote_password, remote_fqdn)
-    execute_assert_success(["curl", "-T", item, url])
+    execute_assert_success(["curl", "-T", src, url])
 
 @worker.celery.task
 def process_incoming(base_directory, force=False):

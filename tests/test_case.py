@@ -21,6 +21,8 @@ class TestCase(unittest.TestCase):
         with with_tempfile() as tempfile:
             cmd = "bin/app_repo dump defaults --development > {}".format(tempfile)
             execute_assert_success(cmd, shell=True)
+            cmd = "bin/app_repo -f {} remote set repo.lab.il.infinidat.com beats me".format(tempfile)
+            execute_assert_success(cmd, shell=True)
             yield tempfile
 
     @contextmanager
