@@ -1,8 +1,10 @@
+from unittest impot SkipTest
 from .test_case import TestCase
 from infi.app_repo.config import Configuration
 from infi.app_repo import worker
+from infi.execute import execute_async, execute_assert_success
 from mock import patch
-from os import path, remove
+from os import path, remove, environ
 
 class TasksTestCase(TestCase):
     def pull_file(self, config, basename, dirpath):
@@ -31,7 +33,13 @@ class TasksTestCase(TestCase):
         tasks.process_incoming.run(config.base_directory)
 
     def test_pull(self):
+        if not environ.get("JENKINS_URL"):
+            raise SkipTest("runs on our jenkins only")
         with self.with_new_devlopment_config_file() as configfile:
+            cmd = "bin/app_repo -f {} install".format(tempfile)
+            execute_assert_success(cmd, shell=True)
+            execute_assert_success("service app_repo_worker stop", shell=True)
+            execute_assert_success("service app_repo_webserver stop", shell=True)
             config = Configuration.from_disk(configfile)
             worker.init(config)
             self.pull_msi(config)
