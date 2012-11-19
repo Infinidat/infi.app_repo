@@ -35,7 +35,7 @@ def install_webserver(base_directory):
 
 def install_worker(base_directory):
     executable = get_executable(base_directory)
-    exec_cmd = "{} -f /etc/app_repo.conf worker start".format(executable)
+    exec_cmd = "{} -f /etc/app_repo.conf worker start --daemonize".format(executable)
     install(base_directory, "app_repo_worker", exec_cmd)
 
 def signal_init_that_i_am_ready(): # pragma: no cover
