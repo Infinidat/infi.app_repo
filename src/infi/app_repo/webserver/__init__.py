@@ -15,9 +15,9 @@ def download_metadata(remote):
     url = "ftp://{0}/metadata.json".format(remote)
     return decode(urlopen(url).read())
 
-def auth(func):
-    # TODO unix authentication
-    return func
+def check_password(real, username, password):
+    from pam import authenticate
+    return authenticate(username, password)
 
 def json_response(func):
     @wraps(func)
@@ -74,7 +74,6 @@ class Pull(View):
         result_list = self.queue_download_jobs(remote, base_directory, packages_to_download)
         raise cherrypy.HTTPRedirect("/queue")
 
-    @auth
     def index(self, *args, **kwargs):
         method = cherrypy.request.method.upper()
         return getattr(self, method)(*args, **kwargs)
@@ -130,7 +129,6 @@ class Push(View):
                                              base_directory, packages_to_upload)
         raise cherrypy.HTTPRedirect("/queue")
 
-    @auth
     def index(self, *args, **kwargs):
         method = cherrypy.request.method.upper()
         return getattr(self, method)(*args, **kwargs)
@@ -210,6 +208,11 @@ def start(config):
     cherrypy.config['server.socket_port'] = config.webserver.port
     cherrypy.config['engine.autoreload_on'] = config.webserver.auto_reload
     cherrypy.config['app_repo'] = config
+    basic_auth = {
+                  'tools.auth_basic.on': True,
+                  'tools.auth_basic.realm': 'app_repo',
+                  'tools.auth_basic.checkpassword': check_password
+    }
     application_config = {
                          '/static': {'tools.staticdir.on': True,
                                      'tools.staticdir.dir': config.webserver.static_dir},
@@ -217,5 +220,7 @@ def start(config):
                                      'tools.staticdir.dir': config.webserver.assets_dir},
                          '/favicon.ico': {'tools.staticfile.on': True,
                                           'tools.staticfile.filename': config.webserver.favicon},
+                         '/pull': basic_auth,
+                         '/push': basic_auth,
                          }
     cherrypy.quickstart(Frontend(), config=application_config)

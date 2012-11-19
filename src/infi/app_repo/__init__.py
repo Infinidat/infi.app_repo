@@ -392,4 +392,3 @@ class ApplicationRepository(object):
 
 # TODO
 # * Replace the metadata json file with redis
-# * Replace multiprocessing and the process incoming cron job with Celery
