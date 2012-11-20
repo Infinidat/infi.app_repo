@@ -243,7 +243,7 @@ class ApplicationRepository(object):
         logger.debug("Passphrase entered, waiting for rpm to exit")
         pid.wait() if pid.isalive() else None
         assert pid.exitstatus == 0
-        execute_assert_success(prefix + ['rpm', '-vv', '--checksig', filepath])
+        # execute_assert_success(['rpm', '-vv', '--checksig', filepath])
 
     def add_package__rpm(self, filepath):
         package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)

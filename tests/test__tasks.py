@@ -4,7 +4,7 @@ from infi.app_repo.config import Configuration
 from infi.app_repo import worker
 from infi.execute import execute_async, execute_assert_success
 from mock import patch
-from os import path, remove, environ
+from os import path, remove, environ, listdir
 
 class TasksTestCase(TestCase):
     def pull_file(self, config, basename, dirpath):
@@ -45,7 +45,10 @@ class TasksTestCase(TestCase):
             self.pull_msi(config)
             self.pull_deb(config)
             self.pull_rpm(config)
+            before = listdir("data/incoming")
             self.update_metadata(config)
+            after = listdir("data/incoming")
+            self.assertNotEquals(before, after)
 
     def test_push(self):
         from os import path
