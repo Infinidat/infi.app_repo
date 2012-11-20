@@ -85,7 +85,7 @@ class Pull(View):
         for package in packages:
             result = pull_package.delay(remote, base_directory, package)
             result_list.append(result)
-        result = process_incoming.delay(remote, base_directory)
+        result = process_incoming.delay(base_directory)
         result_list.append(result)
         return result
 
