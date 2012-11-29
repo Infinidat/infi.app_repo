@@ -37,22 +37,11 @@
     <body>
         <div class="navbar navbar-fixed-top navbar-inverse">
             <div class="navbar-inner">
-                <div class="container-fluid">
-                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                        <span class="icon-bar">
-                        </span>
-                        <span class="icon-bar">
-                        </span>
-                        <span class="icon-bar">
-                        </span>
-                    </a>
-                    <a class="brand" href="#"></a>
-                </div>
             </div>
         </div>
         <div class="container-fluid">
             <div class="row-fluid">
-                <div class="span2">
+                <div class="span3">
                     <div class="well sidebar-nav affix">
                         <ul class="nav nav-list">
                             <li class="">
@@ -68,12 +57,13 @@
                             % endfor
                     </div>
                 </div>
-                <div class="span10" id="hero">
+                <div class="span9" id="hero">
                     <div class="hero-unit">
                         <h1>Install instructions</h1>
                         <br>
                         <h2>
                             Step 1
+                            <span class="label">First-time use only</span>
                         </h2>
                         <div class="row-fluid">
                             <div class="span3">
@@ -82,7 +72,7 @@
                                 <span class="label label-warning">ubuntu</span>
                             </div>
                             <div class="span9">
-                                [First time only] Execute in shell: <code>curl ${setup_url} | sudo sh -</code>
+                                Execute in shell: <code>curl ${setup_url} | sudo sh -</code>
                             </div>
                         </div>
                         <hr style="margin:0px; margin-bottom: 10px;">

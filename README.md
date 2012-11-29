@@ -15,6 +15,24 @@ The HTTP service provides:
 * Links for manual download of all packaes stored in the repository
 * One-liners for setting up the apt/yum repositories in the matching Linux distributions.
 
+Syncing packages between repositories
+-------------------------------------
+
+Before pulling/pushing packages, you will neet to set up the remote target by running:
+
+    bin/app_repo -f <configfile> remote set <fqdn> <user> <password>
+    service app_repo_webserver restart
+
+Pulling from other repositories
+-------------------------------
+
+Go to http://localhost/pull, authenticate with the `app_repo` username
+
+Pushing to other repositories
+-----------------------------
+
+Go to http://localhost/push, authenticate with the `app_repo` username
+
 Installation
 ============
 
@@ -31,17 +49,21 @@ You willl need to pre-install the following packages:
 * vsftpd
 * rng-tools
 * dpkg-sig
+* redis-server
 
 You will also need to install the Python package `infi.projector` by running `easy_install infi.projector`.
 After sorting all these requirements, run:
 
     projector devenv build
-    bin/post_install
+    bin/app_repo install
 
-The `post_install` script does the following:
+The `install` script does the following:
+* writes the configuration file to `/etc/app_repo.conf`
 * creates user `app_repo`
 * set up `vsftpd` on port 21
 * set up the HTTP backend on port 80
+* creates a gpg signature for the current user, to be used for signing packages
+* users two services, `app_repo_worker` and `app_repo_webserver`
 
 Installing released versions
 ----------------------------
@@ -58,7 +80,7 @@ Deploying a virtual appliance
 You can download it from http://repo.infinidat.com.
 
 
- Checking out the code
+Checking out the code
 =====================
 
 This project uses buildout and infi-projector, and git to generate setup.py and __version__.py.
