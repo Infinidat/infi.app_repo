@@ -13,8 +13,9 @@ _apt() {
 
 _yum() {
     echo Setting up...
-    distribution=`python -c "import platform; print platform.dist()[0].lower()"`
-    version=`python -c "import platform; print platform.dist()[1].split('.')[0].lower()"`
+    distfile=`ls /etc | grep -E "(\w+)[-_](release|version)" | head -n 1`
+    distribution=`echo $distfile | grep -Eo "\w+" | head -n 1`
+    version=`cat /etc/$distfile | grep -Eo "[0-9]+" | head -n 1`
     arch=`uname -m`
     echo "[${fqdn}]
 name=${fqdn}

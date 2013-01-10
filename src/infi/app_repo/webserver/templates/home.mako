@@ -198,7 +198,7 @@
                                     <span class="label label-important">centos</span>
                                 </div>
                                 <div class="span10">
-                                    <code>sudo yum update -y ${package['name']}</code>
+                                    <code>sudo yum makecache; sudo yum update -y ${package['name']}</code>
                                 </div>
                             </div>
                             % endif
@@ -208,7 +208,7 @@
                                     <span class="label label-warning">ubuntu</span>
                                 </div>
                                 <div class="span10">
-                                    <code>sudo apt-get upgrade -y ${package['name']}</code>
+                                    <code>sudo apt-get update; sudo apt-get install -y ${package['name']}</code>
                                 </div>
                             </div>
                             % endif

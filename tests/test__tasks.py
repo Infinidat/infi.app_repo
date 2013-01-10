@@ -18,14 +18,14 @@ class TasksTestCase(TestCase):
         self.assertTrue(path.isfile(dst))
 
     def pull_msi(self, config):
-        self.pull_file(config, "cygwin-deployment-0.4.1-develop-windows-x86.msi", "/msi/x86")
+        self.pull_file(config, "host-power-tools-0.15-windows-x86.msi", "/msi/x86")
 
     def pull_deb(self, config):
-        self.pull_file(config, "host-power-tools-0.12-develop-linux-ubuntu-natty-x86.deb",
+        self.pull_file(config, "host-power-tools-0.15-linux-ubuntu-natty-x86.deb",
                        "/deb/ubuntu/dists/natty/main/binary-i386")
 
     def pull_rpm(self, config):
-        self.pull_file(config, "host-power-tools-0.12-develop-linux-centos-6-x64.rpm",
+        self.pull_file(config, "host-power-tools-0.15-linux-centos-6-x64.rpm",
                        "/rpm/centos/6/x86_64")
 
     def update_metadata(self, config):
@@ -55,7 +55,7 @@ class TasksTestCase(TestCase):
         with self.with_new_devlopment_config_file() as configfile:
             config = Configuration.from_disk(configfile)
             worker.init(config)
-            src = "incoming/cygwin-deployment-0.4.1-develop-windows-x86.msi"
+            src = "incoming/host-power-tools-0.15-windows-x86.msi"
             with patch("infi.execute.execute_assert_success") as execute_assert_success:
                 from infi.app_repo import tasks
                 tasks.push_package.run(config.remote.fqdn, "user", "password", config.base_directory,
