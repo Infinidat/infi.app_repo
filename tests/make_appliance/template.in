@@ -406,7 +406,7 @@ preseed/url=[VADK.unattendedCfgURL]
 		<vadk:BootFiles vadk:relPath="install/netboot" vadk:kernel="ubuntu-installer/i386/linux"/>
 		<vadk:UnattendedInstallTemplate>[VADK.vadkRoot]/etc/build/templates/ubuntu/10/ubuntu.xsl</vadk:UnattendedInstallTemplate>
 		<vadk:PreInstallScript vadk:template="[VADK.vadkRoot]/etc/build/templates/ubuntu/10/preinstall.xsl" vadk:output="[VADK.stageDir]/preinstall.sh"/>
-		<vadk:PostInstallScript vadk:path="http://[VADK.localIP]/build/[VADK.buildID]/configure_appliance" vadk:template="[VADK.vadkRoot]/etc/build/templates/ubuntu/10/post.xsl" vadk:output="[VADK.stageDir]/configure_appliance"/>
+		<vadk:PostInstallScript vadk:path="http://[VADK.localIP]/build/[VADK.buildID]/configure_appliance" vadk:template="[VADK.vadkRoot]/etc/build/templates/ubuntu-11.10-server-i386/post.xsl" vadk:output="[VADK.stageDir]/configure_appliance"/>
 		<vadk:PostScriptRepoList>RepositoryList</vadk:PostScriptRepoList>
 		<vadk:PostScriptPackageList>PackageList</vadk:PostScriptPackageList>
 		<vadk:VADKPackages vadk:path="http://[VADK.localIP]/build/[VADK.buildID]/repo/vadkPackages/" vadk:sourceDir="[VADK.vadkRoot]/lib/build/include/deb/" vadk:targetDir="[VADK.stageDir]/repo/vadkPackages/"/>
