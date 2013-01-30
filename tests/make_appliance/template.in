@@ -110,6 +110,7 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 		</vadk:DistributionFormat>
 		<vadk:ApplicationPackages>
 			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-esx-nox_9.0.0-2_i386.deb</vadk:url>
+			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-core_9.0.0-2_i386.deb</vadk:url>
 			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-guestlib_9.0.0-2_i386.deb</vadk:url>
 			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-libraries-nox_9.0.0-2_i386.deb</vadk:url>
 			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-foundation_9.0.0-2_all.deb</vadk:url>
