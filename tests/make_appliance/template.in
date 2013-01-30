@@ -110,14 +110,6 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 		</vadk:DistributionFormat>
 		<vadk:ApplicationPackages>
 			<vadk:url vadk:path="dists/lucid/main/binary-i386/Packages.gz" vadk:type="ondemand">http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.1latest/ubuntu/</vadk:url>
-			<vadk:url vadk:path="dists/lucid/main/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
-			<vadk:url vadk:path="dists/lucid/universe/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
-			<vadk:url vadk:path="dists/lucid/multiverse/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
-			<vadk:url vadk:path="dists/lucid-backports/main/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
-			<vadk:url vadk:path="dists/lucid-backports/universe/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
-			<vadk:url vadk:path="dists/lucid-backports/multiverse/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
-			<vadk:url vadk:path="dists/lucid-updates/universe/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
-			<vadk:url vadk:path="dists/lucid-updates/multiverse/binary-i386/Packages.gz" vadk:type="ondemand">http://us.archive.ubuntu.com/ubuntu/</vadk:url>
 			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-esx-nox_9.0.0-2_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/t/trousers/libtspi1_0.3.1-7ubuntu4_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/r/rpm/python-rpm_4.7.2-1lbuild1_i386.deb</vadk:url>
