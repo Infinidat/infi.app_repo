@@ -159,6 +159,12 @@ class ApplicationRepository(object):
         for filepath in find_files(path.join(self.base_directory, 'deb'), '*.deb'):
             self.sign_deb_package(filepath)
 
+    def set_write_permissions_on_incoming_directory(self):
+        from os import chown
+        from pwd import getpwnam
+        pwnam = getpwnam("app_repo")
+        chown(self.incoming_directory, pwnam.pw_uid, pwnam.pw_gid)
+
     def setup(self):
         self.initialize()
         self.write_configuration_file()
@@ -170,6 +176,7 @@ class ApplicationRepository(object):
         self.import_gpg_key_to_rpm_database()
         self.sign_all_existing_deb_and_rpm_packages()
         self.update_metadata()
+        self.set_write_permissions_on_incoming_directory()
 
     def add(self, source_path):
         """:returns: True if metadata was updates"""
