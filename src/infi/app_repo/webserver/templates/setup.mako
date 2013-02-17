@@ -13,7 +13,7 @@ _apt() {
 
 _yum() {
     echo Setting up...
-    distfile=`ls /etc | grep -E "(\w+)[-_](release|version)" | head -n 1`
+    distfile=`ls /etc | grep -E "(\w+)[-_](release|version)$" | head -n 1`
     distribution=`echo $distfile | grep -Eo "\w+" | head -n 1`
     version=`cat /etc/$distfile | grep -Eo "[0-9]+" | head -n 1`
     arch=`uname -m`
