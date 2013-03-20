@@ -89,10 +89,12 @@ class ApplicationRepository(object):
         self.homedir = path.expanduser("~")
 
     def initialize(self):
-        if not path.exists(self.base_directory):
-            makedirs(self.base_directory)
-        if not path.exists(self.incoming_directory):
-            makedirs(self.incoming_directory)
+        for required_path in [self.base_directory,
+                              self.incoming_directory,
+                              self.appliances_directory,
+                              self.appliances_updates_directory]:
+            if not path.exists(required_path):
+                makedirs(required_path)
 
     def is_upload_user_exists(self):
         try:
