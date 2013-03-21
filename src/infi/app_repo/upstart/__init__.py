@@ -14,9 +14,10 @@ stop on runlevel [016]
 
 def install(base_directory, service_name, exec_cmd): # pragma: no cover
     from infi.app_repo import __version__
-    from os.path import join, sep
+    from os.path import abspath, join, sep
+    from os import pardir
     kwargs = {'version':__version__.__version__,
-              'chdir':base_directory,
+              'chdir': abspath(join(base_directory, pardir)),
               'exec': exec_cmd,
               }
     config = TEMPLATE.format(**kwargs)

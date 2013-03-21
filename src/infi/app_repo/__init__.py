@@ -59,7 +59,7 @@ def wait_for_directory_to_stabalize(source_path):
         break
 
 NAME = r"""(?P<package_name>[a-z][a-z\-]+[a-z])"""
-VERSION = r"""v?(?P<package_version>(?:[\d\.]+)(?:-develop|(?:(?:\.post\d+\.|-develop-\d+-)g[a-z0-9]{7}))?)"""
+VERSION = r"""v?(?P<package_version>(?:[\d\.]+)(?:-develop|(?:(?:\.post\d+\.|-\d+-|-develop-\d+-)g[a-z0-9]{7}))?)"""
 PLATFORM = r"""(?P<platform_string>windows|linux-ubuntu-[a-z]+|linux-redhat-\d|linux-centos-\d|osx-\d+\.\d+)"""
 ARCHITECTURE = r"""(?P<architecture>x86|x64|x86_OVF10|x64_OVF_10)"""
 EXTENSION = r"""(?P<extension>rpm|deb|msi|tar\.gz|ova|iso|zip)"""
@@ -69,8 +69,10 @@ FILEPATH = TEMPLATE.format(NAME, VERSION, PLATFORM, ARCHITECTURE, EXTENSION)
 def parse_filepath(filepath):
     """:returns: 5-tuple (package_name, package_version, platform_string, architecture, extension)"""
     from re import match
-    result = match(FILEPATH, path.basename(filepath))
+    filename = path.basename(filepath)
+    result = match(FILEPATH, filename)
     if result is None:
+        logger.debug("failed to parse {}".format(filename))
         return (None, None, None, None, None)
     group = result.groupdict()
     return (group['package_name'], group['package_version'],
@@ -87,10 +89,12 @@ class ApplicationRepository(object):
         self.homedir = path.expanduser("~")
 
     def initialize(self):
-        if not path.exists(self.base_directory):
-            makedirs(self.base_directory)
-        if not path.exists(self.incoming_directory):
-            makedirs(self.incoming_directory)
+        for required_path in [self.base_directory,
+                              self.incoming_directory,
+                              self.appliances_directory,
+                              self.appliances_updates_directory]:
+            if not path.exists(required_path):
+                makedirs(required_path)
 
     def is_upload_user_exists(self):
         try:
