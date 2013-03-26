@@ -8,3 +8,4 @@ celery = Celery('infi.app_repo.worker.celery',
 
 def init(config):
     global celery
+    celery.conf.CELERYD_HIJACK_ROOT_LOGGER = False
