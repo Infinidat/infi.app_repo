@@ -140,10 +140,11 @@ class ApplicationRepository(object):
         log_execute_assert_success(['/etc/init.d/rng-tools', 'start'], True)
 
     def generate_gpg_key_if_does_not_exist(self):
+        """:returns: True if the gpg key existed before"""
         self.fix_entropy_generator()
         gnupg_directory = path.join(self.homedir, ".gnupg")
         if all([path.exists(path.join(gnupg_directory, filename)) for filename in GPG_FILENAMES]):
-            return
+            return True
         rmtree(gnupg_directory, ignore_errors=True)
         log_execute_assert_success(['gpg', '--batch', '--gen-key',
                                    resource_filename(__name__, 'gpg_batch_file')])
@@ -152,6 +153,7 @@ class ApplicationRepository(object):
             fd.write(GPG_TEMPLATE)
         with open(path.join(self.homedir, 'gpg.key'), 'w') as fd:
             fd.write(pid.get_stdout())
+        return False
 
     def import_gpg_key_to_rpm_database(self):
         key = path.join(self.homedir, 'gpg.key')
@@ -177,10 +179,10 @@ class ApplicationRepository(object):
         self.copy_vsftp_config_file()
         self.restart_vsftpd()
         self.install_upstart_script_for_webserver()
-        self.generate_gpg_key_if_does_not_exist()
-        self.import_gpg_key_to_rpm_database()
-        self.sign_all_existing_deb_and_rpm_packages()
-        self.update_metadata()
+        if not self.generate_gpg_key_if_does_not_exist():
+            self.import_gpg_key_to_rpm_database()
+            self.sign_all_existing_deb_and_rpm_packages()
+            self.update_metadata()
         self.set_write_permissions_on_incoming_directory()
 
     def add(self, source_path):
