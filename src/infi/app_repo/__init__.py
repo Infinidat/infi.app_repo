@@ -123,12 +123,13 @@ class ApplicationRepository(object):
         log_execute_assert_success(['service', 'vsftpd', 'restart'])
 
     def install_upstart_script_for_webserver(self):
-        from infi.app_repo.upstart import install_webserver, install_worker
+        from infi.app_repo.upstart import install_webserver, install_worker, install_watchdog
         services = ['app_repo_webserver', 'app_repo_worker']
         for service in services:
             log_execute_assert_success(["service", service, "stop"], True)
         install_webserver(self.base_directory)
         install_worker(self.base_directory)
+        install_watchdog(self.base_directory)
         for service in services:
             log_execute_assert_success(["service", service, "start"], True)
 

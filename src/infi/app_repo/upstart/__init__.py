@@ -34,6 +34,11 @@ def install_webserver(base_directory):
     exec_cmd = "{} -f /etc/app_repo.conf webserver start".format(executable)
     install(base_directory, "app_repo_webserver", exec_cmd)
 
+def install_watchdog(base_directory):
+    executable = get_executable(base_directory)
+    exec_cmd = "{} -f /etc/app_repo.conf watchdog start --daemonize".format(executable)
+    install(base_directory, "app_repo_watchdog", exec_cmd)
+
 def install_worker(base_directory):
     executable = get_executable(base_directory)
     exec_cmd = "{} -f /etc/app_repo.conf worker start --daemonize".format(executable)
