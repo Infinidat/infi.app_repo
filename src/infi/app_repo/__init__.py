@@ -197,10 +197,7 @@ class ApplicationRepository(object):
         if not files_to_add:
             logger.info("Nothing to add")
             return False
-        for filepath in files_to_add:
-            self.add_single_file(filepath)
-        self.update_metadata()
-        return True
+        return any(self.add_single_file(filepath) for filepath in files_to_add)
 
     def add_single_file(self, filepath):
         try:
@@ -210,8 +207,10 @@ class ApplicationRepository(object):
             else:
                 factory(filepath)
                 remove(filepath)
+                return True
         except Exception:
             logger.exception("Failed to add {!r} to repository".format(filepath))
+        return False
 
     def get_factory_for_incoming_distribution(self,filepath):
         _, _, platform_string, _, _ = parse_filepath(filepath)
