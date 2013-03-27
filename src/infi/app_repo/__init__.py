@@ -257,10 +257,13 @@ class ApplicationRepository(object):
         copy2(filepath, destination_directory)
 
     def sign_rpm_package(self, filepath):
+        from os import environ
         logger.info("Signing {!r}".format(filepath))
         command = ['rpm', '--addsign', filepath]
         logger.debug("Spawning {}".format(command))
-        pid = spawn(command[0], command[1:], timeout=120)
+        env = environ.copy()
+        env['HOME'] = env.get('HOME', "/root")
+        pid = spawn(command[0], command[1:], timeout=120, cwd=self.incoming_directory, env=env)
         logger.debug("Waiting for passphrase request")
         pid.expect("Enter pass phrase:")
         pid.sendline("\n")
