@@ -38,7 +38,7 @@ def log_execute_assert_success(args, allow_to_fail=False):
             raise
 
 def is_file_open(filepath):
-    return log_execute_assert_success(['lsof', filepath]).get_stdout() != ''
+    return filepath in log_execute_assert_success(['lsof']).get_stdout()
 
 def find_files(directory, pattern):
     for root, dirs, files in walk(directory):
@@ -47,13 +47,20 @@ def find_files(directory, pattern):
                 filename = path.join(root, basename)
                 yield filename
 
-def wait_for_directory_to_stabalize(source_path):
-    if path.isdir(source_path):
-        return
+def is_file_size_changed(file_sizes, filepath):
+    from os import stat
+    old = file_sizes.get(filepath)
+    new = stat(filepath).st_size
+    file_sizes[filepath] = new
+    return old != new
+
+def wait_for_sources_to_stabalize(sources):
+    file_sizes = dict()
     while True:
-        items = [path.join(source_path, filename) for filename in listdir(source_path)]
-        files = [item for item in items if path.isdir(item)]
-        if any([is_file_open(filepath) for filepath in files]):
+        if any([is_file_open(filepath) for filepath in sources]):
+            sleep(1)
+            continue
+        if any([is_file_size_changed(file_sizes, filepath) for filepath in sources]):
             sleep(1)
             continue
         break
@@ -192,13 +199,17 @@ class ApplicationRepository(object):
             return False
         isdir = path.isdir(source_path)
         if isdir:
-            wait_for_directory_to_stabalize(source_path)
-        files_to_add = [path.join(source_path, filename)
-                        for filename in listdir(source_path)] if isdir else [source_path]
-        files_to_add = [filepath for filepath in files_to_add if not path.isdir(filepath)]
+            files_to_add = [path.join(source_path, filename)
+                            for filename in listdir(source_path)] if isdir else [source_path]
+            files_to_add = [filepath for filepath in files_to_add if not path.isdir(filepath)]
+        else:
+            files_to_add = [source_path]
         if not files_to_add:
             logger.info("Nothing to add")
             return False
+        logger.info("waiting for {!r}".format(files_to_add))
+        wait_for_sources_to_stabalize(files_to_add)
+        logger.info("adding {!r}".format(files_to_add))
         return any(self.add_single_file(filepath) for filepath in files_to_add)
 
     def add_single_file(self, filepath):

@@ -42,6 +42,13 @@ def process_incoming(base_directory, force=False):
     if app_repo.add(source_path) or force:
         app_repo.update_metadata()
 
+@worker.celery.task
+def process_source(base_directory, sourcepath):
+    from . import ApplicationRepository
+    app_repo = ApplicationRepository(base_directory)
+    if app_repo.add(sourcepath):
+        app_repo.update_metadata()
+
 def _chdir_and_log(path):
     from os import chdir
     chdir(path)
