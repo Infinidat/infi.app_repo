@@ -1,7 +1,7 @@
 __import__("pkg_resources").declare_namespace(__name__)
 
 from glob import glob
-from shutil import copy2, rmtree
+from shutil import copy2, copy, rmtree
 from os import makedirs, path, remove, listdir, pardir, walk
 from infi.execute import execute_assert_success, ExecutionError
 from pkg_resources import resource_filename
