@@ -160,6 +160,9 @@ class ApplicationRepository(object):
             fd.write(GPG_TEMPLATE)
         with open(path.join(self.homedir, 'gpg.key'), 'w') as fd:
             fd.write(pid.get_stdout())
+        dst = path.join(base_directory, 'gpg.key')
+        if not path.exists(dst):
+            copy(path.join(self.homedir, 'gpg.key', base_directory), dst)
         return False
 
     def import_gpg_key_to_rpm_database(self):
