@@ -160,7 +160,7 @@ class ApplicationRepository(object):
             fd.write(GPG_TEMPLATE)
         with open(path.join(self.homedir, 'gpg.key'), 'w') as fd:
             fd.write(pid.get_stdout())
-        dst = path.join(base_directory, 'gpg.key')
+        dst = path.join(self.base_directory, 'gpg.key')
         if not path.exists(dst):
             copy(path.join(self.homedir, 'gpg.key'), dst)
         return False
