@@ -1,7 +1,7 @@
 __import__("pkg_resources").declare_namespace(__name__)
 
 from glob import glob
-from shutil import copy2, rmtree
+from shutil import copy2, copy, rmtree
 from os import makedirs, path, remove, listdir, pardir, walk
 from infi.execute import execute_assert_success, ExecutionError
 from pkg_resources import resource_filename
@@ -38,7 +38,7 @@ def log_execute_assert_success(args, allow_to_fail=False):
             raise
 
 def is_file_open(filepath):
-    return log_execute_assert_success(['lsof', filepath]).get_stdout() != ''
+    return filepath in log_execute_assert_success(['lsof']).get_stdout()
 
 def find_files(directory, pattern):
     for root, dirs, files in walk(directory):
@@ -47,19 +47,26 @@ def find_files(directory, pattern):
                 filename = path.join(root, basename)
                 yield filename
 
-def wait_for_directory_to_stabalize(source_path):
-    if path.isdir(source_path):
-        return
+def is_file_size_changed(file_sizes, filepath):
+    from os import stat
+    old = file_sizes.get(filepath)
+    new = stat(filepath).st_size
+    file_sizes[filepath] = new
+    return old != new
+
+def wait_for_sources_to_stabalize(sources):
+    file_sizes = dict()
     while True:
-        items = [path.join(source_path, filename) for filename in listdir(source_path)]
-        files = [item for item in items if path.isdir(item)]
-        if any([is_file_open(filepath) for filepath in files]):
+        if any([is_file_open(filepath) for filepath in sources]):
+            sleep(1)
+            continue
+        if any([is_file_size_changed(file_sizes, filepath) for filepath in sources]):
             sleep(1)
             continue
         break
 
 NAME = r"""(?P<package_name>[a-z][a-z\-]+[a-z])"""
-VERSION = r"""v?(?P<package_version>(?:[\d\.]+)(?:-develop|(?:(?:\.post\d+\.|-\d+-|-develop-\d+-)g[a-z0-9]{7}))?)"""
+VERSION = r"""v?(?P<package_version>(?:[\d\.]+)(?:-develop|(?:(?:\.post\d+\.|\.\d+\.|-\d+-|-develop-\d+-)g[a-z0-9]{7}))?)"""
 PLATFORM = r"""(?P<platform_string>windows|linux-ubuntu-[a-z]+|linux-redhat-\d|linux-centos-\d|osx-\d+\.\d+)"""
 ARCHITECTURE = r"""(?P<architecture>x86|x64|x86_OVF10|x64_OVF_10)"""
 EXTENSION = r"""(?P<extension>rpm|deb|msi|tar\.gz|ova|iso|zip)"""
@@ -123,12 +130,13 @@ class ApplicationRepository(object):
         log_execute_assert_success(['service', 'vsftpd', 'restart'])
 
     def install_upstart_script_for_webserver(self):
-        from infi.app_repo.upstart import install_webserver, install_worker
+        from infi.app_repo.upstart import install_webserver, install_worker, install_watchdog
         services = ['app_repo_webserver', 'app_repo_worker']
         for service in services:
             log_execute_assert_success(["service", service, "stop"], True)
         install_webserver(self.base_directory)
         install_worker(self.base_directory)
+        install_watchdog(self.base_directory)
         for service in services:
             log_execute_assert_success(["service", service, "start"], True)
 
@@ -139,10 +147,11 @@ class ApplicationRepository(object):
         log_execute_assert_success(['/etc/init.d/rng-tools', 'start'], True)
 
     def generate_gpg_key_if_does_not_exist(self):
+        """:returns: True if the gpg key existed before"""
         self.fix_entropy_generator()
         gnupg_directory = path.join(self.homedir, ".gnupg")
         if all([path.exists(path.join(gnupg_directory, filename)) for filename in GPG_FILENAMES]):
-            return
+            return True
         rmtree(gnupg_directory, ignore_errors=True)
         log_execute_assert_success(['gpg', '--batch', '--gen-key',
                                    resource_filename(__name__, 'gpg_batch_file')])
@@ -151,6 +160,10 @@ class ApplicationRepository(object):
             fd.write(GPG_TEMPLATE)
         with open(path.join(self.homedir, 'gpg.key'), 'w') as fd:
             fd.write(pid.get_stdout())
+        dst = path.join(self.base_directory, 'gpg.key')
+        if not path.exists(dst):
+            copy(path.join(self.homedir, 'gpg.key'), dst)
+        return False
 
     def import_gpg_key_to_rpm_database(self):
         key = path.join(self.homedir, 'gpg.key')
@@ -176,10 +189,10 @@ class ApplicationRepository(object):
         self.copy_vsftp_config_file()
         self.restart_vsftpd()
         self.install_upstart_script_for_webserver()
-        self.generate_gpg_key_if_does_not_exist()
-        self.import_gpg_key_to_rpm_database()
-        self.sign_all_existing_deb_and_rpm_packages()
-        self.update_metadata()
+        if not self.generate_gpg_key_if_does_not_exist():
+            self.import_gpg_key_to_rpm_database()
+            self.sign_all_existing_deb_and_rpm_packages()
+            self.update_metadata()
         self.set_write_permissions_on_incoming_directory()
 
     def add(self, source_path):
@@ -189,17 +202,18 @@ class ApplicationRepository(object):
             return False
         isdir = path.isdir(source_path)
         if isdir:
-            wait_for_directory_to_stabalize(source_path)
-        files_to_add = [path.join(source_path, filename)
-                        for filename in listdir(source_path)] if isdir else [source_path]
-        files_to_add = [filepath for filepath in files_to_add if not path.isdir(filepath)]
+            files_to_add = [path.join(source_path, filename)
+                            for filename in listdir(source_path)] if isdir else [source_path]
+            files_to_add = [filepath for filepath in files_to_add if not path.isdir(filepath)]
+        else:
+            files_to_add = [source_path]
         if not files_to_add:
             logger.info("Nothing to add")
             return False
-        for filepath in files_to_add:
-            self.add_single_file(filepath)
-        self.update_metadata()
-        return True
+        logger.info("waiting for {!r}".format(files_to_add))
+        wait_for_sources_to_stabalize(files_to_add)
+        logger.info("adding {!r}".format(files_to_add))
+        return any(self.add_single_file(filepath) for filepath in files_to_add)
 
     def add_single_file(self, filepath):
         try:
@@ -209,8 +223,10 @@ class ApplicationRepository(object):
             else:
                 factory(filepath)
                 remove(filepath)
+                return True
         except Exception:
             logger.exception("Failed to add {!r} to repository".format(filepath))
+        return False
 
     def get_factory_for_incoming_distribution(self,filepath):
         _, _, platform_string, _, _ = parse_filepath(filepath)
@@ -244,10 +260,13 @@ class ApplicationRepository(object):
         copy2(filepath, destination_directory)
 
     def sign_rpm_package(self, filepath):
+        from os import environ
         logger.info("Signing {!r}".format(filepath))
         command = ['rpm', '--addsign', filepath]
         logger.debug("Spawning {}".format(command))
-        pid = spawn(command[0], command[1:], timeout=120)
+        env = environ.copy()
+        env['HOME'] = env.get('HOME', "/root")
+        pid = spawn(command[0], command[1:], timeout=120, cwd=self.incoming_directory, env=env)
         logger.debug("Waiting for passphrase request")
         pid.expect("Enter pass phrase:")
         pid.sendline("\n")

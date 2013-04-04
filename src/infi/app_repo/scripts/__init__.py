@@ -2,6 +2,7 @@
 
 Usage:
   app_repo [options] webserver start
+  app_repo [options] watchdog [--daemonize] start
   app_repo [options] worker [--daemonize] start
   app_repo [options] task start [--wait] <name> [--] [<remainder>...]
   app_repo [options] celery [--] [<remainder>...]
@@ -20,6 +21,7 @@ from infi.pyutils.decorators import wraps
 from logging import getLogger
 
 logger = getLogger(__name__)
+
 
 def console_script(func):
     @wraps(func)
@@ -45,12 +47,15 @@ def console_script(func):
                 logger.info("Logging ended")
     return decorator
 
+
 @console_script
 def app_repo(argv=argv[1:]):
     from docopt import docopt
     args = docopt(__doc__, argv=argv, help=True)
     if args['webserver'] and args['start']:
         return webserver_start(args)
+    if args['watchdog'] and args['start']:
+        return watchdog_start(args)
     if args['worker'] and args['start']:
         return worker_start(args)
     if args['task'] and args['start']:
@@ -71,14 +76,17 @@ def app_repo(argv=argv[1:]):
     if args['pull']:
         return pull(args)
 
+
 def get_config(args):
     from ..config import Configuration
     return Configuration.from_disk(args.get("--file", Configuration.get_default_config_file()))
+
 
 def config_dump_defaults(args):
     from ..config import Configuration, DevelopmentConfiguration
     config = Configuration() if not args['--development'] else DevelopmentConfiguration()
     print config.to_json()
+
 
 def webserver_start(args):
     from ..webserver import start
@@ -88,6 +96,16 @@ def webserver_start(args):
         signal_init_that_i_am_ready()
     init_celery(args)
     start(config)
+
+
+def watchdog_start(args):
+    from ..watcher import start
+    config = get_config(args)
+    if args["--daemonize"]:
+        from infi.app_repo.upstart import signal_init_that_i_am_ready
+        signal_init_that_i_am_ready()
+    start(config)
+
 
 def worker_start(args):
     config = get_config(args)
@@ -102,6 +120,7 @@ def worker_start(args):
     init_celery(args)
     celery(celery_args)
 
+
 def task_start(args):
     init_celery(args)
     from .. import tasks
@@ -110,10 +129,12 @@ def task_start(args):
     result = func(*tuple(args['<remainder>']))
     print result
 
+
 def init_celery(args):
     from .. import worker
     config = get_config(args)
     worker.init(config)
+
 
 def celery(args):
     from ..worker import celery
@@ -122,16 +143,19 @@ def celery(args):
     except SystemExit:
         pass
 
+
 def dump_metadata(args):
     from ..webserver import get_metadata
     from pprint import pprint
     config = get_config(args)
     pprint(get_metadata(config['base_directory']))
 
+
 def remote_show(args):
     from pprint import pprint
     config = get_config(args)
     pprint(config.remote.to_python())
+
 
 def remote_set(args):
     from pprint import pprint
@@ -141,6 +165,7 @@ def remote_set(args):
     config.remote.password = args['<password>']
     config.to_disk()
 
+
 def install(args):
     from .. import ApplicationRepository
     from ..config import Configuration
@@ -148,10 +173,13 @@ def install(args):
     app_repo = ApplicationRepository(config.base_directory)
     app_repo.setup()
 
+
 def get_pull_view(args):
     class FakeTemplateLookup(object):
+
         def get_template(self, *args, **kwargs):
             return self
+
 
         def render(self, *args, **kwargs):
             return (args, kwargs)
@@ -161,6 +189,7 @@ def get_pull_view(args):
     cherrypy.config['app_repo'] = config
     pull = Pull()
     pull.template_lookup = FakeTemplateLookup()
+
 
 def determine_packages_to_download(args, missing_packages, ignored_packages):
     from pprint import pprint
@@ -175,12 +204,14 @@ def determine_packages_to_download(args, missing_packages, ignored_packages):
     if args['<package>']:
         return set(args['<package>']).intersection(missing_packages)
 
+
 def download_packages(packages_to_download):
     import cherrypy
     try:
         _, kwargs = pull.POST({package:1 for package in packages_to_download})
     except cherrypy.HTTPRedirect:
         pass
+
 
 def pull(args):
     pull = get_pull_view(args)

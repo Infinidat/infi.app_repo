@@ -196,12 +196,17 @@ class Frontend(View):
         return dict(id=task_id, state=task.state ,status=task.status, name=task.task_name, failed=task.failed(),
                     successful=task.successful(), result=task.result, ready=task.ready())
 
+    @json_response
+    def inventory(self):
+        return get_metadata(cherrypy.config['app_repo']['base_directory'])
+
     pull = Pull()
     push = Push()
     index.exposed = True
     setup.exposed = True
     queue.exposed = True
     task.exposed = True
+    inventory.exposes = True
 
 def start(config):
     cherrypy.config['server.socket_host'] = config.webserver.address

@@ -39,7 +39,14 @@ def process_incoming(base_directory, force=False):
     from . import ApplicationRepository
     app_repo = ApplicationRepository(base_directory)
     source_path = path.join(base_directory, 'incoming')
-    if not app_repo.add(source_path) and force:
+    if app_repo.add(source_path) or force:
+        app_repo.update_metadata()
+
+@worker.celery.task
+def process_source(base_directory, sourcepath):
+    from . import ApplicationRepository
+    app_repo = ApplicationRepository(base_directory)
+    if app_repo.add(sourcepath):
         app_repo.update_metadata()
 
 def _chdir_and_log(path):
