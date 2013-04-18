@@ -13,8 +13,6 @@ _apt() {
 
 _yum() {
     echo Setting up...
-    distfile=`ls /etc | grep -E "(\w+)[-_](release|version)$" | head -n 1`
-    distribution=`echo $distfile | grep -Eo "\w+" | head -n 1`
     version=`cat /etc/$distfile | grep -Eo "[0-9]+" | head -n 1`
     arch=`uname -m`
     echo "[${fqdn}]
@@ -27,12 +25,14 @@ gpgkey=ftp://${fqdn}/gpg.key" > /etc/yum.repos.d/${fqdn}.repo
     yum makecache > /dev/null 2>&1
 }
 
-if [ -f "/etc/lsb-release" ]
+distfile=`ls /etc | grep -E "(\w+)[-_](release|version)$" | head -n 1`
+distribution=`echo $distfile | grep -Eo "[a-z]+" | head -n 1`
+if [ $distribution = "debian" ]
 then
     _apt
     exit 0
 fi
-if [ -f "/etc/redhat-release" ]
+if [ $distribution = "centos" -o $distribution = "redhat" ]
 then
     _yum
     exit 0
