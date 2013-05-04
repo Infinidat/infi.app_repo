@@ -334,7 +334,7 @@ class ApplicationRepository(object):
 
     def _exclude_filepath_from_views(self, filepath):
         return filepath.startswith(self.incoming_directory) or \
-               path.join("ova", "updates") in filepath or
+               path.join("ova", "updates") in filepath
 
     def gather_metadata_for_views(self):
         all_files =  []
