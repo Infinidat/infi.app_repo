@@ -68,10 +68,12 @@ def wait_for_sources_to_stabalize(sources):
 NAME = r"""(?P<package_name>[a-z][a-z\-]+[a-z])"""
 VERSION = r"""v?(?P<package_version>(?:[\d\.]+)(?:-develop|(?:(?:\.post\d+\.|\.\d+\.|-\d+-|-develop-\d+-)g[a-z0-9]{7}))?)"""
 PLATFORM = r"""(?P<platform_string>windows|linux-ubuntu-[a-z]+|linux-redhat-\d|linux-centos-\d|osx-\d+\.\d+)"""
-ARCHITECTURE = r"""(?P<architecture>x86|x64|x86_OVF10|x64_OVF_10)"""
-EXTENSION = r"""(?P<extension>rpm|deb|msi|tar\.gz|ova|iso|zip)"""
+ARCHITECTURE = r"""(?P<architecture>x86|x64|x86_OVF10|x64_OVF_10|x64_dd)"""
+EXTENSION = r"""(?P<extension>rpm|deb|msi|tar\.gz|ova|iso|zip|img)"""
 TEMPLATE = r"""^{}-{}-{}-{}\.{}$"""
 FILEPATH = TEMPLATE.format(NAME, VERSION, PLATFORM, ARCHITECTURE, EXTENSION)
+PLATFORM_STRING = dict(ova='vmware-esx', img='other', zip='other')
+
 
 def parse_filepath(filepath):
     """:returns: 5-tuple (package_name, package_version, platform_string, architecture, extension)"""
@@ -83,8 +85,9 @@ def parse_filepath(filepath):
         return (None, None, None, None, None)
     group = result.groupdict()
     return (group['package_name'], group['package_version'],
-            group['platform_string'] if group['extension'] != 'ova' else 'vmware-esx',
+            PLATFORM_STRING.get(group['extension'], group['platform_string']),
             group['architecture'], group['extension'])
+
 
 class ApplicationRepository(object):
     def __init__(self, base_directory):
@@ -238,7 +241,8 @@ class ApplicationRepository(object):
                                           'deb': self.add_package__deb,
                                           'tar.gz': self.add_package__archives,
                                           'zip': self.add_package__archives,
-                                          'ova': self.add_package__ova
+                                          'ova': self.add_package__ova,
+                                          'img': self.add_package__img,
                                          }
         [factory] = [value for key, value in add_package_by_postfix.items()
                      if filepath.endswith(key)]
@@ -310,6 +314,14 @@ class ApplicationRepository(object):
         logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
         copy2(filepath, destination_directory)
 
+    def add_package__img(self, filepath):
+        package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
+        destination_directory = path.join(self.base_directory, 'img')
+        if not path.exists(destination_directory):
+            makedirs(destination_directory)
+        logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
+        copy2(filepath, destination_directory)
+
     def update_metadata(self):
         self.update_metadata_for_views()
         self.update_metadata_for_yum_repositories()
@@ -322,8 +334,7 @@ class ApplicationRepository(object):
 
     def _exclude_filepath_from_views(self, filepath):
         return filepath.startswith(self.incoming_directory) or \
-               path.join("ova", "updates") in filepath or \
-               "archives" in filepath
+               path.join("ova", "updates") in filepath or
 
     def gather_metadata_for_views(self):
         all_files =  []
