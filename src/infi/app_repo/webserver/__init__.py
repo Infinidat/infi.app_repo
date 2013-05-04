@@ -206,7 +206,7 @@ class Frontend(View):
     setup.exposed = True
     queue.exposed = True
     task.exposed = True
-    inventory.exposes = True
+    inventory.exposed = True
 
 def start(config):
     cherrypy.config['server.socket_host'] = config.webserver.address
