@@ -189,6 +189,7 @@ def get_pull_view(args):
     cherrypy.config['app_repo'] = config
     pull = Pull()
     pull.template_lookup = FakeTemplateLookup()
+    return pull
 
 
 def determine_packages_to_download(args, missing_packages, ignored_packages):
@@ -205,10 +206,10 @@ def determine_packages_to_download(args, missing_packages, ignored_packages):
         return set(args['<package>']).intersection(missing_packages)
 
 
-def download_packages(packages_to_download):
+def download_packages(pull, packages_to_download):
     import cherrypy
     try:
-        _, kwargs = pull.POST({package:1 for package in packages_to_download})
+        _, kwargs = pull.POST(*list(set(packages_to_download)))
     except cherrypy.HTTPRedirect:
         pass
 
@@ -219,5 +220,5 @@ def pull(args):
     missing_packages = kwargs['missing_packages']
     ignored_packages = kwargs['ignored_packages']
     packages_to_download = determine_packages_to_download(args, missing_packages, ignored_packages)
-    download_packages(packages_to_download)
+    download_packages(pull, packages_to_download)
 
