@@ -100,16 +100,16 @@ Running in development mode
 
 	bin/app_repo dump defaults --development > config.json
 
-* Change the remote targrt in `config.json`
+* Change the remote target in `config.json`
 * Start the services
 
 	redis-server &
 	bin/app_repo -f config.json webserver start &
 	bin/app_repo -f config.json worker start &
 
-On other platforms that Ubuntu, the webserver should be functioning.
+On platforms other than Ubuntu, the webserver should be functioning.
 
-On Ubuntu, everything should be ok
+On Ubuntu, everything should be ok.
 
 Pulling packages
 =================
@@ -119,5 +119,3 @@ Pulling an entire repository can take time, and consume a lot of disk space. Ins
 	rm data/metadata.json
 	wget http://repo.lab.il.infinidat.com/inventory -O data/metadata.response
 	python -c "import json; print json.dumps(json.load(open('data/metadata.response'))['return_value'])" > data/metadata.json
-
-Note that the response returned from the webserve has a JSON-response envelope, you'll need to manually edit the JSON file and strip 
