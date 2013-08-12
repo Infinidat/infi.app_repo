@@ -86,8 +86,38 @@ Checking out the code
 This project uses buildout and infi-projector, and git to generate setup.py and __version__.py.
 In order to generate these, first get infi-projector:
 
-    easy_install infi.projector
+    easy_install 
 
-    and then run in the project directory:
+and then run in the project directory:
 
-        projector devenv build
+    projector devenv build
+
+
+Running in development mode
+===========================
+
+* Create a configuration file: 
+
+	bin/app_repo dump defaults --development > config.json
+
+* Change the remote targrt in `config.json`
+* Start the services
+
+	redis-server &
+	bin/app_repo -f config.json webserver start &
+	bin/app_repo -f config.json worker start &
+
+On other platforms that Ubuntu, the webserver should be functioning.
+
+On Ubuntu, everything should be ok
+
+Pulling packages
+=================
+
+Pulling an entire repository can take time, and consume a lot of disk space. Instead, one can just copy the metadata:
+
+	rm data/metadata.json
+	wget http://repo.lab.il.infinidat.com/inventory -O data/metadata.response
+	python -c "import json; print json.dumps(json.load(open('data/metadata.response'))['return_value'])" > data/metadata.json
+
+Note that the response returned from the webserve has a JSON-response envelope, you'll need to manually edit the JSON file and strip 
