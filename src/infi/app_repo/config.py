@@ -58,6 +58,11 @@ class Configuration(Model):
         from os import path
         return path.join(get_base_directory(), 'config.json')
 
+    def to_json(self):
+        from json import dumps
+        method = getattr(self, "to_python") if hasattr(self, "to_python") else getattr(self, "serialize")
+        return dumps(method())
+
     @classmethod
     def from_disk(cls, filepath):
         from cjson import decode
@@ -68,7 +73,9 @@ class Configuration(Model):
         with open(filepath) as fd:
             kwargs = decode(fd.read())
             kwargs['filepath'] = filepath
-            self = cls(**kwargs)
+            self = cls()
+            for key, value in kwargs.iteritems():
+                setattr(self, key, value)
         return self
 
     def to_disk(self):
