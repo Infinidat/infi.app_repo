@@ -9,6 +9,6 @@ class ConfigurationTestCase(unittest.TestCase):
 
     def test__load_save_config(self):
         self.delete_config_file()
-        config = Configuration(filepath=Configuration.get_default_config_file())
+        config = Configuration(dict(filepath=Configuration.get_default_config_file()))
         config.to_disk()
         Configuration.from_disk(Configuration.get_default_config_file())
