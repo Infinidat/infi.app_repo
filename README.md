@@ -107,15 +107,17 @@ Running in development mode
 	bin/app_repo -f config.json webserver start &
 	bin/app_repo -f config.json worker start &
 
-On platforms other than Ubuntu, the webserver should be functioning.
+On platforms other than Ubuntu, the lines above would make the webserver work; you won't be able to really pull packages and process incoming packages because the all RPM/DEB-related utilities does not exist on platforms other than Ubuntu.
 
 On Ubuntu, everything should be ok.
 
+
 Pulling packages
-=================
+----------------
 
 Pulling an entire repository can take time, and consume a lot of disk space. Instead, one can just copy the metadata:
 
+	mkdir data
 	rm data/metadata.json
 	wget http://repo.lab.il.infinidat.com/inventory -O data/metadata.response
 	python -c "import json; print json.dumps(json.load(open('data/metadata.response'))['return_value'])" > data/metadata.json
