@@ -38,4 +38,7 @@ class ParserTestCase(TestCase):
         actual = parse_filepath("srvadmin-racadm5-7.3.0-4.1.112.centos.el6.x86_64.rpm")
         self.assertEquals(actual, expected)
 
-
+    def test_perlGit(self):
+        expected = ('perl-Git', '1.7.11.3-1', 'linux-centos-6', 'x64', 'rpm')
+        actual = parse_filepath("perl-Git-1.7.11.3-1.centos.el6.x86_64.rpm")
+        self.assertEquals(actual, expected)
