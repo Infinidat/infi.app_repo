@@ -1,8 +1,8 @@
 __import__("pkg_resources").declare_namespace(__name__)
 
 from glob import glob
-from shutil import copy2, copy, rmtree
-from os import makedirs, path, remove, listdir, pardir, walk
+from shutil import copy, rmtree
+from os import makedirs, path, remove, listdir, pardir, walk, rename
 from infi.execute import execute_assert_success, ExecutionError
 from pkg_resources import resource_filename
 from pexpect import spawn
@@ -97,6 +97,11 @@ def parse_filepath(filepath):
     return translate_filepath((group['package_name'], group['package_version'],
             PLATFORM_STRING.get(group['extension'], group['platform_string']),
             group['architecture'], group['extension']))
+
+
+def copy2(source_path, destination_directory):
+    destination_path = path.join(destination_directory, path.basename(source_path))
+    rename(source_path, destination_path)
 
 
 class ApplicationRepository(object):
@@ -235,7 +240,8 @@ class ApplicationRepository(object):
                 logger.error("Rejecting file {!r} due to unsupported file format".format(filepath))
             else:
                 factory(filepath)
-                remove(filepath)
+                if path.exists(filepath):
+                    remove(filepath)
                 return True
         except Exception:
             logger.exception("Failed to add {!r} to repository".format(filepath))

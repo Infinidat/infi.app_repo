@@ -42,3 +42,8 @@ class ParserTestCase(TestCase):
         expected = ('perl-Git', '1.7.11.3-1', 'linux-centos-6', 'x64', 'rpm')
         actual = parse_filepath("perl-Git-1.7.11.3-1.centos.el6.x86_64.rpm")
         self.assertEquals(actual, expected)
+
+    def test_izbox_image(self):
+        expected = ('izbox', '0.post1818.g087e319', 'other', 'x64_dd', 'img')
+        actual = parse_filepath("izbox-0.post1818.g087e319-linux-centos-6-x64_dd.img")
+        self.assertEquals(actual, expected)
