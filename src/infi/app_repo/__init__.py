@@ -1,8 +1,8 @@
 __import__("pkg_resources").declare_namespace(__name__)
 
 from glob import glob
-from shutil import copy2, copy, rmtree
-from os import makedirs, path, remove, listdir, pardir, walk
+from shutil import copy, rmtree
+from os import makedirs, path, remove, listdir, pardir, walk, rename
 from infi.execute import execute_assert_success, ExecutionError
 from pkg_resources import resource_filename
 from pexpect import spawn
@@ -65,14 +65,24 @@ def wait_for_sources_to_stabalize(sources):
             continue
         break
 
-NAME = r"""(?P<package_name>[a-z][a-z\-]+[a-z])"""
-VERSION = r"""v?(?P<package_version>(?:[\d\.]+)(?:-develop|(?:(?:\.post\d+\.|\.\d+\.|-\d+-|-develop-\d+-)g[a-z0-9]{7}))?)"""
-PLATFORM = r"""(?P<platform_string>windows|linux-ubuntu-[a-z]+|linux-redhat-\d|linux-centos-\d|osx-\d+\.\d+)"""
-ARCHITECTURE = r"""(?P<architecture>x86|x64|x86_OVF10|x64_OVF_10|x64_dd)"""
+NAME = r"""(?P<package_name>[a-zA-Z][a-zA-Z\-_]+[a-zA-Z][0-9]?)"""
+VERSION = r"""v?(?P<package_version>(?:[\d\.]+)(?:-develop|-[0-9\.]+|(?:(?:\.post\d+\.|\.\d+\.|-\d+-|-develop-\d+-)g[a-z0-9]{7}))?)"""
+PLATFORM = r"""(?P<platform_string>windows|linux-ubuntu-[a-z]+|linux-redhat-\d|linux-centos-\d|osx-\d+\.\d+|centos.el6)"""
+ARCHITECTURE = r"""(?P<architecture>x86|x64|x86_OVF10|x64_OVF_10|x64_dd|i686|x86_64)"""
 EXTENSION = r"""(?P<extension>rpm|deb|msi|tar\.gz|ova|iso|zip|img)"""
-TEMPLATE = r"""^{}-{}-{}-{}\.{}$"""
+TEMPLATE = r"""^{}.{}.{}.{}\.{}$"""
 FILEPATH = TEMPLATE.format(NAME, VERSION, PLATFORM, ARCHITECTURE, EXTENSION)
 PLATFORM_STRING = dict(ova='vmware-esx', img='other', zip='other')
+TRANSLATED_ARCHITECTURE = {"x86_64": "x64", "i686": "x86"}
+TRANSLATED_PLATFORM = {"centos.el6": "linux-centos-6"}
+
+
+def translate_filepath(result_tuple):
+    package_name, package_version, platform_string, architecture, extension = result_tuple
+    return (package_name, package_version,
+            TRANSLATED_PLATFORM.get(platform_string, platform_string),
+            TRANSLATED_ARCHITECTURE.get(architecture, architecture),
+            extension)
 
 
 def parse_filepath(filepath):
@@ -84,9 +94,14 @@ def parse_filepath(filepath):
         logger.debug("failed to parse {}".format(filename))
         return (None, None, None, None, None)
     group = result.groupdict()
-    return (group['package_name'], group['package_version'],
+    return translate_filepath((group['package_name'], group['package_version'],
             PLATFORM_STRING.get(group['extension'], group['platform_string']),
-            group['architecture'], group['extension'])
+            group['architecture'], group['extension']))
+
+
+def copy2(source_path, destination_directory):
+    destination_path = path.join(destination_directory, path.basename(source_path))
+    rename(source_path, destination_path)
 
 
 class ApplicationRepository(object):
@@ -225,7 +240,8 @@ class ApplicationRepository(object):
                 logger.error("Rejecting file {!r} due to unsupported file format".format(filepath))
             else:
                 factory(filepath)
-                remove(filepath)
+                if path.exists(filepath):
+                    remove(filepath)
                 return True
         except Exception:
             logger.exception("Failed to add {!r} to repository".format(filepath))

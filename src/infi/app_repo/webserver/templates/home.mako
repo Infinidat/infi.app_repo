@@ -8,6 +8,7 @@
         <meta name="author" content="">
         <!-- Le styles -->
         <link href="assets/css/bootstrap.css" rel="stylesheet">
+        <link href="assets/css/apprepo.css" rel="stylesheet">
         <style>
             body {
                 padding-top: 60px;
@@ -42,7 +43,7 @@
         <div class="container-fluid">
             <div class="row-fluid">
                 <div class="span3">
-                    <div class="well sidebar-nav affix">
+                    <div class="well sidebar-nav affix" style="overflow-y: scroll;">
                         <ul class="nav nav-list">
                             <li class="">
                                 <a href="#hero">Setting up the repository</a>
@@ -59,11 +60,10 @@
                 </div>
                 <div class="span9" id="hero">
                     <div class="hero-unit">
-                        <h1>Install instructions</h1>
+                        <h1>Setup Instructions</h1>
                         <br>
                         <h2>
-                            Step 1
-                            <span class="label">First-time use only</span>
+                            Step 1 (first time only)
                         </h2>
                         <div class="row-fluid">
                             <div class="span3">
@@ -91,7 +91,7 @@
                             Step 2
                         </h2>
                         <p>
-                            Choose an application from the navigation bar on the left
+                            Choose a package from the list on the left
                         </p>
                     </div>
                     <br>
@@ -106,9 +106,9 @@
                     <div class="row-fluid">
                         <div class="span9">
                             <h2>${package['display_name']}
-                                <span class="label">${package['releases'][0]['version']}</span>
+                                <span class="label ver">${package['releases'][0]['version']}</span>
                             </h2>
-                            <h3>Installation instructions:</h3>
+                            <h3>Installation instructions</h3>
                             % if any([('redhat' in distribution['platform'] or 'centos' in distribution['platform']) for distribution in package['releases'][0]['distributions']]):
                             <div class="row-fluid">
                                 <div class="span2">
@@ -190,7 +190,7 @@
                                 </div>
                             </div>
                             % endif
-                            <h3>Upgrade instructions:</h3>
+                            <h3>Upgrade instructions</h3>
                             % if any([('redhat' in distribution['platform'] or 'centos' in distribution['platform']) for distribution in package['releases'][0]['distributions']]):
                             <div class="row-fluid">
                                 <div class="span2">
@@ -273,34 +273,36 @@
                             </div>
                             % endif
 
-                            <div class="btn btn-primary show-other">
-                                Show/Hide other versions and platforms
+                            <br>
+                            <div class="show-other">
+                                <i class="icon-chevron-right"></i> Other versions and platforms...
                             </div>
                             <br>
-                            <br>
-                            <table class="table download-links">
-                                <thead>
-                                    <tr>
-                                        <th>version</th>
-                                        <th>platform</th>
-                                        <th>architecture</th>
-                                        <th>link</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    % for release in package['releases']:
-                                    % for distribution in release['distributions']:
-                                    <tr>
-                                        <td>${release['version']}</td>
-                                        <td>${distribution['platform']}</td>
-                                        <td>${distribution['architecture']}</td>
-                                        <td><a href="${ftp_url}${distribution['filepath']}">download</a></td>
-                                    </tr>
-                                    % endfor
-                                    % endfor
-                                </tbody>
-                            </table>
+                            <div class="table_wrapper">
+                                <table class="table table-bordered table-hover download-links">
+                                    <thead>
+                                        <tr>
+                                            <th>version</th>
+                                            <th>platform</th>
+                                            <th>architecture</th>
+                                            <th>link</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        % for release in package['releases']:
+                                        % for distribution in release['distributions']:
+                                        <tr>
+                                            <td>${release['version']}</td>
+                                            <td>${distribution['platform']}</td>
+                                            <td>${distribution['architecture']}</td>
+                                            <td><a href="${ftp_url}${distribution['filepath']}">download</a></td>
+                                        </tr>
+                                        % endfor
+                                        % endfor
+                                    </tbody>
+                                </table>
                             </div>
+                        </div>
                         </div>
                         % endfor
                         <hr>
@@ -322,16 +324,24 @@
             /*options.aoColumnDefs = [{"asSorting ": ['desc']}];*/
             $(document).ready(function() {
                 $.fn.dataTableExt.oStdClasses.sPagePrevEnabled = "btn btn-info";
-                $.fn.dataTableExt.oStdClasses.sPagePrevDisabled = "btn btn-info";
+                $.fn.dataTableExt.oStdClasses.sPagePrevDisabled = "btn btn-info disabled";
                 $.fn.dataTableExt.oStdClasses.sPageNextEnabled = "btn btn-info";
-                $.fn.dataTableExt.oStdClasses.sPageNextDisabled = "btn btn-info";
-                $(".download-links").dataTable(options).parent().hide();
+                $.fn.dataTableExt.oStdClasses.sPageNextDisabled = "btn btn-info disabled";
+                $(".download-links").dataTable(options);
             });
         </script>
         <script>
             $(function() {
                 $(".show-other").click(function() {
-                    $(".dataTables_wrapper", $(this).parent()).toggle();
+                    var table = $(".table_wrapper", $(this).parent());
+                    if (table.is(':visible')) {
+                        $('i', this).removeClass('icon-chevron-down').addClass('icon-chevron-right');
+                        table.slideUp();
+                    }
+                    else {
+                        $('i', this).removeClass('icon-chevron-right').addClass('icon-chevron-down');
+                        table.slideDown();
+                    }
                 })
             })
         </script>
@@ -348,6 +358,14 @@
             else {
                 $(".windows-undef").show();
             }
+
+            // Set the size of the sidebar
+            function resize_sidebar() {
+                $('.sidebar-nav').height($(window).height() - 120);
+            }
+            resize_sidebar();
+            $(window).on('resize', resize_sidebar);
+
         </script>
     </body>
 </html>
