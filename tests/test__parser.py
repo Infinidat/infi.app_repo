@@ -22,7 +22,6 @@ class ParserTestCase(TestCase):
         expected = ('kernel', '2.6.32-358.14.1', 'linux-centos-6', 'x64', 'rpm')
         actual = parse_filepath("kernel-2.6.32-358.14.1.centos.el6.x86_64.rpm")
         self.assertEquals(actual, expected)
-
     def test_collected_curl_json(self):
         expected = ('collectd-curl_json', '5.3.0', 'linux-centos-6', 'x64', 'rpm')
         actual = parse_filepath("collectd-curl_json-5.3.0-linux-centos-6-x64.rpm")
@@ -46,4 +45,9 @@ class ParserTestCase(TestCase):
     def test_izbox_image(self):
         expected = ('izbox', '0.post1818.g087e319', 'other', 'x64_dd', 'img')
         actual = parse_filepath("izbox-0.post1818.g087e319-linux-centos-6-x64_dd.img")
+        self.assertEquals(actual, expected)
+
+    def test_kmod(self):
+        expected = ('kmod-spl', '2.6.32-358.14.1', 'linux-centos-6', 'x64', 'rpm')
+        actual = parse_filepath('kmod-spl-2.6.32-358.14.1.centos.el6.x86_64.rpm')
         self.assertEquals(actual, expected)
