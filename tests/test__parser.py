@@ -51,3 +51,11 @@ class ParserTestCase(TestCase):
         expected = ('kmod-spl', '2.6.32-358.14.1', 'linux-centos-6', 'x64', 'rpm')
         actual = parse_filepath('kmod-spl-2.6.32-358.14.1.centos.el6.x86_64.rpm')
         self.assertEquals(actual, expected)
+
+    def test_idiotic_zfs_versioning_scheme(self):
+        expected = ('kmod-zfs', '0.6.2-19_g011c0aa', 'linux-centos-6', 'x64', 'rpm')
+        actual = parse_filepath('kmod-zfs-0.6.2-19_g011c0aa-linux-centos-6-x64.rpm')
+        self.assertEquals(actual, expected)
+        expected = ('zfs-devel', '0.6.2-19_g011c0aa', 'linux-centos-6', 'x64', 'rpm')
+        actual = parse_filepath('zfs-devel-0.6.2-19_g011c0aa-linux-centos-6-x64.rpm')
+        self.assertEquals(actual, expected)

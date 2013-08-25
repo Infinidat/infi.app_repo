@@ -66,7 +66,7 @@ def wait_for_sources_to_stabalize(sources):
         break
 
 NAME = r"""(?P<package_name>[a-zA-Z][a-zA-Z\-_]+[a-zA-Z][0-9]?)"""
-VERSION = r"""v?(?P<package_version>(?:[\d\.]+)(?:-develop|-[0-9\.]+|(?:(?:\.post\d+\.|\.\d+\.|-\d+-|-develop-\d+-)g[a-z0-9]{7}))?)"""
+VERSION = r"""v?(?P<package_version>(?:[\d\.]+)(?:-develop|-[0-9\.]+(?:_g[0-9a-f]{7})?|(?:(?:\.post\d+\.|\.\d+\.|-\d+-|-develop-\d+-)g[a-z0-9]{7}))?)"""
 PLATFORM = r"""(?P<platform_string>windows|linux-ubuntu-[a-z]+|linux-redhat-\d|linux-centos-\d|osx-\d+\.\d+|centos.el6)"""
 ARCHITECTURE = r"""(?P<architecture>x86|x64|x86_OVF10|x64_OVF_10|x64_dd|i686|x86_64)"""
 EXTENSION = r"""(?P<extension>rpm|deb|msi|tar\.gz|ova|iso|zip|img)"""
