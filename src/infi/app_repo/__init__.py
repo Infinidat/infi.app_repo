@@ -231,7 +231,7 @@ class ApplicationRepository(object):
         logger.info("waiting for {!r}".format(files_to_add))
         wait_for_sources_to_stabalize(files_to_add)
         logger.info("adding {!r}".format(files_to_add))
-        return any(self.add_single_file(filepath) for filepath in files_to_add)
+        return any(list(self.add_single_file(filepath) for filepath in files_to_add))
 
     def add_single_file(self, filepath):
         try:
