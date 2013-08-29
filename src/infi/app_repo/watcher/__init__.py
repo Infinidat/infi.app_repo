@@ -6,7 +6,7 @@ from time import sleep
 from ..tasks import process_source, process_incoming
 logger = getLogger(__name__)
 
-SUPPORTED_ARCHIVES = ['msi', 'rpm', 'deb', 'tar.gz', 'zip', 'ova']
+SUPPORTED_ARCHIVES = ['msi', 'rpm', 'deb', 'tar.gz', 'zip', 'ova', 'img', 'iso']
 
 
 class Handler(FileSystemEventHandler):
