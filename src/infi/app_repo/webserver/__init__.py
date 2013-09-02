@@ -155,7 +155,7 @@ class Frontend(View):
     def index(self):
         host = cherrypy.request.headers['HOST']
         setup_url = 'http://{}/setup'.format(host)
-        ftp_url = 'ftp://{}'.format(host.split(':')[0])
+        ftp_url = 'ftp://{}'.format(host.split(':')[0]).strip('/') + "/"
         metadata = get_metadata(cherrypy.config['app_repo']['base_directory'])
         updates_available = self.are_there_new_packages_available()
         return self.template_lookup.get_template("home.mako").render(setup_url=setup_url, ftp_url=ftp_url,
