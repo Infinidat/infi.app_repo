@@ -59,3 +59,38 @@ class ParserTestCase(TestCase):
         expected = ('zfs-devel', '0.6.2-19_g011c0aa', 'linux-centos-6', 'x64', 'rpm')
         actual = parse_filepath('zfs-devel-0.6.2-19_g011c0aa-linux-centos-6-x64.rpm')
         self.assertEquals(actual, expected)
+
+    def test_sg3_utils(self):
+        expected = ('sg3-utils', '1.33', 'linux-ubuntu-precise', 'x86', 'deb')
+        actual = parse_filepath('sg3-utils-1.33-linux-ubuntu-precise-x86.deb')
+        self.assertEquals(actual, expected)
+
+    def test_sg3_utils_libs(self):
+        expected = ('sg3_utils-libs', '1.28', 'linux-redhat-6', 'x64', 'rpm')
+        actual = parse_filepath('sg3_utils-libs-1.28-linux-redhat-6-x64.rpm')
+        self.assertEquals(actual, expected)
+
+    def test_libdevmapper(self):
+        expected = ('libdevmapper1', '2', 'linux-ubuntu-precise', 'x64', 'deb')
+        actual = parse_filepath('libdevmapper1-2-linux-ubuntu-precise-x64.deb')
+        self.assertEquals(actual, expected)
+
+    def test_initscripts(self):
+        expected = ('initscripts', '9.03.38', 'linux-centos-6', 'x64', 'rpm')
+        actual = parse_filepath('initscripts-9.03.38-linux-centos-6-x64.rpm')
+        self.assertEquals(actual, expected)
+
+    def test_libc6(self):
+        expected = ('libc6', '2.15', 'linux-ubuntu-precise', 'x64', 'deb')
+        actual = parse_filepath('libc6-2.15-linux-ubuntu-precise-x64.deb')
+        self.assertEquals(actual, expected)
+
+    def test_lsb_base(self):
+        expected = ('lsb-base', '4.0', 'linux-ubuntu-precise', 'x86', 'deb')
+        actual = parse_filepath('lsb-base-4.0-linux-ubuntu-precise-x86.deb')
+        self.assertEquals(actual, expected)
+
+    def test_udev(self):
+        expected = ('udev', '175', 'linux-ubuntu-precise', 'x86', 'deb')
+        actual = parse_filepath('udev-175-linux-ubuntu-precise-x86.deb')
+        self.assertEquals(actual, expected)
