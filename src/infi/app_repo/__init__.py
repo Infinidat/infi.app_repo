@@ -353,6 +353,13 @@ class ApplicationRepository(object):
                path.join("ova", "updates") in filepath or \
                "archives" in filepath
 
+    def _get_hidden_packages(self):
+        hidden_filepath = path.join(self.base_directory, 'hidden.json')
+        if not path.exists(hidden_filepath):
+            return []
+        with open(hidden_filepath) as fd:
+            return decode(fd.read())
+
     def gather_metadata_for_views(self):
         all_files =  []
         all_files = [filepath for filepath in find_files(self.base_directory, '*')
@@ -360,6 +367,7 @@ class ApplicationRepository(object):
                      and parse_filepath(filepath) != (None, None, None, None, None)]
         distributions = [parse_filepath(distribution) + (distribution, ) for distribution in all_files]
         package_names = set([distribution[0] for distribution in distributions])
+        hidden_package_names = self._get_hidden_packages()
         distributions_by_package = {package_name: [distribution for distribution in distributions
                                                    if distribution[0] == package_name]
                                     for package_name in package_names}
@@ -374,6 +382,7 @@ class ApplicationRepository(object):
                                                           if distribution[1] == package_version]
                                         for package_version in package_versions}
             yield dict(name=package_name,
+                       hidden=package_name in hidden_package_names,
                        display_name=' '.join([item.capitalize() for item in package_name.split('-')]),
                        releases=[dict(version=key, distributions=value)
                                  for key, value in sorted(distributions_by_version.items(),
