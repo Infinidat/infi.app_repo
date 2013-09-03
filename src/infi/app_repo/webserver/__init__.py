@@ -41,6 +41,9 @@ class View(object):
         super(View, self).__init__()
         self.template_lookup = mako.lookup.TemplateLookup(os.path.join(os.path.dirname(__file__), 'templates'))
 
+    def sort_by_filename(self, key):
+        return key.split('/')[-1]
+
 class Pull(View):
     def get_packages_to_pull(self, remote):
         from .analyser import Analyser
@@ -51,9 +54,6 @@ class Pull(View):
     def add_packages_to_ignorelist(self, remote, packages):
         from .analyser import Analyser
         Analyser(remote, cherrypy.config['app_repo']['base_directory']).set_packages_to_ignore_when_pulling(packages)
-
-    def sort_by_filename(self, key):
-        return key.split('/')[-1]
 
     def GET(self):
         remote = cherrypy.config['app_repo']['remote']['fqdn']
