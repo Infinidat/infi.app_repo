@@ -62,4 +62,4 @@ class TasksTestCase(TestCase):
                                        src)
             self.assertTrue(execute_assert_success.called)
             execute_assert_success.assert_called_with(["curl", "-T", path.join(config.base_directory, src),
-                                                       "ftp://user:password@repo.lab.il.infinidat.com:"])
+                                                       "ftp://user:password@repo.lab.il.infinidat.com"])
