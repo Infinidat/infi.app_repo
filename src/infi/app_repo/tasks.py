@@ -29,8 +29,8 @@ def pull_package(remote_fqdn, base_directory, packge_uri):
 def push_package(remote_fqdn, remote_username, remote_password, base_directory, packge_uri):
     from infi.execute import execute_assert_success
     from os import path
-    src = path.join(base_directory, packge_uri)
-    url = "ftp://{0}:{1}@{2}:".format(remote_username, remote_password, remote_fqdn)
+    src = path.join(base_directory, packge_uri.strip(path.sep))
+    url = "ftp://{0}:{1}@{2}".format(remote_username, remote_password, remote_fqdn)
     execute_assert_success(["curl", "-T", src, url])
 
 @worker.celery.task

@@ -173,8 +173,8 @@ class Frontend(View):
     def queue(self, task_id=None):
         from ..worker import celery
         active_by_worker, reserved_by_worker = celery.control.inspect().active(), celery.control.inspect().reserved()
-        active_tasks = self.flatten_list(active_by_worker.values())
-        reserved_tasks = self.flatten_list(reserved_by_worker.values())
+        active_tasks = self.flatten_list(active_by_worker.values() if active_by_worker else [])
+        reserved_tasks = self.flatten_list(reserved_by_worker.values() if active_by_worker else [])
         if task_id is None:
             active_tasks_ids = [task['id'] for task in active_tasks]
             all_tasks = active_tasks
