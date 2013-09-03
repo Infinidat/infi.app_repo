@@ -41,6 +41,9 @@ class View(object):
         super(View, self).__init__()
         self.template_lookup = mako.lookup.TemplateLookup(os.path.join(os.path.dirname(__file__), 'templates'))
 
+    def sort_by_filename(self, key):
+        return key.split('/')[-1]
+
 class Pull(View):
     def get_packages_to_pull(self, remote):
         from .analyser import Analyser
@@ -51,9 +54,6 @@ class Pull(View):
     def add_packages_to_ignorelist(self, remote, packages):
         from .analyser import Analyser
         Analyser(remote, cherrypy.config['app_repo']['base_directory']).set_packages_to_ignore_when_pulling(packages)
-
-    def sort_by_filename(self, key):
-        return key.split('/')[-1]
 
     def GET(self):
         remote = cherrypy.config['app_repo']['remote']['fqdn']
@@ -157,6 +157,7 @@ class Frontend(View):
         setup_url = 'http://{}/setup'.format(host)
         ftp_url = 'ftp://{}'.format(host.split(':')[0])
         metadata = get_metadata(cherrypy.config['app_repo']['base_directory'])
+        metadata['packages'] = [package for package in metadata['packages'] if not package.get('hidden', None)]
         updates_available = self.are_there_new_packages_available()
         return self.template_lookup.get_template("home.mako").render(setup_url=setup_url, ftp_url=ftp_url,
                                                                      metadata=metadata,
@@ -173,8 +174,8 @@ class Frontend(View):
     def queue(self, task_id=None):
         from ..worker import celery
         active_by_worker, reserved_by_worker = celery.control.inspect().active(), celery.control.inspect().reserved()
-        active_tasks = self.flatten_list(active_by_worker.values())
-        reserved_tasks = self.flatten_list(reserved_by_worker.values())
+        active_tasks = self.flatten_list(active_by_worker.values() if active_by_worker else [])
+        reserved_tasks = self.flatten_list(reserved_by_worker.values() if active_by_worker else [])
         if task_id is None:
             active_tasks_ids = [task['id'] for task in active_tasks]
             all_tasks = active_tasks
