@@ -47,7 +47,11 @@ def process_source(base_directory, sourcepath):
     from . import ApplicationRepository
     app_repo = ApplicationRepository(base_directory)
     if app_repo.add(sourcepath):
-        app_repo.update_metadata()
+        if sourcepath.endswith('rpm'):
+            app_repo.update_metadata_for_yum_repositories()
+        if sourcepath.endswith('deb'):
+            app_repo.update_metadata_for_apt_repositories()
+        app_repo.update_metadata_for_views()
 
 def _chdir_and_log(path):
     from os import chdir
