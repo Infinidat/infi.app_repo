@@ -39,23 +39,19 @@ def process_incoming(base_directory, force=False):
     from . import ApplicationRepository
     app_repo = ApplicationRepository(base_directory)
     source_path = path.join(base_directory, 'incoming')
-    if app_repo.add(source_path) or force:
-        app_repo.update_metadata()
+    callbacks = app_repo.add(source_path)
+    app_repo.call_callbacks([app_repo.get_update_metadata_for_views_callback()] if force else callbacks)
 
 @worker.celery.task
-def process_source(base_directory, sourcepath):
+def process_source(base_directory, source_path):
     from . import ApplicationRepository
     app_repo = ApplicationRepository(base_directory)
-    if app_repo.add(sourcepath):
-        if sourcepath.endswith('rpm'):
-            app_repo.update_metadata_for_yum_repositories()
-        if sourcepath.endswith('deb'):
-            app_repo.update_metadata_for_apt_repositories()
-        app_repo.update_metadata_for_views()
+    callbacks = app_repo.add(source_path)
+    app_repo.call_callbacks(callbacks)
 
 def _chdir_and_log(path):
-    from os import chdir
-    chdir(path)
+    from os import chdir as _chdir
+    _chdir(path)
     logger.debug("Changed directory to {!r}".format(path))
 
 @contextmanager

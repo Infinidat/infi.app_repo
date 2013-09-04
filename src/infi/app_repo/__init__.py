@@ -4,6 +4,7 @@ from glob import glob
 from shutil import copy, rmtree
 from os import makedirs, path, remove, listdir, pardir, walk, rename
 from infi.execute import execute_assert_success, ExecutionError
+from infi.pyutils.lazy import cached_method
 from pkg_resources import resource_filename
 from pexpect import spawn
 from fnmatch import fnmatch
@@ -214,10 +215,10 @@ class ApplicationRepository(object):
         self.set_write_permissions_on_incoming_directory()
 
     def add(self, source_path):
-        """:returns: True if metadata was updates"""
+        """:returns: list of callables to update metadata"""
         if not path.exists(source_path):
             logger.error("Source path {!r} does not exist".format(source_path))
-            return False
+            return list()
         isdir = path.isdir(source_path)
         if isdir:
             files_to_add = [path.join(source_path, filename)
@@ -227,11 +228,14 @@ class ApplicationRepository(object):
             files_to_add = [source_path]
         if not files_to_add:
             logger.info("Nothing to add")
-            return False
+            return list()
         logger.info("waiting for {!r}".format(files_to_add))
         wait_for_sources_to_stabalize(files_to_add)
         logger.info("adding {!r}".format(files_to_add))
-        return any(list(self.add_single_file(filepath) for filepath in files_to_add))
+        callables_lists = [self.add_single_file(filepath) for filepath in files_to_add]
+        logger.info("processing callbacks: {}".format(callables_lists))
+        callables_sets = [set(item) for item in callables_lists]
+        return list(set.union(*(tuple(callables_sets))))
 
     def add_single_file(self, filepath):
         try:
@@ -239,13 +243,13 @@ class ApplicationRepository(object):
             if factory is None:
                 logger.error("Rejecting file {!r} due to unsupported file format".format(filepath))
             else:
-                factory(filepath)
+                callables = factory(filepath) or []
                 if path.exists(filepath):
                     remove(filepath)
-                return True
+                return callables
         except Exception:
             logger.exception("Failed to add {!r} to repository".format(filepath))
-        return False
+        return []
 
     def get_factory_for_incoming_distribution(self,filepath):
         _, _, platform_string, _, _ = parse_filepath(filepath)
@@ -268,6 +272,10 @@ class ApplicationRepository(object):
         logger.info("Signing {!r}".format(filepath))
         log_execute_assert_success(['dpkg-sig', '--sign', 'builder', filepath])
 
+    @cached_method
+    def _prepare_callback(self, func, *args, **kwargs):
+        return lambda: func(*args, **kwargs)
+
     def add_package__deb(self, filepath):
         package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
         _, distribution_name, codename = platform_string.split('-')
@@ -278,6 +286,8 @@ class ApplicationRepository(object):
         self.sign_deb_package(filepath)
         logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
         copy2(filepath, destination_directory)
+        return [self._prepare_callback(self.update_metadata_for_apt_repositories, destination_directory),
+                self.get_update_metadata_for_views_callback()]
 
     def sign_rpm_package(self, filepath):
         from os import environ
@@ -305,6 +315,8 @@ class ApplicationRepository(object):
         self.sign_rpm_package(filepath)
         logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
         copy2(filepath, destination_directory)
+        return [self._prepare_callback(self.update_metadata_for_yum_repositories, destination_directory),
+                self.get_update_metadata_for_views_callback()]
 
     def add_package__msi(self, filepath):
         package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
@@ -313,6 +325,7 @@ class ApplicationRepository(object):
             makedirs(destination_directory)
         logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
         copy2(filepath, destination_directory)
+        return [self.get_update_metadata_for_views_callback()]
 
     def add_package__archives(self, filepath):
         package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
@@ -329,6 +342,7 @@ class ApplicationRepository(object):
             makedirs(destination_directory)
         logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
         copy2(filepath, destination_directory)
+        return [self._prepare_callback(self.update_metadata_for_views)]
 
     def add_package__img(self, filepath):
         package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
@@ -337,6 +351,7 @@ class ApplicationRepository(object):
             makedirs(destination_directory)
         logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
         copy2(filepath, destination_directory)
+        return [self._prepare_callback(self.update_metadata_for_views)]
 
     def update_metadata(self):
         self.update_metadata_for_views()
@@ -389,8 +404,9 @@ class ApplicationRepository(object):
                                                           key=lambda item: parse_version(item[0]),
                                                           reverse=True)])
 
-    def update_metadata_for_yum_repositories(self):
-        for dirpath in glob(path.join(self.base_directory, 'rpm', '*', '*', '*')):
+    def update_metadata_for_yum_repositories(self, yum_repo_dir=None):
+        all_yum_repos = glob(path.join(self.base_directory, 'rpm', '*', '*', '*'))
+        for dirpath in [yum_repo_dir] if yum_repo_dir else all_yum_repos:
             if not path.isdir(dirpath):
                 continue
             if path.exists(path.join(dirpath, 'repodata')):
@@ -402,6 +418,13 @@ class ApplicationRepository(object):
                     log_execute_assert_success(['createrepo', dirpath])
             else:
                 log_execute_assert_success(['createrepo', dirpath])
+
+    def get_update_metadata_for_views_callback(self):
+        return self._prepare_callback(self.update_metadata_for_views)
+
+    def call_callbacks(self, callbacks):
+        for item in callbacks:
+            item()
 
     def _write_packages_gz_file(self, dirpath, ftp_base):
         import gzip
@@ -433,8 +456,9 @@ class ApplicationRepository(object):
         log_execute_assert_success(['gpg', '--clearsign', '-o', in_release, release])
         log_execute_assert_success(['gpg', '-abs', '-o', release_gpg, release])
 
-    def update_metadata_for_apt_repositories(self):
-        for dirpath in glob(path.join(self.base_directory, 'deb', '*', 'dists', '*', 'main', 'binary-*')):
+    def update_metadata_for_apt_repositories(self, apt_repo_dir=None):
+        all_apt_repos = glob(path.join(self.base_directory, 'deb', '*', 'dists', '*', 'main', 'binary-*'))
+        for dirpath in [apt_repo_dir] if apt_repo_dir else all_apt_repos:
             if not path.isdir(dirpath):
                 continue
             base, deb, distribution_name, dists, codename, main, binary = dirpath.rsplit('/', 6)
