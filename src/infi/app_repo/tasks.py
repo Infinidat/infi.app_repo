@@ -49,6 +49,23 @@ def process_source(base_directory, source_path):
     callbacks = app_repo.add(source_path)
     app_repo.call_callbacks(callbacks)
 
+@worker.celery.task
+def update_metadata_for_views(base_directory):
+    from os import path
+    from . import ApplicationRepository
+    app_repo = ApplicationRepository(base_directory)
+    app_repo.update_metadata_for_views()
+
+@worker.celery.task
+def hide_packages(base_directory, package_names):
+    from os import path
+    from . import ApplicationRepository
+    app_repo = ApplicationRepository(base_directory)
+    packages = set(app_repo.get_hidden_packages())
+    packages = packages.union(set([package_names] if isinstance(package_names, basestring) else package_names))
+    app_repo.set_hidden_packages(packages)
+    app_repo.update_metadata_for_views()
+
 def _chdir_and_log(path):
     from os import chdir as _chdir
     _chdir(path)
