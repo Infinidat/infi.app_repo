@@ -40,7 +40,7 @@ def process_incoming(base_directory, force=False):
     app_repo = ApplicationRepository(base_directory)
     source_path = path.join(base_directory, 'incoming')
     callbacks = app_repo.add(source_path)
-    app_repo.call_callbacks([app_repo.get_update_metadata_for_views_callback()] if force else callbacks)
+    app_repo.call_callbacks([app_repo.update_metadata] if force else callbacks)
 
 @worker.celery.task
 def process_source(base_directory, source_path):
