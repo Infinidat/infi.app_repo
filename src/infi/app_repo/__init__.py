@@ -169,20 +169,22 @@ class ApplicationRepository(object):
         """:returns: True if the gpg key existed before"""
         self.fix_entropy_generator()
         gnupg_directory = path.join(self.homedir, ".gnupg")
-        if all([path.exists(path.join(gnupg_directory, filename)) for filename in GPG_FILENAMES]):
-            return True
-        rmtree(gnupg_directory, ignore_errors=True)
-        log_execute_assert_success(['gpg', '--batch', '--gen-key',
-                                   resource_filename(__name__, 'gpg_batch_file')])
-        pid = log_execute_assert_success(['gpg', '--export', '--armor'])
-        with open(path.join(self.homedir, ".rpmmacros"), 'w') as fd:
-            fd.write(GPG_TEMPLATE)
-        with open(path.join(self.homedir, 'gpg.key'), 'w') as fd:
-            fd.write(pid.get_stdout())
-        dst = path.join(self.base_directory, 'gpg.key')
-        if not path.exists(dst):
-            copy(path.join(self.homedir, 'gpg.key'), dst)
-        return False
+        already_generated = all([path.exists(path.join(gnupg_directory, filename)) for filename in GPG_FILENAMES])
+        home_key_path = path.join(self.homedir, 'gpg.key')
+        already_generated = already_generated and path.exists(home_key_path)
+        if not already_generated:
+            rmtree(gnupg_directory, ignore_errors=True)
+            log_execute_assert_success(['gpg', '--batch', '--gen-key',
+                                       resource_filename(__name__, 'gpg_batch_file')])
+            pid = log_execute_assert_success(['gpg', '--export', '--armor'])
+            with open(path.join(self.homedir, ".rpmmacros"), 'w') as fd:
+                fd.write(GPG_TEMPLATE)
+            with open(home_key_path, 'w') as fd:
+                fd.write(pid.get_stdout())
+        data_key_path = path.join(self.base_directory, 'gpg.key')
+        if not path.exists(data_key_path):
+            copy(home_key_path, data_key_path)
+        return already_generated
 
     def import_gpg_key_to_rpm_database(self):
         key = path.join(self.homedir, 'gpg.key')
