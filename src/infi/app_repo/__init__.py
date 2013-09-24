@@ -152,6 +152,10 @@ class ApplicationRepository(object):
         sites_available = path.join(nginx_conf_dir, "sites-available")
         for filename in glob(path.join(sites_enabled, "*")):
             remove(filename)
+        if not path.exists(sites_available):
+            makedirs(sites_available)
+        if not path.exists(sites_enabled):
+            makedirs(sites_enabled)
         with open(config_file) as src, open(path.join(sites_available, "app-repo"), "w") as dst:
                 dst.write(src.read())
         symlink(path.join(sites_available, "app-repo"), path.join(sites_enabled, "app-repo"))
