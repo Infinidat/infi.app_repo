@@ -154,7 +154,9 @@ def dump_metadata(args):
 def remote_show(args):
     from pprint import pprint
     config = get_config(args)
-    pprint(config.remote.to_python())
+    remote = config.remote
+    method = getattr(remote, "to_python") if hasattr(remote, "to_python") else getattr(remote, "serialize") 
+    pprint(method())
 
 
 def remote_set(args):

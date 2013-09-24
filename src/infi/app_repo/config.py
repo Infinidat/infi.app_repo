@@ -27,8 +27,8 @@ def get_webserver_directory():
     return path.join(get_projectroot(), 'src', 'infi', 'app_repo', 'webserver')
 
 class WebserverConfiguration(Model):
-    address = StringType(default="0.0.0.0")
-    port = IntType(default=80)
+    address = StringType(default="127.0.0.1")
+    port = IntType(default=8000)
     daemonize = BooleanType(default=True)
     auto_reload = BooleanType(default=False)
     static_dir = StringType(default=os.path.join(get_webserver_directory(), "static"))
@@ -69,7 +69,7 @@ class Configuration(Model):
         from os import path
         filepath = filepath or cls.get_default_config_file()
         if not path.exists(filepath):
-            self = cls(filepath=filepath)
+            self = cls()
         with open(filepath) as fd:
             kwargs = decode(fd.read())
             kwargs['filepath'] = filepath

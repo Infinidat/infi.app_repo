@@ -2,7 +2,7 @@ __import__("pkg_resources").declare_namespace(__name__)
 
 from glob import glob
 from shutil import copy, rmtree
-from os import makedirs, path, remove, listdir, pardir, walk, rename
+from os import makedirs, path, remove, listdir, pardir, walk, rename, symlink
 from infi.execute import execute_assert_success, ExecutionError
 from infi.pyutils.lazy import cached_method
 from pkg_resources import resource_filename
@@ -145,8 +145,22 @@ class ApplicationRepository(object):
         with open('/etc/vsftpd.conf', 'w') as fd:
             fd.write(content.replace("anon_root=", "anon_root={}".format(self.base_directory)))
 
+    def configure_nginx(self):
+        config_file = resource_filename(__name__, 'nginx.conf')
+        nginx_conf_dir = path.join(path.sep, "etc", "nginx")
+        sites_enabled = path.join(nginx_conf_dir, "sites-enabled")
+        sites_available = path.join(nginx_conf_dir, "sites-available")
+        for filename in glob(path.join(sites_enabled, "*")):
+            remove(filename)
+        with open(config_file) as src, open(path.join(sites_available, "app-repo"), "w") as dst:
+                dst.write(src.read())
+        symlink(path.join(sites_available, "app-repo"), path.join(sites_enabled, "app-repo"))
+
     def restart_vsftpd(self):
         log_execute_assert_success(['service', 'vsftpd', 'restart'])
+
+    def restart_nginx(self):
+        log_execute_assert_success(['service', 'nginx', 'restart'])
 
     def install_upstart_script_for_webserver(self):
         from infi.app_repo.upstart import install_webserver, install_worker, install_watchdog
@@ -208,7 +222,9 @@ class ApplicationRepository(object):
         self.write_configuration_file()
         self.create_upload_user()
         self.copy_vsftp_config_file()
+        self.configure_nginx()
         self.restart_vsftpd()
+        self.restart_nginx()
         self.install_upstart_script_for_webserver()
         if not self.generate_gpg_key_if_does_not_exist():
             self.import_gpg_key_to_rpm_database()
