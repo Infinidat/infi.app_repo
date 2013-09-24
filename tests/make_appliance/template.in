@@ -138,7 +138,6 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/r/rpm/librpmio0_4.7.2-1lbuild1_i386.deb</vadk:url>
 			<vadk:url>http://il.archive.ubuntu.com/ubuntu/pool/universe/r/redis/redis-server_2.2.12-1build1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/n/nginx/nginx-common_1.4.1-3ubuntu1_all.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/n/nginx/nginx-extras_1.4.1-3ubuntu1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/n/nginx/nginx-full_1.4.1-3ubuntu1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/n/nginx/nginx_1.4.1-3ubuntu1_all.deb</vadk:url>
 			<vadk:url>http://[VADK.localIP]/ISV/appliancePackages/DEB_PACKAGE_FILENAME</vadk:url>
