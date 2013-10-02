@@ -174,7 +174,12 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:Package vadk:name="libcurl3"/>
 			<vadk:Package vadk:name="curl"/>
 			<vadk:Package vadk:name="libgd2-noxpm"/>
+			<vadk:Package vadk:name="libgd2-xpm"/>
 			<vadk:Package vadk:name="libpcre3"/>
+			<vadk:Package vadk:name="libgeoip1"/>
+			<vadk:Package vadk:name="libpam0g"/>
+			<vadk:Package vadk:name="libxml2"/>
+			<vadk:Package vadk:name="libxslt1.1"/>
 		</vadk:OSPackages>
 		<vadk:PackagesToRemove><!-- vadk:Package vadk:name="" / --></vadk:PackagesToRemove>
 		<vadk:BootActions>
