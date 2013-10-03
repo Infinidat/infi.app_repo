@@ -137,9 +137,9 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/r/rpm/librpmbuild0_4.7.2-1lbuild1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/r/rpm/librpmio0_4.7.2-1lbuild1_i386.deb</vadk:url>
 			<vadk:url>http://il.archive.ubuntu.com/ubuntu/pool/universe/r/redis/redis-server_2.2.12-1build1_i386.deb</vadk:url>
-			<vadk:url>https://launchpad.net/~nginx/+archive/stable/+files/nginx-common_1.4.1-1ppa1~lucid_all.deb</vadk:url>
-			<vadk:url>https://launchpad.net/~nginx/+archive/stable/+files/nginx-light_1.4.1-1ppa1~lucid_i386.deb</vadk:url>
-			<vadk:url>https://launchpad.net/~nginx/+archive/stable/+files/nginx_1.4.1-1ppa1~lucid_all.deb</vadk:url>
+			<vadk:url>ftp://repo.infinidat.com/archives/nginx-common_1.4.1-1ppa1~lucid_all.deb</vadk:url>
+			<vadk:url>ftp://repo.infinidat.com/archives/nginx-light_1.4.1-1ppa1~lucid_i386.deb</vadk:url>
+			<vadk:url>ftp://repo.infinidat.com/archives/nginx_1.4.1-1ppa1~lucid_all.deb</vadk:url>
 			<vadk:url>http://[VADK.localIP]/ISV/appliancePackages/DEB_PACKAGE_FILENAME</vadk:url>
 		</vadk:ApplicationPackages>
 		<vadk:OSPackages><!-- Additional OS packages needed by the ISV's application -->
