@@ -138,7 +138,7 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/r/rpm/librpmio0_4.7.2-1lbuild1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/libg/libgd2/libgd2-noxpm_2.0.36~rc1~dfsg-3.1ubuntu1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/libg/libgd2/libgd2-xpm_2.0.36~rc1~dfsg-3.1ubuntu1_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/pool/main/libj/libjpeg6b/libjpeg62_6b-15ubuntu1_i386.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/libj/libjpeg6b/libjpeg62_6b-15ubuntu1_i386.deb</vadk:url>
 			<vadk:url>http://security.ubuntu.com/ubuntu/pool/main/libp/libpng/libpng12-0_1.2.42-1ubuntu2.5_i386.deb</vadk:url>
 			<vadk:url>http://security.ubuntu.com/ubuntu/pool/main/f/freetype/libfreetype6_2.3.11-1ubuntu2.7_i386.deb</vadk:url>
 			<vadk:url>http://il.archive.ubuntu.com/ubuntu/pool/universe/r/redis/redis-server_2.2.12-1build1_i386.deb</vadk:url>
