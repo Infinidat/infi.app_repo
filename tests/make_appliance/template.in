@@ -137,6 +137,9 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/r/rpm/librpmbuild0_4.7.2-1lbuild1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/r/rpm/librpmio0_4.7.2-1lbuild1_i386.deb</vadk:url>
 			<vadk:url>http://il.archive.ubuntu.com/ubuntu/pool/universe/r/redis/redis-server_2.2.12-1build1_i386.deb</vadk:url>
+			<vadk:url>ftp://repo.infinidat.com/archives/nginx-common_1.4.1-1ppa1~lucid_all.deb</vadk:url>
+			<vadk:url>ftp://repo.infinidat.com/archives/nginx-light_1.4.1-1ppa1~lucid_i386.deb</vadk:url>
+			<vadk:url>ftp://repo.infinidat.com/archives/nginx_1.4.1-1ppa1~lucid_all.deb</vadk:url>
 			<vadk:url>http://[VADK.localIP]/ISV/appliancePackages/DEB_PACKAGE_FILENAME</vadk:url>
 		</vadk:ApplicationPackages>
 		<vadk:OSPackages><!-- Additional OS packages needed by the ISV's application -->
@@ -170,6 +173,11 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:Package vadk:name="ssl-cert"/>
 			<vadk:Package vadk:name="libcurl3"/>
 			<vadk:Package vadk:name="curl"/>
+			<vadk:Package vadk:name="libpcre3"/>
+			<vadk:Package vadk:name="libgeoip1"/>
+			<vadk:Package vadk:name="libpam0g"/>
+			<vadk:Package vadk:name="libxml2"/>
+			<vadk:Package vadk:name="libxslt1.1"/>
 		</vadk:OSPackages>
 		<vadk:PackagesToRemove><!-- vadk:Package vadk:name="" / --></vadk:PackagesToRemove>
 		<vadk:BootActions>
