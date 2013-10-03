@@ -136,6 +136,11 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/r/rpm/librpm0_4.7.2-1lbuild1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/r/rpm/librpmbuild0_4.7.2-1lbuild1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/r/rpm/librpmio0_4.7.2-1lbuild1_i386.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/libg/libgd2/libgd2-noxpm_2.0.36~rc1~dfsg-3.1ubuntu1_i386.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/libg/libgd2/libgd2-xpm_2.0.36~rc1~dfsg-3.1ubuntu1_i386.deb</vadk:url>
+			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/pool/main/libj/libjpeg6b/libjpeg62_6b-15ubuntu1_i386.deb</vadk:url>
+			<vadk:url>http://security.ubuntu.com/ubuntu/pool/main/libp/libpng/libpng12-0_1.2.42-1ubuntu2.5_i386.deb</vadk:url>
+			<vadk:url>http://security.ubuntu.com/ubuntu/pool/main/f/freetype/libfreetype6_2.3.11-1ubuntu2.7_i386.deb</vadk:url>
 			<vadk:url>http://il.archive.ubuntu.com/ubuntu/pool/universe/r/redis/redis-server_2.2.12-1build1_i386.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/n/nginx/nginx-common_1.4.1-3ubuntu1_all.deb</vadk:url>
 			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/n/nginx/nginx-full_1.4.1-3ubuntu1_i386.deb</vadk:url>
@@ -173,8 +178,6 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:Package vadk:name="ssl-cert"/>
 			<vadk:Package vadk:name="libcurl3"/>
 			<vadk:Package vadk:name="curl"/>
-			<vadk:Package vadk:name="libgd2-noxpm"/>
-			<vadk:Package vadk:name="libgd2-xpm"/>
 			<vadk:Package vadk:name="libpcre3"/>
 			<vadk:Package vadk:name="libgeoip1"/>
 			<vadk:Package vadk:name="libpam0g"/>
