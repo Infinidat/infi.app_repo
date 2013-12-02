@@ -434,7 +434,7 @@ preseed/url=[VADK.unattendedCfgURL]
 	<Section xsi:type="vadk:BuildSection_Type">
 		<Info/>
 		<vadk:ProvisioningSettings>
-			<vadk:NetworkConnection>VM Network</vadk:NetworkConnection>
+			<vadk:NetworkConnection>VM_NETWORK</vadk:NetworkConnection>
 			<vadk:NetworkType>dhcp</vadk:NetworkType>
 			<vadk:IP></vadk:IP>
 			<vadk:Netmask></vadk:Netmask>

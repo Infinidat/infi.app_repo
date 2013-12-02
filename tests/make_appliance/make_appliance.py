@@ -93,6 +93,7 @@ def generate_appliance_profile():
     content = content.replace("REPO_HOSTNAME", environ['REPO_HOSTNAME'])
     content = content.replace("REPO_USERNAME", environ['REPO_USERNAME'])
     content = content.replace("REPO_PASSWORD", environ['REPO_PASSWORD'])
+    content = content.replace("VM_NETWORK", environ['VM_NETWORK'])
     content = content.replace("TARGETDIR", '/opt/{}/{}'.format(get_company().lower(),
                                                                get_product_name_in_one_word()))
 
