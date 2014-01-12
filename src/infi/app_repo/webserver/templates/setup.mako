@@ -25,7 +25,7 @@ gpgkey=ftp://${fqdn}/gpg.key" > /etc/yum.repos.d/${fqdn}.repo
     yum makecache > /dev/null 2>&1
 }
 
-distfile=`ls /etc | grep -E "(\w+)[-_](release|version)$" | head -n 1`
+distfile=`ls /etc | grep -E "(debian|centos|redhat)[-_](release|version)$" | head -n 1`
 distribution=`echo $distfile | grep -Eo "[a-z]+" | head -n 1`
 if [ $distribution = "debian" ]
 then
