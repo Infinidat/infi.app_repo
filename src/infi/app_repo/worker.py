@@ -1,5 +1,4 @@
 from celery import Celery
-from datetime import timedelta
 
 celery = Celery('infi.app_repo.worker.celery',
                     broker='redis://',
@@ -14,4 +13,3 @@ def init(config):
     celery.log.setup(loglevel=logging.DEBUG)
     celery.log.setup_logging_subsystem(loglevel=logging.DEBUG)
     celery.log.setup_task_loggers(loglevel=logging.DEBUG)
-

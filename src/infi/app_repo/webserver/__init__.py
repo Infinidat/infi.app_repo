@@ -1,7 +1,6 @@
 import cherrypy
 import os
 import mako.lookup
-import textwrap
 import cjson
 from infi.pyutils.decorators import wraps
 
@@ -30,7 +29,6 @@ def json_response(func):
             success = True
         except Exception, error:
             error_message = str(error)
-            msg = "Caught an exception on json response on function call {} with args {!r}, kwargs {!r}"
             success = False
         return cjson.encode(dict(success=success, return_value=return_value, error_message=error_message))
     return callable
@@ -71,7 +69,7 @@ class Pull(View):
         packages_to_ignore = missing_packages.difference(set(packages_to_download))
         self.add_packages_to_ignorelist(remote, packages_to_ignore)
         base_directory = path.join(cherrypy.config['app_repo']['base_directory'])
-        result_list = self.queue_download_jobs(remote, base_directory, packages_to_download)
+        self.queue_download_jobs(remote, base_directory, packages_to_download)
         raise cherrypy.HTTPRedirect("/queue")
 
     def index(self, *args, **kwargs):
@@ -80,7 +78,6 @@ class Pull(View):
 
     def queue_download_jobs(self, remote, base_directory, packages):
         from ..tasks import pull_package, process_incoming
-        from os import path
         result_list = []
         for package in packages:
             result = pull_package.delay(remote, base_directory, package)
@@ -117,7 +114,6 @@ class Push(View):
         return self.template_lookup.get_template("packages.mako").render(**kwargs)
 
     def POST(self, *args, **kwargs):
-        from os import path
         remote = cherrypy.config['app_repo']['remote']['fqdn']
         missing_packages, ignored_packages = self.get_packages_to_push(remote)
         packages_to_upload = [item for item in kwargs.keys()
@@ -125,8 +121,7 @@ class Push(View):
         packages_to_ignore = missing_packages.difference(set(packages_to_upload))
         self.add_packages_to_ignorelist(packages_to_ignore)
         base_directory = cherrypy.config['app_repo']['base_directory']
-        result_list = self.queue_upload_jobs(cherrypy.config['app_repo']['remote'],
-                                             base_directory, packages_to_upload)
+        self.queue_upload_jobs(cherrypy.config['app_repo']['remote'], base_directory, packages_to_upload)
         raise cherrypy.HTTPRedirect("/queue")
 
     def index(self, *args, **kwargs):
@@ -135,11 +130,8 @@ class Push(View):
 
     def queue_upload_jobs(self, remote_config, base_directory, packages):
         from ..tasks import push_package
-        from os import path
         result_list = []
         for package in packages:
-            filename = package.split('/')[-1].rsplit('.', 1)[0]
-            display_name = "Uploading {}".format(filename)
             result = push_package.delay(remote_config['fqdn'], remote_config['username'],
                                         remote_config['password'], base_directory, package)
             result_list.append(result)
@@ -194,7 +186,7 @@ class Frontend(View):
         from celery.result import AsyncResult
         from ..worker import celery
         task = AsyncResult(task_id, app=celery, task_name=task_name)
-        return dict(id=task_id, state=task.state ,status=task.status, name=task.task_name, failed=task.failed(),
+        return dict(id=task_id, state=task.state, status=task.status, name=task.task_name, failed=task.failed(),
                     successful=task.successful(), result=task.result, ready=task.ready())
 
     @json_response

@@ -26,7 +26,7 @@ logger = getLogger(__name__)
 def console_script(func):
     @wraps(func)
     def decorator(*args, **kwargs):
-        from logging import DEBUG, basicConfig, getLogger
+        from logging import DEBUG, basicConfig
         from datetime import datetime
         from infi.traceback import traceback_context
         from os import getpid, getuid
@@ -155,12 +155,11 @@ def remote_show(args):
     from pprint import pprint
     config = get_config(args)
     remote = config.remote
-    method = getattr(remote, "to_python") if hasattr(remote, "to_python") else getattr(remote, "serialize") 
+    method = getattr(remote, "to_python") if hasattr(remote, "to_python") else getattr(remote, "serialize")
     pprint(method())
 
 
 def remote_set(args):
-    from pprint import pprint
     config = get_config(args)
     config.remote.fqdn = args['<fqdn>']
     config.remote.username = args['<username>']
@@ -181,7 +180,6 @@ def get_pull_view(args):
 
         def get_template(self, *args, **kwargs):
             return self
-
 
         def render(self, *args, **kwargs):
             return (args, kwargs)
@@ -223,4 +221,3 @@ def pull(args):
     ignored_packages = kwargs['ignored_packages']
     packages_to_download = determine_packages_to_download(args, missing_packages, ignored_packages)
     download_packages(pull, packages_to_download)
-
