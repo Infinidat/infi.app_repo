@@ -68,6 +68,9 @@ cases = [
 
     dict(expected=('mpt2sas-debuginfo', '14.00.00.00', 'linux-centos-6', 'x64', 'rpm'),
          basename="mpt2sas-debuginfo-14.00.00.00-linux-centos-6-x64.rpm"),
+
+    dict(expected=('mpt2sas-debuginfo', '14.00.00.00.2.6.32-358.14.1', 'linux-centos-6', 'x64', 'rpm'),
+         basename="mpt2sas-debuginfo-14.00.00.00.2.6.32-358.14.1-linux-centos-6-x64.rpm")
     ]
 
 class ParserTestCase(TestCase):

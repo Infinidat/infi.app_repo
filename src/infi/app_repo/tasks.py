@@ -51,14 +51,12 @@ def process_source(base_directory, source_path):
 
 @worker.celery.task
 def update_metadata_for_views(base_directory):
-    from os import path
     from . import ApplicationRepository
     app_repo = ApplicationRepository(base_directory)
     app_repo.update_metadata_for_views()
 
 @worker.celery.task
 def hide_packages(base_directory, package_names):
-    from os import path
     from . import ApplicationRepository
     app_repo = ApplicationRepository(base_directory)
     packages = set(app_repo.get_hidden_packages())

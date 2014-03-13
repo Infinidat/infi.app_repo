@@ -83,20 +83,16 @@ You can download it from http://repo.infinidat.com.
 Checking out the code
 =====================
 
-This project uses buildout and infi-projector, and git to generate setup.py and __version__.py.
-In order to generate these, first get infi-projector:
+Run the following:
 
-    easy_install 
-
-and then run in the project directory:
-
+    easy_install -U infi.projector
     projector devenv build
 
 
 Running in development mode
 ===========================
 
-* Create a configuration file: 
+* Create a configuration file:
 
 	bin/app_repo dump defaults --development > config.json
 

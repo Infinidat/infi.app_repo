@@ -2,7 +2,7 @@ __import__("pkg_resources").declare_namespace(__name__)
 
 from glob import glob
 from shutil import copy, rmtree
-from os import makedirs, path, remove, listdir, pardir, walk, rename, symlink
+from os import makedirs, path, remove, listdir, walk, rename, symlink
 from infi.execute import execute_assert_success, ExecutionError
 from infi.pyutils.lazy import cached_method
 from pkg_resources import resource_filename
@@ -273,7 +273,7 @@ class ApplicationRepository(object):
             logger.exception("Failed to add {!r} to repository".format(filepath))
         return []
 
-    def get_factory_for_incoming_distribution(self,filepath):
+    def get_factory_for_incoming_distribution(self, filepath):
         _, _, platform_string, _, _ = parse_filepath(filepath)
         logger.debug("Platform string is {!r}".format(platform_string))
         if platform_string is None:
@@ -403,7 +403,7 @@ class ApplicationRepository(object):
             return fd.write(encode(list(packages)))
 
     def gather_metadata_for_views(self):
-        all_files =  []
+        all_files = []
         all_files = [filepath for filepath in find_files(self.base_directory, '*')
                      if not self._exclude_filepath_from_views(filepath)
                      and parse_filepath(filepath) != (None, None, None, None, None)]
@@ -455,7 +455,7 @@ class ApplicationRepository(object):
 
     def _write_packages_gz_file(self, dirpath, ftp_base):
         import gzip
-        cache = path.join(self.incoming_directory, "apt_cache.db")
+        # cache = path.join(self.incoming_directory, "apt_cache.db")
         # pid = log_execute_assert_success(['apt-ftparchive', '--db', cache, 'packages', dirpath])
         pid = log_execute_assert_success(['dpkg-scanpackages', dirpath, '/dev/null'])
         content = pid.get_stdout()

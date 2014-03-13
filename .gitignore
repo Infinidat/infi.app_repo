@@ -58,3 +58,7 @@ data
 gpg-ring.pub
 gpg-ring.sec
 .DS_Store
+.cache
+.cache
+eggs
+parts
