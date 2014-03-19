@@ -457,7 +457,7 @@ class ApplicationRepository(object):
         import gzip
         # cache = path.join(self.incoming_directory, "apt_cache.db")
         # pid = log_execute_assert_success(['apt-ftparchive', '--db', cache, 'packages', dirpath])
-        pid = log_execute_assert_success(['dpkg-scanpackages', dirpath, '/dev/null'])
+        pid = log_execute_assert_success(['dpkg-scanpackages', "--multiversion", dirpath, '/dev/null'])
         content = pid.get_stdout()
         content = content.replace(ftp_base + '/', '')
         packages = path.join(dirpath, 'Packages')
