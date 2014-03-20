@@ -70,7 +70,16 @@ cases = [
          basename="mpt2sas-debuginfo-14.00.00.00-linux-centos-6-x64.rpm"),
 
     dict(expected=('mpt2sas-debuginfo', '14.00.00.00.2.6.32-358.14.1', 'linux-centos-6', 'x64', 'rpm'),
-         basename="mpt2sas-debuginfo-14.00.00.00.2.6.32-358.14.1-linux-centos-6-x64.rpm")
+         basename="mpt2sas-debuginfo-14.00.00.00.2.6.32-358.14.1-linux-centos-6-x64.rpm"),
+
+    dict(expected=('host-power-tools-for-vmware', '1.2.6', 'vmware-esx', 'x86_OVF10', 'ova'),
+         basename="host-power-tools-for-vmware-1.2.6-linux-ubuntu-lucid-x86_OVF10.ova"),
+
+    dict(expected=('host-power-tools-for-vmware', '1.2.6', 'vmware-esx', 'x86_OVF10_UPDATE_ISO', 'iso'),
+         basename="host-power-tools-for-vmware-1.2.6-vmware-esx-x86_OVF10_UPDATE_ISO.iso"),
+
+    dict(expected=('host-power-tools-for-vmware', '1.2.6', 'vmware-esx', 'x86_OVF10_UPDATE_ZIP', 'iso'),
+         basename="host-power-tools-for-vmware-1.2.6-vmware-esx-x86_OVF10_UPDATE_ZIP.iso"),
     ]
 
 class ParserTestCase(TestCase):

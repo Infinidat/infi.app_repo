@@ -184,7 +184,7 @@
                                 <div class="span10">
                                     <%
                                     [distribution] = [distribution for distribution in package['releases'][0]['distributions']
-                                                      if distribution['platform'] == 'vmware-esx']
+                                                      if distribution['platform'] == 'vmware-esx' and distribution['architecture'].endswith('OVF10')]
                                      %>
                                     Download and deploy <a href="${ftp_url}${distribution['filepath']}">this</a> appliance in vCenter.
                                 </div>
@@ -266,9 +266,11 @@
                                 <div class="span10">
                                     <%
                                     [distribution] = [distribution for distribution in package['releases'][0]['distributions']
-                                                      if distribution['platform'] == 'vmware-esx']
+                                                      if distribution['platform'] == 'vmware-esx' and distribution['architecture'].endswith('OVF10')]
                                      %>
                                     Upgrade the appliance through vCenter by using the VMware Update Manager Plug-in.
+                                    <br>
+                                    If vCenter does not have internet connectivity to this repository, you can download a ZIP/ISO update file from the list below and upload it to the VMware Update Manager.
                                 </div>
                             </div>
                             % endif
