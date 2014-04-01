@@ -502,6 +502,11 @@ rm -rf /var/lib/apt/lists/gb*
 dd if=/dev/zero of=/var/log/zerofile || true
 rm /var/log/zerofile
 ln -sf /usr/lib/vmware-tools/sbin/vmware-rpctool /usr/sbin/vmware-rpctool
+
+# fix grub timeout
+sed -ie 's/timeout=-1/timeout=5/' /etc/grub.d/00_header
+update-grub
+
 </vadk:PostInstallShellScript>
 	</Section>
 <!--
