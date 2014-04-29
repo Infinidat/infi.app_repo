@@ -380,22 +380,6 @@ openssl dgst -sha1 -verify &quot;$3&quot; -signature &quot;$2&quot;  &quot;$1&qu
 			<rasd:ResourceType>15</rasd:ResourceType>
 		</Item>
 	</Section>
-	<Section xsi:type="vadk:VServiceSection_Type">
-		<Info>
-			vService content in this element will be passed directly
-			to the OVF output descriptor without interpretation
-		</Info>
-		<vmw:vServiceDependencySection xmlns:ovf="http://schemas.dmtf.org/ovf/envelope/1" xmlns:vmw="http://www.vmware.com/schema/ovf" ovf:required="true" vmw:id="installation">
-			<ovf:Info>A vService dependency</ovf:Info>
-			<vmw:Type>com.vmware.vservice.extension</vmw:Type>
-			<vmw:Name>vCenter Extension Installation</vmw:Name>
-			<vmw:Description>
-					 This appliance requires a binding to the vCenter Extension vService,
-					 which allows it to register automatically as a vCenter Extension at runtime.
-				</vmw:Description>
-			<vmw:Configuration/>
-		</vmw:vServiceDependencySection>
-	</Section>
 	<Section xsi:type="vadk:JEOSSection_Type">
 		<Info/>
 		<vadk:BootArgs>
