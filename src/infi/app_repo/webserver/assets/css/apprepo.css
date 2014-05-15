@@ -1,5 +1,54 @@
+ @font-face {
+    font-family: 'SignaColumn';
+    src: url( ../fonts/SignaColumn-Black.otf ) format("opentype");
+}     
+@font-face {
+    font-family: 'SignaColumn-Light';
+    src: url( ../fonts/SignaColumn-Light.otf ) format("opentype");
+}     
+@font-face {
+    font-family: 'SignaColumn-Bold';
+    src: url( ../fonts/SignaColumn-Bold.otf ) format("opentype");
+}
+
+body {
+    background-color: #eff1f1;
+    font-size: 15px;
+    padding-top:0px !important;
+}
+
+body, select, .navbar-header {
+    font-family:  SignaColumn-Light;
+}
+
 h3 {
     font-size: 20px;
+}
+
+hr {
+    border-top: 1px solid #C9C7C7;
+    border-bottom: 1px solid #ffffff;
+
+}
+
+.nav-line {
+    border-top: 1px solid #3D3D3D;
+    border-bottom: 1px solid #000000; 
+    margin-left: -60px;
+    margin-right: -33px;  
+}
+
+code {
+    color: #A7002A;
+    padding: 4px 4px;
+    border: 1px solid #e1e1e8;
+    margin-left: 10px;
+    font-size: 15px;
+}
+
+.page-header {
+    border-bottom: none;
+    padding-top: 60px;
 }
 
 .table_wrapper {
@@ -36,4 +85,231 @@ h3 {
 span.ver {
     position: relative;
     top: -6px;
+}
+
+.logo-icon {
+    padding-left: 45px;
+    
+}
+
+.navbar-header {
+    font-size: 48px;
+    color: white;
+    display: block;
+    width:560px;
+    padding-top: 40px;
+    padding-left: 346px;
+}
+
+.sidebar-nav {
+    top: 0px;
+    left: 0px;    
+}
+
+.well {
+    background-color: #000000;
+    border: 0px solid #000000;
+    z-index: 999999;
+    height: 100% !important;
+
+    -webkit-border-radius: 0px;
+-moz-border-radius: 0px;
+border-radius: 0px;
+-webkit-box-shadow: inset 0 0px 0px rgba(0, 0, 0, 0.05);
+-moz-box-shadow: inset 0 0px 0px rgba(0, 0, 0, 0.05);
+box-shadow: inset 0 0px 0px rgba(0, 0, 0, 0.05);
+    
+}
+
+.nav > li > a, a {
+    color:white;
+    text-shadow:none;
+}
+
+a:hover {
+    color: #81be94;
+}
+
+.nav-header, .nav-list .nav-header {
+    color:#70be44;
+    text-shadow:none;
+    font-size: 17px;
+    margin-left: -25px;
+}
+
+.nav > li > a:hover {
+    background-color:#252525
+}
+
+.hero-unit .setup-header {
+    font-size: 36px;
+    font-weight: bold;
+
+}
+
+.hero-unit  {
+    background-color: #eff1f1;
+    -webkit-border-radius: opx;
+    -moz-border-radius: 0px;
+    border-radius: 0px;
+    padding:0px;
+    padding-top: 34px;
+    padding-bottom: 20px;
+    padding-left: 50px;
+    border-bottom: 1px solid #C9C7C7;
+    background-color: white;
+    width: 100%;
+    overflow: hidden;
+    margin-left: -50px;
+        
+
+
+}
+
+.label, .badge {
+    font-size: 12px;
+    font-weight:regular;
+    line-height: 14px;
+    color: #ffffff;
+    text-shadow: none;
+    white-space: nowrap;
+    vertical-align: baseline;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.package-icon, .step-icon {
+    margin-bottom: 3px;    
+    width: 35px;
+}
+
+.label-important, .badge-important {
+    background-color: #d9c3d9;
+    color:#282924;
+}
+.label-warning, .badge-warning {
+        background-color: #c7c3d9;
+        color:#282924;
+        
+}
+.label-success, .badge-success {
+        background-color: #c3d6d9;
+        color:#282924;
+}
+.label-info, .badge-info {
+        background-color: #c3d9c5;
+        color:#282924;
+}
+.label-inverse, .badge-inverse {
+        background-color: #d9d6c3;
+        color:#282924;
+}
+
+
+.navbar-inverse .navbar-inner {
+background-color: #1E4628;
+background-image: none;
+background-repeat: repeat-x;
+border-color: 1px solid black;
+filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ffffff', endColorstr='#ff111111', GradientType=0);
+color:white;
+height: 103px;
+}
+ 
+#hero {
+    
+    margin-top: -60px;
+    width: calc(100% - 290px);
+    margin-left:310px;
+
+}
+
+.navbar-inverse {
+    display: none;
+}
+
+.page-header {
+    letter-spacing: 2px;
+    font-size: 55px;
+}
+
+.nav-line-top {
+            border-top: 1px solid #C9C7C7;
+    border-bottom: 1px solid #ffffff;   
+        margin-left: -200px;
+width: calc(100% + 200px);
+overflow: hidden;
+}
+
+.setup-header, .packages-header {
+    color: #66B43A;
+
+}
+
+.setup-header {
+        padding-top: 24px;    
+}
+
+.os-icon {
+    padding-right: 10px;
+    width: 24px;
+    position: relative;
+    top: -2px;
+}
+
+.row-fluid {
+    padding-bottom: 7px;
+}
+
+.row-fluid .span9 h3 {
+    padding-left:53px;
+}
+
+.row-fluid .span9 .row-fluid, .hero-unit .row-fluid, .hero-unit p {
+    padding-left:53px;
+}
+
+.hero-unit .row-fluid .span3, .row-fluid .span2, .myspan {
+    width:auto;
+}
+
+.row-fluid  a {
+    color: #66B43A;
+}
+
+.arrow-icon {
+    float:  right;
+}
+
+.windows-x64 {
+    padding-left: 12px;
+}
+
+.step-app-table {
+    width:1024px;
+}
+
+.step-app-table td {
+    border: 1px solid #cbcbcb;
+    padding: 7px;
+    
+}
+.step-app-table .os-cell {
+    width:110px;
+}
+
+.step-app-table .text-cell  {
+    text-align: left;
+    border-left: none;
+    
+}
+
+.step-app-table .hidden-cell {
+        width:110px;
+        border-right: none;
+        border-left: none;
+
+}
+
+.btn-info {
+    color:white;
 }
