@@ -4,9 +4,9 @@ _apt() {
     echo Setting up...
     distribution=`lsb_release -i | awk '{print tolower($3)}'`
     codename=`lsb_release -c | awk '{print tolower($2)}'`
-    echo "deb ftp://${fqdn}/deb/$distribution $codename main" > /etc/apt/sources.list.d/${fqdn}.list
+    echo "deb http://${fqdn}/deb/$distribution $codename main" > /etc/apt/sources.list.d/${fqdn}.list
     echo Installing GPG key...
-    curl ftp://${fqdn}/gpg.key | apt-key add -
+    curl http://${fqdn}/gpg.key | apt-key add -
     echo Fetching package metadata...
     apt-get update > /dev/null 2>&1
 }
@@ -17,10 +17,10 @@ _yum() {
     arch=`uname -m`
     echo "[${fqdn}]
 name=${fqdn}
-baseurl=ftp://${fqdn}/rpm/$distribution/$version/$arch/
+baseurl=http://${fqdn}/rpm/$distribution/$version/$arch/
 enabled=1
 gpgcheck=1
-gpgkey=ftp://${fqdn}/gpg.key" > /etc/yum.repos.d/${fqdn}.repo
+gpgkey=http://${fqdn}/gpg.key" > /etc/yum.repos.d/${fqdn}.repo
     echo Fetching package metadata...
     yum makecache > /dev/null 2>&1
 }
