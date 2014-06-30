@@ -136,6 +136,7 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:url>http://python.infinidat.com/archives/ubuntu/pool/main/r/rpm/librpm0_4.7.2-1lbuild1_i386.deb</vadk:url>
 			<vadk:url>http://python.infinidat.com/archives/ubuntu/pool/main/r/rpm/librpmbuild0_4.7.2-1lbuild1_i386.deb</vadk:url>
 			<vadk:url>http://python.infinidat.com/archives/ubuntu/pool/main/r/rpm/librpmio0_4.7.2-1lbuild1_i386.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/71088194/libjemalloc1_2.2.1-1_i386.deb</vadk:url>
 			<vadk:url>http://python.infinidat.com/archives/ubuntu/pool/universe/r/redis/redis-server_2.6.13-1_i386.deb</vadk:url>
 			<vadk:url>http://python.infinidat.com/archives/nginx-common_1.4.1-1ppa1~lucid_all.deb</vadk:url>
 			<vadk:url>http://python.infinidat.com/archives/nginx-light_1.4.1-1ppa1~lucid_i386.deb</vadk:url>
