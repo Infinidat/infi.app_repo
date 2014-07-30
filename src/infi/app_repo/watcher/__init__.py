@@ -3,7 +3,7 @@ from watchdog.observers import Observer
 from logging import getLogger
 from os import path, makedirs
 from time import sleep
-from ..tasks import process_source, process_incoming
+from ..tasks import process_incoming
 logger = getLogger(__name__)
 
 SUPPORTED_ARCHIVES = ['msi', 'rpm', 'deb', 'tar.gz', 'zip', 'ova', 'img', 'iso']
@@ -23,7 +23,7 @@ class Handler(FileSystemEventHandler):
             return
         logger.info("detected new file: {}".format(source))
         logger.info("requesting processing of {}".format(source))
-        process_source.apply_async((self._base_directory, source))
+        process_incoming.apply_async((self._base_directory))
 
 
 class Server(object):

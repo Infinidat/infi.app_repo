@@ -109,37 +109,38 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:PostOutputCreation/>
 		</vadk:DistributionFormat>
 		<vadk:ApplicationPackages>
-			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-esx-nox_9.0.0-2_i386.deb</vadk:url>
-			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-core_9.0.0-2_i386.deb</vadk:url>
-			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-guestlib_9.0.0-2_i386.deb</vadk:url>
-			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-libraries-nox_9.0.0-2_i386.deb</vadk:url>
-			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-foundation_9.0.0-2_all.deb</vadk:url>
-			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-services_9.0.0-2_i386.deb</vadk:url>
-			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-plugins-autoupgrade_9.0.0-2_i386.deb</vadk:url>
-			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-plugins-deploypkg_9.0.0-2_i386.deb</vadk:url>
-			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-plugins-guestinfo_9.0.0-2_i386.deb</vadk:url>
-			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-plugins-hgfsserver_9.0.0-2_i386.deb</vadk:url>
-			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-plugins-powerops_9.0.0-2_i386.deb</vadk:url>
-			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-plugins-timesync_9.0.0-2_i386.deb</vadk:url>
-			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-plugins-vix_9.0.0-2_i386.deb</vadk:url>
-			<vadk:url>http://bootsrv.infinidat.com/clientapps/packages.vmware.com/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-plugins-vmbackup_9.0.0-2_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/t/trousers/libtspi1_0.3.1-7ubuntu4_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/r/rpm/python-rpm_4.7.2-1lbuild1_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/y/yum-metadata-parser/python-sqlitecachec_1.1.2-1ubuntu1_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/c/createrepo/createrepo_0.4.11-1_all.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/libc/libconfig-file-perl/libconfig-file-perl_1.50-2_all.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/d/dpkg-sig/dpkg-sig_0.13.1_all.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/p/python-sqlite/python-sqlite_1.0.1-7ubuntu1_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/y/yum/yum_3.2.25-1ubuntu2_all.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/universe/r/rng-tools/rng-tools_2-unofficial-mt.14-1ubuntu1_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/r/rpm/rpm-common_4.7.2-1lbuild1_all.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/r/rpm/librpm0_4.7.2-1lbuild1_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/r/rpm/librpmbuild0_4.7.2-1lbuild1_i386.deb</vadk:url>
-			<vadk:url>http://us.archive.ubuntu.com/ubuntu/pool/main/r/rpm/librpmio0_4.7.2-1lbuild1_i386.deb</vadk:url>
-			<vadk:url>http://il.archive.ubuntu.com/ubuntu/pool/universe/r/redis/redis-server_2.2.12-1build1_i386.deb</vadk:url>
-			<vadk:url>ftp://repo.infinidat.com/archives/nginx-common_1.4.1-1ppa1~lucid_all.deb</vadk:url>
-			<vadk:url>ftp://repo.infinidat.com/archives/nginx-light_1.4.1-1ppa1~lucid_i386.deb</vadk:url>
-			<vadk:url>ftp://repo.infinidat.com/archives/nginx_1.4.1-1ppa1~lucid_all.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-esx-nox_9.0.0-2_i386.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-core_9.0.0-2_i386.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-guestlib_9.0.0-2_i386.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-libraries-nox_9.0.0-2_i386.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-foundation_9.0.0-2_all.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-services_9.0.0-2_i386.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-plugins-autoupgrade_9.0.0-2_i386.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-plugins-deploypkg_9.0.0-2_i386.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-plugins-guestinfo_9.0.0-2_i386.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-plugins-hgfsserver_9.0.0-2_i386.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-plugins-powerops_9.0.0-2_i386.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-plugins-timesync_9.0.0-2_i386.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-plugins-vix_9.0.0-2_i386.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/tools/esx/5.1latest/ubuntu/dists/lucid/main/binary-i386/vmware-tools-plugins-vmbackup_9.0.0-2_i386.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/ubuntu/pool/main/t/trousers/libtspi1_0.3.1-7ubuntu4_i386.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/ubuntu/pool/universe/r/rpm/python-rpm_4.7.2-1lbuild1_i386.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/ubuntu/pool/universe/y/yum-metadata-parser/python-sqlitecachec_1.1.2-1ubuntu1_i386.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/ubuntu/pool/universe/c/createrepo/createrepo_0.4.11-1_all.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/ubuntu/pool/universe/libc/libconfig-file-perl/libconfig-file-perl_1.50-2_all.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/ubuntu/pool/universe/d/dpkg-sig/dpkg-sig_0.13.1_all.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/ubuntu/pool/universe/p/python-sqlite/python-sqlite_1.0.1-7ubuntu1_i386.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/ubuntu/pool/universe/y/yum/yum_3.2.25-1ubuntu2_all.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/ubuntu/pool/universe/r/rng-tools/rng-tools_2-unofficial-mt.14-1ubuntu1_i386.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/ubuntu/pool/main/r/rpm/rpm-common_4.7.2-1lbuild1_all.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/ubuntu/pool/main/r/rpm/librpm0_4.7.2-1lbuild1_i386.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/ubuntu/pool/main/r/rpm/librpmbuild0_4.7.2-1lbuild1_i386.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/ubuntu/pool/main/r/rpm/librpmio0_4.7.2-1lbuild1_i386.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/71088194/libjemalloc1_2.2.1-1_i386.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/ubuntu/pool/universe/r/redis/redis-server_2.6.13-1_i386.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/nginx-common_1.4.1-1ppa1~lucid_all.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/nginx-light_1.4.1-1ppa1~lucid_i386.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/nginx_1.4.1-1ppa1~lucid_all.deb</vadk:url>
 			<vadk:url>http://[VADK.localIP]/ISV/appliancePackages/DEB_PACKAGE_FILENAME</vadk:url>
 		</vadk:ApplicationPackages>
 		<vadk:OSPackages><!-- Additional OS packages needed by the ISV's application -->
