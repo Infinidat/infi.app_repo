@@ -280,16 +280,16 @@ class ApplicationRepository(object):
         if platform_string is None:
             return None
         add_package_by_postfix = {'msi': self.add_package__msi,
-                                          'rpm': self.add_package__rpm,
-                                          'deb': self.add_package__deb,
-                                          'tar.gz': self.add_package__archives,
-                                          'zip': self.add_package__archives,
-                                          'ova': self.add_package__ova,
-                                          'iso': self.add_package__ova,
-                                          'img': self.add_package__img,
-                                         }
-        [factory] = [value for key, value in add_package_by_postfix.items()
-                     if filepath.endswith(key)]
+                                  'rpm': self.add_package__rpm,
+                                  'deb': self.add_package__deb,
+                                  'gz': self.add_package__archives,
+                                  'zip': self.add_package__archives,
+                                  'ova': self.add_package__ova,
+                                  'iso': self.add_package__ova,
+                                  'img': self.add_package__img,
+                                 }
+        extension = path.splitext(filepath)[1]
+        factory = add_package_by_postfix[extension]
         return factory
 
     def sign_deb_package(self, filepath):
