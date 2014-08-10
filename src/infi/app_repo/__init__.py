@@ -288,7 +288,7 @@ class ApplicationRepository(object):
                                   'iso': self.add_package__ova,
                                   'img': self.add_package__img,
                                  }
-        extension = path.splitext(filepath)[1]
+        extension = path.splitext(filepath)[1][1:]
         factory = add_package_by_postfix[extension]
         return factory
 
