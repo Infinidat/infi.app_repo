@@ -356,6 +356,8 @@ class ApplicationRepository(object):
             return self.add_package__ova(filepath)
         package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
         destination_directory = path.join(self.base_directory, 'archives')
+        if filepath.lower().startswith("python"):
+            destination_directory = path.join(self.base_directory, 'python')
         if not path.exists(destination_directory):
             makedirs(destination_directory)
         logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
