@@ -25,17 +25,17 @@ gpgkey=http://${fqdn}/gpg.key" > /etc/yum.repos.d/${fqdn}.repo
     yum makecache > /dev/null 2>&1
 }
 
+
 # debian-based
 if [ -f /etc/debian_version ]
 then
-    distribution=`echo /etc/debian_version | grep -Eo "[a-z]+" | head -n 1`
     _apt
     exit 0
 fi
 
-#redhat-based
+# redhat-based
 distfile=`ls /etc | grep -E "(centos|redhat)-release$" | head -n 1`
-distribution=`cat /etc/$distfile | grep -Eo "[A-Za-z\s]+ ?[A-Za-z]*" | head -n 1 | sed -e 's/ //g' | sed -e 's/release//' | awk '{print tolower($1)}'`
+distribution=`cat /etc/$distfile | grep -Eio "centos|red hat|" | head -n 1 | sed -e 's/ //' | awk '{print tolower($1)}'`
 if [ $distribution = "centos" -o $distribution = "redhat" ]
 then
     _yum
