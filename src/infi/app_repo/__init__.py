@@ -67,15 +67,16 @@ def wait_for_sources_to_stabalize(sources):
         break
 
 NAME = r"""(?P<package_name>[a-zA-Z]*[a-zA-Z\-_]+[0-9_]?[a-zA-Z\-_]+[a-zA-Z][0-9]?)"""
-VERSION = r"""v?(?P<package_version>(?:[\d\.]+)(?:-develop|-[0-9\.]+(?:_g[0-9a-f]{7})?|(?:(?:\.post\d+\.|\.\d+\.|-\d+-|-develop-\d+-)g[a-z0-9]{7}))?)"""
-PLATFORM = r"""(?P<platform_string>vmware-esx|windows|linux-ubuntu-[a-z]+|linux-redhat-\d|linux-centos-\d|osx-\d+\.\d+|centos.el6)"""
+VERSION = r"""v?(?P<package_version>(?:[\d+\.]+)(?:-develop|-[0-9\.]+(?:_g[0-9a-f]{7})?|(?:(?:\.post\d+\.|\.\d+\.|-\d+-|-develop-\d+-)g[a-z0-9]{7}))?)"""
+PLATFORM = r"""(?P<platform_string>vmware-esx|windows|linux-ubuntu-[a-z]+|linux-redhat-\d|linux-centos-\d|osx-\d+\.\d+|centos.el6|centos.el7|redhat.el6|redhat.el7)"""
 ARCHITECTURE = r"""(?P<architecture>x86|x64|x86_OVF10|x86_OVF10_UPDATE_ISO|x86_OVF10_UPDATE_ZIP|x64_OVF_10|x64_OVF_10_UPDATE_ISO|x64_OVF_10_UPDATE_ZIP|x64_dd|i686|x86_64)"""
 EXTENSION = r"""(?P<extension>rpm|deb|msi|tar\.gz|ova|iso|zip|img)"""
 TEMPLATE = r"""^{}.{}.{}.{}\.{}$"""
 FILEPATH = TEMPLATE.format(NAME, VERSION, PLATFORM, ARCHITECTURE, EXTENSION)
 PLATFORM_STRING = dict(ova='vmware-esx', img='other', zip='other')
 TRANSLATED_ARCHITECTURE = {"x86_64": "x64", "i686": "x86"}
-TRANSLATED_PLATFORM = {"centos.el6": "linux-centos-6"}
+TRANSLATED_PLATFORM = {"centos.el6": "linux-centos-6", "centos.el7": "linux-centos-7",
+                       "redhat.el6": "linux-redhat-6", "redhat.el7": "linux-redhat-7"}
 
 
 def translate_filepath(result_tuple):
@@ -279,16 +280,16 @@ class ApplicationRepository(object):
         if platform_string is None:
             return None
         add_package_by_postfix = {'msi': self.add_package__msi,
-                                          'rpm': self.add_package__rpm,
-                                          'deb': self.add_package__deb,
-                                          'tar.gz': self.add_package__archives,
-                                          'zip': self.add_package__archives,
-                                          'ova': self.add_package__ova,
-                                          'iso': self.add_package__ova,
-                                          'img': self.add_package__img,
-                                         }
-        [factory] = [value for key, value in add_package_by_postfix.items()
-                     if filepath.endswith(key)]
+                                  'rpm': self.add_package__rpm,
+                                  'deb': self.add_package__deb,
+                                  'gz': self.add_package__archives,
+                                  'zip': self.add_package__archives,
+                                  'ova': self.add_package__ova,
+                                  'iso': self.add_package__ova,
+                                  'img': self.add_package__img,
+                                 }
+        extension = path.splitext(filepath)[1][1:]
+        factory = add_package_by_postfix[extension]
         return factory
 
     def sign_deb_package(self, filepath):
@@ -355,6 +356,8 @@ class ApplicationRepository(object):
             return self.add_package__ova(filepath)
         package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
         destination_directory = path.join(self.base_directory, 'archives')
+        if filepath.lower().startswith("python"):
+            destination_directory = path.join(self.base_directory, 'python')
         if not path.exists(destination_directory):
             makedirs(destination_directory)
         logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))

@@ -80,6 +80,9 @@ cases = [
 
     dict(expected=('host-power-tools-for-vmware', '1.2.6', 'vmware-esx', 'x86_OVF10_UPDATE_ZIP', 'iso'),
          basename="host-power-tools-for-vmware-1.2.6-vmware-esx-x86_OVF10_UPDATE_ZIP.iso"),
+
+    dict(expected=('kernel', '3.10.0-123.4.4', 'linux-redhat-7', 'x64', 'rpm'),
+         basename="kernel-3.10.0-123.4.4.redhat.el7.x86_64.rpm"),
     ]
 
 class ParserTestCase(TestCase):

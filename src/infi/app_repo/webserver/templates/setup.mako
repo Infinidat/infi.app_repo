@@ -25,17 +25,22 @@ gpgkey=http://${fqdn}/gpg.key" > /etc/yum.repos.d/${fqdn}.repo
     yum makecache > /dev/null 2>&1
 }
 
-distfile=`ls /etc | grep -E "(debian|centos|redhat)[-_](release|version)$" | head -n 1`
-distribution=`echo $distfile | grep -Eo "[a-z]+" | head -n 1`
-if [ $distribution = "debian" ]
+
+# debian-based
+if [ -f /etc/debian_version ]
 then
     _apt
     exit 0
 fi
+
+# redhat-based
+distfile=`ls /etc | grep -E "(centos|redhat)-release$" | head -n 1`
+distribution=`cat /etc/$distfile | grep -Eio "centos|red hat|" | head -n 1 | sed -e 's/ //' | awk '{print tolower($1)}'`
 if [ $distribution = "centos" -o $distribution = "redhat" ]
 then
     _yum
     exit 0
 fi
+
 echo "OS not supported"
 exit 1
