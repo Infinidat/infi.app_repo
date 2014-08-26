@@ -141,6 +141,9 @@ wget PEM_URL -O /tmp/my_pem_file.pem
 			<vadk:url>http://python.infinidat.com/archives/nginx-common_1.4.1-1ppa1~lucid_all.deb</vadk:url>
 			<vadk:url>http://python.infinidat.com/archives/nginx-light_1.4.1-1ppa1~lucid_i386.deb</vadk:url>
 			<vadk:url>http://python.infinidat.com/archives/nginx_1.4.1-1ppa1~lucid_all.deb</vadk:url>
+			<vadk:url>ftp://python.infinidat.com/archives/ubuntu/pool/main/c/ca-certificates/ca-certificates_20130906ubuntu0.10.04.1_all.deb</vadk:url>
+			<vadk:url>htp://python.infinidat.com/archives/ubuntu/pool/main/o/openssl/libssl0.9.8_0.9.8k-7ubuntu8.21_i386.deb</vadk:url>
+			<vadk:url>http://python.infinidat.com/archives/ubuntu/pool/main/o/openssl/openssl_0.9.8k-7ubuntu8.21_i386.deb</vadk:url>
 			<vadk:url>http://[VADK.localIP]/ISV/appliancePackages/DEB_PACKAGE_FILENAME</vadk:url>
 		</vadk:ApplicationPackages>
 		<vadk:OSPackages><!-- Additional OS packages needed by the ISV's application -->
