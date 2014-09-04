@@ -68,6 +68,7 @@
                         <div class="row-fluid">
                             <div class="span3">
                                 <span class="label label-important">redhat</span>
+                                <span class="label label-important">oracle</span>
                                 <span class="label label-important">centos</span>
                                 <span class="label label-warning">ubuntu</span>
                             </div>
@@ -113,6 +114,7 @@
                             <div class="row-fluid">
                                 <div class="span2">
                                     <span class="label label-important">redhat</span>
+                                    <span class="label label-important">oracle</span>
                                     <span class="label label-important">centos</span>
                                 </div>
                                 <div class="span10">
@@ -195,6 +197,7 @@
                             <div class="row-fluid">
                                 <div class="span2">
                                     <span class="label label-important">redhat</span>
+                                    <span class="label label-important">oracle</span>
                                     <span class="label label-important">centos</span>
                                 </div>
                                 <div class="span10">
