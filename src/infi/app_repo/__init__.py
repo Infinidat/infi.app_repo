@@ -8,7 +8,7 @@ from infi.pyutils.lazy import cached_method
 from pkg_resources import resource_filename
 from pexpect import spawn
 from fnmatch import fnmatch
-from time import sleep
+from gevent import sleep
 from cjson import encode, decode
 from logging import getLogger
 from pkg_resources import parse_version
@@ -173,6 +173,7 @@ class ApplicationRepository(object):
 
     def _install_runit_script_for_service(self, service_name, script_contents):
         from infi.gevent_utils.os import path, makedirs, fopen, chmod
+        from time import time
         install_dir = path.join('/etc/service', service_name)
         script_path = path.join(install_dir, 'run')
         if not path.exists(install_dir):
@@ -180,21 +181,26 @@ class ApplicationRepository(object):
         with fopen(script_path, 'w') as f:
             f.write(script_contents)
         chmod(script_path, 0755)
+        start_time = time()
+        while not path.exists(path.join(install_dir, "supervise")):
+            sleep(0.1)
+            if time() - start_time > 5:
+                raise Exception("timeout when waiting for service {} to get recognized by runit".format(service_name))
 
     def install_runit_script_for_vsftpd(self):
-        self._install_runit_script_for_service("vsftpd", "/bin/sh\nset -e\nexec /usr/sbin/vsftpd\n")
+        self._install_runit_script_for_service("vsftpd", "#!/bin/sh\nset -e\nexec /usr/sbin/vsftpd\n")
 
     def install_runit_script_for_nginx(self):
-        self._install_runit_script_for_service("nginx", "/bin/sh\nset -e\nexec /usr/sbin/nginx -g 'daemon off;'\n")
+        self._install_runit_script_for_service("nginx", "#!/bin/sh\nset -e\nexec /usr/sbin/nginx -g 'daemon off;'\n")
 
     def install_runit_script_for_server(self):
-        self._install_runit_script_for_service("app_repo", "/bin/sh\nset -e\nexec /opt/infinidat/application-repository/bin/app_repo server start --no-daemonize\n")
+        self._install_runit_script_for_service("app_repo", "#!/bin/sh\nset -e\nexec /opt/infinidat/application-repository/bin/app_repo -f /etc/app_repo.conf server start --no-daemonize\n")
 
     def restart_runit_vsftpd(self):
-        log_execute_assert_success(['sv', 'vsftpd', 'restart'])
+        log_execute_assert_success(['sv', 'restart', 'vsftpd'])
 
     def restart_runit_nginx(self):
-        log_execute_assert_success(['sv', 'nginx', 'restart'])
+        log_execute_assert_success(['sv', 'restart', 'nginx'])
 
     def restart_upstart_vsftpd(self):
         log_execute_assert_success(['service', 'vsftpd', 'restart'])
