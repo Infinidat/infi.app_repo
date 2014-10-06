@@ -2,7 +2,7 @@ __import__("pkg_resources").declare_namespace(__name__)
 
 from glob import glob
 from shutil import copy, rmtree
-from os import makedirs, path, remove, listdir, walk, rename, symlink
+from infi.gevent_utils.os import makedirs, path, remove, listdir, walk, rename, symlink
 from infi.execute import execute_assert_success, ExecutionError
 from infi.pyutils.lazy import cached_method
 from pkg_resources import resource_filename
@@ -29,6 +29,7 @@ GPG_FILENAMES = ['gpg.conf', 'pubring.gpg', 'random_seed', 'secring.gpg', 'trust
 RELEASE_FILE_HEADER = "Codename: {}\nArchitectures: am64 i386\nComponents: main"
 RPMDB_PATH = "/var/lib/rpm"
 
+
 def log_execute_assert_success(args, allow_to_fail=False):
     logger.info("Executing {}".format(' '.join(args)))
     try:
@@ -38,8 +39,10 @@ def log_execute_assert_success(args, allow_to_fail=False):
         if not allow_to_fail:
             raise
 
+
 def is_file_open(filepath):
     return filepath in log_execute_assert_success(['lsof']).get_stdout()
+
 
 def find_files(directory, pattern):
     for root, dirs, files in walk(directory):
@@ -48,12 +51,14 @@ def find_files(directory, pattern):
                 filename = path.join(root, basename)
                 yield filename
 
+
 def is_file_size_changed(file_sizes, filepath):
-    from os import stat
+    from infi.gevent_utils.os import stat
     old = file_sizes.get(filepath)
     new = stat(filepath).st_size
     file_sizes[filepath] = new
     return old != new
+
 
 def wait_for_sources_to_stabalize(sources):
     file_sizes = dict()
@@ -161,22 +166,47 @@ class ApplicationRepository(object):
                 dst.write(src.read())
         symlink(path.join(sites_available, "app-repo"), path.join(sites_enabled, "app-repo"))
 
-    def restart_vsftpd(self):
+    @cached_method
+    def is_inside_docker(self):
+        from infi.gevent_utils.os.path import exists
+        return exists("/.dockerinit")
+
+    def _install_runit_script_for_service(self, service_name, script_contents):
+        from infi.gevent_utils.os import path, makedirs, fopen, chmod
+        install_dir = path.join('/etc/service', service_name)
+        script_path = path.join(install_dir, 'run')
+        if not path.exists(install_dir):
+            makedirs(install_dir)
+        with fopen(script_path, 'w') as f:
+            f.write(script_contents)
+        chmod(script_path, 0755)
+
+    def install_runit_script_for_vsftpd(self):
+        self._install_runit_script_for_service("vsftpd", "/bin/sh\nset -e\nexec /usr/sbin/vsftpd\n")
+
+    def install_runit_script_for_nginx(self):
+        self._install_runit_script_for_service("nginx", "/bin/sh\nset -e\nexec /usr/sbin/nginx -g 'daemon off;'\n")
+
+    def install_runit_script_for_server(self):
+        self._install_runit_script_for_service("app_repo", "/bin/sh\nset -e\nexec /opt/infinidat/application-repository/bin/app_repo server start --no-daemonize\n")
+
+    def restart_runit_vsftpd(self):
+        log_execute_assert_success(['sv', 'vsftpd', 'restart'])
+
+    def restart_runit_nginx(self):
+        log_execute_assert_success(['sv', 'nginx', 'restart'])
+
+    def restart_upstart_vsftpd(self):
         log_execute_assert_success(['service', 'vsftpd', 'restart'])
 
-    def restart_nginx(self):
+    def restart_upstart_nginx(self):
         log_execute_assert_success(['service', 'nginx', 'restart'])
 
-    def install_upstart_script_for_webserver(self):
-        from infi.app_repo.upstart import install_webserver, install_worker, install_watchdog
-        services = ['app_repo_webserver', 'app_repo_worker']
-        for service in services:
-            log_execute_assert_success(["service", service, "stop"], True)
-        install_webserver(self.base_directory)
-        install_worker(self.base_directory)
-        install_watchdog(self.base_directory)
-        for service in services:
-            log_execute_assert_success(["service", service, "start"], True)
+    def install_upstart_script_for_server(self):
+        from infi.app_repo.upstart import install_server
+        log_execute_assert_success(["service", 'app_repo_server', "stop"], True)
+        install_server(self.base_directory)
+        log_execute_assert_success(["service", 'app_repo_server', "start"], True)
 
     def fix_entropy_generator(self):
         log_execute_assert_success(['/etc/init.d/rng-tools', 'stop'], True)
@@ -217,9 +247,13 @@ class ApplicationRepository(object):
             self.sign_deb_package(filepath)
 
     def set_write_permissions_on_incoming_directory(self):
-        from os import chown
+        from infi.gevent_utils.os import chown
         from pwd import getpwnam
-        pwnam = getpwnam("app_repo")
+
+        # TODO: make a function of this pattern in gevent utils
+        from infi.gevent_utils.deferred import create_threadpool_executed_func
+        _getpwnam = create_threadpool_executed_func(getpwnam)
+        pwnam = _getpwnam("app_repo")
         chown(self.incoming_directory, pwnam.pw_uid, pwnam.pw_gid)
 
     def setup(self):
@@ -228,9 +262,17 @@ class ApplicationRepository(object):
         self.create_upload_user()
         self.copy_vsftp_config_file()
         self.configure_nginx()
-        self.restart_vsftpd()
-        self.restart_nginx()
-        self.install_upstart_script_for_webserver()
+        if not self.is_inside_docker():
+            self.restart_upstart_vsftpd()
+            self.restart_upstart_nginx()
+            self.install_upstart_script_for_server()
+        else:
+            self.install_runit_script_for_vsftpd()
+            self.install_runit_script_for_nginx()
+            self.install_runit_script_for_server()
+            self.restart_runit_vsftpd()
+            self.restart_runit_nginx()
+
         if not self.generate_gpg_key_if_does_not_exist():
             self.import_gpg_key_to_rpm_database()
             self.sign_all_existing_deb_and_rpm_packages()
@@ -264,7 +306,7 @@ class ApplicationRepository(object):
         try:
             factory = self.get_factory_for_incoming_distribution(filepath)
             if factory is None:
-                logger.error("Rejecting file {!r} due to unsupported file format".format(filepath))
+                self.reject_single_file(filepath)
             else:
                 callables = factory(filepath) or []
                 if path.exists(filepath):
@@ -273,6 +315,14 @@ class ApplicationRepository(object):
         except Exception:
             logger.exception("Failed to add {!r} to repository".format(filepath))
         return []
+
+    def reject_single_file(self, filepath):
+        logger.error("Rejecting file {!r} due to unsupported file format".format(filepath))
+        destination_directory = path.join(self.base_directory, 'rejected')
+        if not path.exists(destination_directory):
+            makedirs(destination_directory)
+        logger.info("Moving {!r} to {!r}".format(filepath, destination_directory))
+        copy2(filepath, destination_directory)
 
     def get_factory_for_incoming_distribution(self, filepath):
         _, _, platform_string, _, _ = parse_filepath(filepath)
@@ -286,8 +336,7 @@ class ApplicationRepository(object):
                                   'zip': self.add_package__archives,
                                   'ova': self.add_package__ova,
                                   'iso': self.add_package__ova,
-                                  'img': self.add_package__img,
-                                 }
+                                  'img': self.add_package__img}
         extension = path.splitext(filepath)[1][1:]
         factory = add_package_by_postfix[extension]
         return factory
@@ -304,11 +353,11 @@ class ApplicationRepository(object):
         package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
         _, distribution_name, codename = platform_string.split('-')
         destination_directory = path.join(self.base_directory, 'deb', distribution_name, 'dists', codename,
-                                         'main', 'binary-i386' if architecture == 'x86' else 'binary-amd64')
+                                          'main', 'binary-i386' if architecture == 'x86' else 'binary-amd64')
         if not path.exists(destination_directory):
             makedirs(destination_directory)
         self.sign_deb_package(filepath)
-        logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
+        logger.info("Moving {!r} to {!r}".format(filepath, destination_directory))
         copy2(filepath, destination_directory)
         return [self._prepare_callback(self.update_metadata_for_apt_repositories, destination_directory),
                 self.get_update_metadata_for_views_callback()]
@@ -320,14 +369,21 @@ class ApplicationRepository(object):
         logger.debug("Spawning {}".format(command))
         env = environ.copy()
         env['HOME'] = env.get('HOME', "/root")
-        pid = spawn(command[0], command[1:], timeout=120, cwd=self.incoming_directory, env=env)
-        logger.debug("Waiting for passphrase request")
-        pid.expect("Enter pass phrase:")
-        pid.sendline("\n")
-        logger.debug("Passphrase entered, waiting for rpm to exit")
-        pid.wait() if pid.isalive() else None
-        assert pid.exitstatus == 0
-        # execute_assert_success(['rpm', '-vv', '--checksig', filepath])
+
+        def _sign_rpm():
+            # execute_assert_success(['rpm', '-vv', '--checksig', filepath])
+            pid = spawn(command[0], command[1:], timeout=120, cwd=self.incoming_directory, env=env)
+            logger.debug("Waiting for passphrase request")
+            pid.expect("Enter pass phrase:")
+            pid.sendline("\n")
+            logger.debug("Passphrase entered, waiting for rpm to exit")
+            pid.wait() if pid.isalive() else None
+            assert pid.exitstatus == 0
+
+        # TODO: make a function of this pattern in gevent utils
+        from infi.gevent_utils.deferred import create_threadpool_executed_func
+        __sign_rpm = create_threadpool_executed_func(_sign_rpm)
+        __sign_rpm()
 
     def add_package__rpm(self, filepath):
         package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
@@ -337,7 +393,7 @@ class ApplicationRepository(object):
         if not path.exists(destination_directory):
             makedirs(destination_directory)
         self.sign_rpm_package(filepath)
-        logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
+        logger.info("Moving {!r} to {!r}".format(filepath, destination_directory))
         copy2(filepath, destination_directory)
         return [self._prepare_callback(self.update_metadata_for_yum_repositories, destination_directory),
                 self.get_update_metadata_for_views_callback()]
@@ -347,7 +403,7 @@ class ApplicationRepository(object):
         destination_directory = path.join(self.base_directory, 'msi', architecture)
         if not path.exists(destination_directory):
             makedirs(destination_directory)
-        logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
+        logger.info("Moving {!r} to {!r}".format(filepath, destination_directory))
         copy2(filepath, destination_directory)
         return [self.get_update_metadata_for_views_callback()]
 
@@ -360,7 +416,7 @@ class ApplicationRepository(object):
             destination_directory = path.join(self.base_directory, 'python')
         if not path.exists(destination_directory):
             makedirs(destination_directory)
-        logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
+        logger.info("Moving {!r} to {!r}".format(filepath, destination_directory))
         copy2(filepath, destination_directory)
 
     def add_package__ova(self, filepath):
@@ -368,7 +424,7 @@ class ApplicationRepository(object):
         destination_directory = path.join(self.base_directory, 'ova')
         if not path.exists(destination_directory):
             makedirs(destination_directory)
-        logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
+        logger.info("Moving {!r} to {!r}".format(filepath, destination_directory))
         copy2(filepath, destination_directory)
         return [self._prepare_callback(self.update_metadata_for_views)]
 
@@ -377,7 +433,7 @@ class ApplicationRepository(object):
         destination_directory = path.join(self.base_directory, 'img')
         if not path.exists(destination_directory):
             makedirs(destination_directory)
-        logger.info("Copying {!r} to {!r}".format(filepath, destination_directory))
+        logger.info("Moving {!r} to {!r}".format(filepath, destination_directory))
         copy2(filepath, destination_directory)
         return [self._prepare_callback(self.update_metadata_for_views)]
 
@@ -393,8 +449,8 @@ class ApplicationRepository(object):
 
     def _exclude_filepath_from_views(self, filepath):
         return filepath.startswith(self.incoming_directory) or \
-               path.join("ova", "updates") in filepath or \
-               "archives" in filepath
+            path.join("ova", "updates") in filepath or \
+            "archives" in filepath
 
     def get_hidden_packages(self):
         hidden_filepath = path.join(self.base_directory, 'hidden.json')

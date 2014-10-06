@@ -7,8 +7,8 @@
         <meta name="description" content="">
         <meta name="author" content="">
         <!-- Le styles -->
-        <link href="assets/css/bootstrap.css" rel="stylesheet">
-        <link href="assets/css/apprepo.css" rel="stylesheet">
+        <link href="${url_for('static', filename='css/bootstrap.css')}" rel="stylesheet">
+        <link href="${url_for('static', filename='css/apprepo.css')}" rel="stylesheet">
         <style>
             body {
                 padding-top: 60px;
@@ -18,7 +18,7 @@
                 font-size: 150%;
             }
         </style>
-        <link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
+        <link href="${url_for('static', filename='css/bootstrap-responsive.css')}" rel="stylesheet">
         <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
         <!--[if lt IE 9]>
             <script src="http://html5shim.googlecode.com/svn/trunk/html5.js">
@@ -27,10 +27,10 @@
         <![endif]-->
         <!-- Le fav and touch icons -->
         <link rel="shortcut icon" href="favicon.ico">
-        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="assets/ico/apple-touch-icon-144-precomposed.png">
-        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="assets/ico/apple-touch-icon-114-precomposed.png">
-        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="assets/ico/apple-touch-icon-72-precomposed.png">
-        <link rel="apple-touch-icon-precomposed" href="assets/ico/apple-touch-icon-57-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="${url_for('static', filename='ico/apple-touch-icon-144-precomposed.png')}">
+        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="${url_for('static', filename='ico/apple-touch-icon-114-precomposed.png')}">
+        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="${url_for('static', filename='ico/apple-touch-icon-72-precomposed.png')}">
+        <link rel="apple-touch-icon-precomposed" href="${url_for('static', filename='ico/apple-touch-icon-57-precomposed.png')}">
         <style>
             undefined
         </style>
@@ -316,9 +316,9 @@
                 </div>
             </div>
         </div>
-        <script src="static/jquery-1.8.1.min.js"></script>
-        <script src="static/jquery.dataTables.min.js"></script>
-        <script src="assets/js/bootstrap.js"></script>
+        <script src="${url_for('static', filename='jquery-1.8.1.min.js')}"></script>
+        <script src="${url_for('static', filename='jquery.dataTables.min.js')}"></script>
+        <script src="${url_for('static', filename='js/bootstrap.js')}"></script>
         <script>
             var options = new Object();
             options.bPaginate = true;

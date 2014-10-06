@@ -1,4 +1,3 @@
-
 TEMPLATE = """
 author "Infinidat, Ltd."
 description "Infinidat Application Repository"
@@ -12,6 +11,7 @@ start on (local-filesystems and net-device-up IFACE!=lo)
 stop on runlevel [016]
 """
 
+
 def install(base_directory, service_name, exec_cmd):  # pragma: no cover
     from infi.app_repo import __version__
     from os.path import abspath, join, sep
@@ -24,25 +24,18 @@ def install(base_directory, service_name, exec_cmd):  # pragma: no cover
     with open(join(sep, 'etc', 'init', service_name + '.conf'), 'w') as fd:
         fd.write(config)
 
+
 def get_executable(base_directory):
     from os.path import abspath, join
     from os import pardir
     return join(abspath(join(base_directory, pardir)), 'bin', 'app_repo')
 
-def install_webserver(base_directory):
-    executable = get_executable(base_directory)
-    exec_cmd = "{} -f /etc/app_repo.conf webserver start".format(executable)
-    install(base_directory, "app_repo_webserver", exec_cmd)
 
-def install_watchdog(base_directory):
+def install_server(base_directory):
     executable = get_executable(base_directory)
-    exec_cmd = "{} -f /etc/app_repo.conf watchdog start --daemonize".format(executable)
-    install(base_directory, "app_repo_watchdog", exec_cmd)
+    exec_cmd = "{} -f /etc/app_repo.conf server start".format(executable)
+    install(base_directory, "app_repo_server", exec_cmd)
 
-def install_worker(base_directory):
-    executable = get_executable(base_directory)
-    exec_cmd = "{} -f /etc/app_repo.conf worker start --daemonize".format(executable)
-    install(base_directory, "app_repo_worker", exec_cmd)
 
 def signal_init_that_i_am_ready():  # pragma: no cover
     # http://upstart.ubuntu.com/cookbook/#expect-stop
