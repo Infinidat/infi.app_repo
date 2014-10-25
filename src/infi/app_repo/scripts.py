@@ -1,18 +1,16 @@
 """Application Repository Management Tool
 
 Usage:
-  app_repo [options] server start [--no-daemonize]
-  app_repo [options] server stop
-  app_repo [options] remote show
-  app_repo [options] remote set <fqdn> <username> <password>
-  app_repo [options] dump defaults [--development]
-  app_repo [options] dump metadata
-  app_repo [options] install
-  app_repo [options] pull (--check | --all | <package>...)
-  app_repo [options] hide <package>...
-  app_repo [options] add <directory>
+    app_repo [options] setup (production-defaults | development-defaults)
+    app_repo [options] ftp-server [--signal-upstart]
+    app_repo [options] web-server [--signal-upstart]
+    app_repo [options] rpc-server [--signal-upstart]
+    app_repo [options] rpc-client
+    app_repo [options] config show
+    app_repo [options] config apply (production-defaults | development-defaults)
 
-  -f --file=CONFIGFILE     Use this config file [default: data/config.json]
+Options:
+    -f --file=CONFIGFILE     Use this config file [default: data/config.json]
 """
 
 from sys import argv
@@ -63,27 +61,43 @@ def console_script(func=None, name=None):
 
 def app_repo(argv=argv[1:]):
     from docopt import docopt
+    from .config import Configuration
+    from .setup import setup_all
     args = docopt(__doc__, argv=argv, help=True)
-    if args['server'] and args['start']:
-        return server_start(args)
-    if args['server'] and args['stop']:
-        return server_stop(args)
-    if args['dump'] and args['defaults']:
-        return config_dump_defaults(args)
-    if args['dump'] and args['metadata']:
-        return dump_metadata(args)
-    if args['remote'] and args['show']:
-        return remote_show(args)
-    if args['remote'] and args['set']:
-        return remote_set(args)
-    if args['install']:
-        return install(args)
-    if args['pull']:
-        return pull(args)
-    if args['hide']:
-        return hide(args)
-    if args['add']:
-        return add(args)
+    config = get_config(args)
+    if args['config'] and args['show']:
+        print config.to_json()
+    elif args['config'] and args['apply']:
+        config.reset_to_development_defaults() if args['development-defaults'] else None
+        config.reset_to_production_defaults() if args['production-defaults'] else None
+    elif args['setup']:
+        config.reset_to_development_defaults() if args['development-defaults'] else None
+        config.reset_to_production_defaults() if args['production-defaults'] else None
+        return setup_all(config)
+    elif args['web-server']:
+        return web_server(config, args['--signal-upstart'])
+    elif args['ftp-server']:
+        return ftp_server(config, args['--signal-upstart'])
+    # if args['server'] and args['start']:
+    #     return server_start(args)
+    # if args['server'] and args['stop']:
+    #     return server_stop(args)
+    # if args['dump'] and args['defaults']:
+    #     return config_dump_defaults(args)
+    # if args['dump'] and args['metadata']:
+    #     return dump_metadata(args)
+    # if args['remote'] and args['show']:
+    #     return remote_show(args)
+    # if args['remote'] and args['set']:
+    #     return remote_set(args)
+    # if args['install']:
+    #     return install(args)
+    # if args['pull']:
+    #     return pull(args)
+    # if args['hide']:
+    #     return hide(args)
+    # if args['add']:
+    #     return add(args)
 
 
 def get_config(args):
@@ -91,10 +105,29 @@ def get_config(args):
     return Configuration.from_disk(args.get("--file", Configuration.get_default_config_file()))
 
 
-def config_dump_defaults(args):
-    from .config import Configuration, DevelopmentConfiguration
-    config = Configuration() if not args['--development'] else DevelopmentConfiguration()
-    print config.to_json()
+@console_script(name="app_repo_web")
+def web_server(config, signal_upstart):
+    from gevent.monkey import patch_socket
+    patch_socket()
+
+    from .webserver import start
+    webserver = start(config)
+    if signal_upstart:
+        from infi.app_repo.upstart import signal_init_that_i_am_ready
+        signal_init_that_i_am_ready()
+    webserver.serve_forever()
+    webserver.close()
+
+
+@console_script(name="app_repo_ftp")
+def ftp_server(config, signal_upstart):
+    from .ftpserver import start
+    ftpserver = start(config)
+    if signal_upstart:
+        from infi.app_repo.upstart import signal_init_that_i_am_ready
+        signal_init_that_i_am_ready()
+    ftpserver.serve_forever()
+    ftpserver.close()
 
 
 @console_script(name="app_repo")

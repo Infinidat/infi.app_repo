@@ -15,19 +15,7 @@ from pkg_resources import parse_version
 
 logger = getLogger(__name__)
 
-GPG_TEMPLATE = """
-%_signature gpg
-%_gpg_name  app_repo
-%__gpg_sign_cmd %{__gpg} \
-    gpg --force-v3-sigs --digest-algo=sha1 --batch --no-verbose --no-armor \
-    --passphrase-fd 3 --no-secmem-warning -u "%{_gpg_name}" \
-    -sbo %{__signature_filename} %{__plaintext_filename}
-"""
-
-GPG_FILENAMES = ['gpg.conf', 'pubring.gpg', 'random_seed', 'secring.gpg', 'trustdb.gpg']
-
 RELEASE_FILE_HEADER = "Codename: {}\nArchitectures: am64 i386\nComponents: main"
-RPMDB_PATH = "/var/lib/rpm"
 
 
 def log_execute_assert_success(args, allow_to_fail=False):
@@ -42,14 +30,6 @@ def log_execute_assert_success(args, allow_to_fail=False):
 
 def is_file_open(filepath):
     return filepath in log_execute_assert_success(['lsof']).get_stdout()
-
-
-def find_files(directory, pattern):
-    for root, dirs, files in walk(directory):
-        for basename in files:
-            if fnmatch(basename, pattern):
-                filename = path.join(root, basename)
-                yield filename
 
 
 def is_file_size_changed(file_sizes, filepath):
@@ -134,156 +114,6 @@ class ApplicationRepository(object):
         except ExecutionError:
             return False
         return True
-
-    def create_upload_user(self):
-        if self.is_upload_user_exists():
-            log_execute_assert_success(['deluser', 'app_repo'])
-        from passlib.hash import sha256_crypt
-        password = sha256_crypt.encrypt("app_repo")
-        log_execute_assert_success(['useradd', '--no-create-home', '--no-user-group',
-                                    '--shell', '/bin/sh', '--home-dir', self.incoming_directory,
-                                    '--password', password, 'app_repo'])
-
-    def copy_vsftp_config_file(self):
-        src = resource_filename(__name__, 'vsftpd.conf')
-        with open(src) as fd:
-            content = fd.read()
-        with open('/etc/vsftpd.conf', 'w') as fd:
-            fd.write(content.replace("anon_root=", "anon_root={}".format(self.base_directory)))
-
-    def configure_nginx(self):
-        config_file = resource_filename(__name__, 'nginx.conf')
-        nginx_conf_dir = path.join(path.sep, "etc", "nginx")
-        sites_enabled = path.join(nginx_conf_dir, "sites-enabled")
-        sites_available = path.join(nginx_conf_dir, "sites-available")
-        for filename in glob(path.join(sites_enabled, "*")):
-            remove(filename)
-        if not path.exists(sites_available):
-            makedirs(sites_available)
-        if not path.exists(sites_enabled):
-            makedirs(sites_enabled)
-        with open(config_file) as src, open(path.join(sites_available, "app-repo"), "w") as dst:
-                dst.write(src.read())
-        symlink(path.join(sites_available, "app-repo"), path.join(sites_enabled, "app-repo"))
-
-    @cached_method
-    def is_inside_docker(self):
-        from infi.gevent_utils.os.path import exists
-        return exists("/.dockerinit")
-
-    def _install_runit_script_for_service(self, service_name, script_contents):
-        from infi.gevent_utils.os import path, makedirs, fopen, chmod
-        from time import time
-        install_dir = path.join('/etc/service', service_name)
-        script_path = path.join(install_dir, 'run')
-        if not path.exists(install_dir):
-            makedirs(install_dir)
-        with fopen(script_path, 'w') as f:
-            f.write(script_contents)
-        chmod(script_path, 0755)
-        start_time = time()
-        while not path.exists(path.join(install_dir, "supervise")):
-            sleep(0.1)
-            if time() - start_time > 5:
-                raise Exception("timeout when waiting for service {} to get recognized by runit".format(service_name))
-
-    def install_runit_script_for_vsftpd(self):
-        self._install_runit_script_for_service("vsftpd", "#!/bin/sh\nset -e\nexec /usr/sbin/vsftpd\n")
-
-    def install_runit_script_for_nginx(self):
-        self._install_runit_script_for_service("nginx", "#!/bin/sh\nset -e\nexec /usr/sbin/nginx -g 'daemon off;'\n")
-
-    def install_runit_script_for_server(self):
-        self._install_runit_script_for_service("app_repo", "#!/bin/sh\nset -e\nexec /opt/infinidat/application-repository/bin/app_repo -f /etc/app_repo.conf server start --no-daemonize\n")
-
-    def restart_runit_vsftpd(self):
-        log_execute_assert_success(['sv', 'restart', 'vsftpd'])
-
-    def restart_runit_nginx(self):
-        log_execute_assert_success(['sv', 'restart', 'nginx'])
-
-    def restart_upstart_vsftpd(self):
-        log_execute_assert_success(['service', 'vsftpd', 'restart'])
-
-    def restart_upstart_nginx(self):
-        log_execute_assert_success(['service', 'nginx', 'restart'])
-
-    def install_upstart_script_for_server(self):
-        from infi.app_repo.upstart import install_server
-        log_execute_assert_success(["service", 'app_repo_server', "stop"], True)
-        install_server(self.base_directory)
-        log_execute_assert_success(["service", 'app_repo_server', "start"], True)
-
-    def fix_entropy_generator(self):
-        log_execute_assert_success(['/etc/init.d/rng-tools', 'stop'], True)
-        with open("/etc/default/rng-tools", 'a') as fd:
-            fd.write("HRNGDEVICE=/dev/urandom\n")
-        log_execute_assert_success(['/etc/init.d/rng-tools', 'start'], True)
-
-    def generate_gpg_key_if_does_not_exist(self):
-        """:returns: True if the gpg key existed before"""
-        self.fix_entropy_generator()
-        gnupg_directory = path.join(self.homedir, ".gnupg")
-        already_generated = all([path.exists(path.join(gnupg_directory, filename)) for filename in GPG_FILENAMES])
-        home_key_path = path.join(self.homedir, 'gpg.key')
-        already_generated = already_generated and path.exists(home_key_path)
-        if not already_generated:
-            rmtree(gnupg_directory, ignore_errors=True)
-            log_execute_assert_success(['gpg', '--batch', '--gen-key',
-                                       resource_filename(__name__, 'gpg_batch_file')])
-            pid = log_execute_assert_success(['gpg', '--export', '--armor'])
-            with open(path.join(self.homedir, ".rpmmacros"), 'w') as fd:
-                fd.write(GPG_TEMPLATE)
-            with open(home_key_path, 'w') as fd:
-                fd.write(pid.get_stdout())
-        data_key_path = path.join(self.base_directory, 'gpg.key')
-        if not path.exists(data_key_path):
-            copy(home_key_path, data_key_path)
-        return already_generated
-
-    def import_gpg_key_to_rpm_database(self):
-        key = path.join(self.homedir, 'gpg.key')
-        log_execute_assert_success(['rpm', '--import', key])
-
-    def sign_all_existing_deb_and_rpm_packages(self):
-        # this is necessary because we replaced the gpg key
-        for filepath in find_files(path.join(self.base_directory, 'rpm'), '*.rpm'):
-            self.sign_rpm_package(filepath)
-        for filepath in find_files(path.join(self.base_directory, 'deb'), '*.deb'):
-            self.sign_deb_package(filepath)
-
-    def set_write_permissions_on_incoming_directory(self):
-        from infi.gevent_utils.os import chown
-        from pwd import getpwnam
-
-        # TODO: make a function of this pattern in gevent utils
-        from infi.gevent_utils.deferred import create_threadpool_executed_func
-        _getpwnam = create_threadpool_executed_func(getpwnam)
-        pwnam = _getpwnam("app_repo")
-        chown(self.incoming_directory, pwnam.pw_uid, pwnam.pw_gid)
-
-    def setup(self):
-        self.initialize()
-        self.write_configuration_file()
-        self.create_upload_user()
-        self.copy_vsftp_config_file()
-        self.configure_nginx()
-        if not self.is_inside_docker():
-            self.restart_upstart_vsftpd()
-            self.restart_upstart_nginx()
-            self.install_upstart_script_for_server()
-        else:
-            self.install_runit_script_for_vsftpd()
-            self.install_runit_script_for_nginx()
-            self.install_runit_script_for_server()
-            self.restart_runit_vsftpd()
-            self.restart_runit_nginx()
-
-        if not self.generate_gpg_key_if_does_not_exist():
-            self.import_gpg_key_to_rpm_database()
-            self.sign_all_existing_deb_and_rpm_packages()
-            self.update_metadata()
-        self.set_write_permissions_on_incoming_directory()
 
     def add(self, source_path):
         """:returns: list of callables to update metadata"""
@@ -535,7 +365,7 @@ class ApplicationRepository(object):
         fd.write(content)
         fd.close()
 
-    def _write_release_file(self, dirpath, ):
+    def _write_release_file(self, dirpath):
         base, deb, distribution_name, dists, codename = dirpath.rsplit('/', 4)
         cache = path.join(self.incoming_directory, "apt_cache.db")
         pid = log_execute_assert_success(['apt-ftparchive', '--db', cache, 'release', dirpath])
@@ -570,12 +400,6 @@ class ApplicationRepository(object):
             return dict(packages=())
         with open(filepath) as fd:
             return decode(fd.read())
-
-    def write_configuration_file(self):
-        from infi.execute import execute_assert_success
-        from .config import get_projectroot
-        app_repo = path.join(get_projectroot(), 'bin', 'app_repo')
-        execute_assert_success("{} dump defaults > /etc/app_repo.conf".format(app_repo), shell=True)
 
 # TODO
 # * Replace the metadata json file with redis
