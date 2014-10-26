@@ -64,7 +64,7 @@ def console_script(func=None, name=None):
 def app_repo(argv=argv[1:]):
     from docopt import docopt
     from .config import Configuration
-    from .setup import setup_all
+    from .install import setup_all
     args = docopt(__doc__, argv=argv, help=True)
     config = get_config(args)
     if args['config'] and args['show']:
