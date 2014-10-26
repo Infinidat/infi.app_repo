@@ -5,16 +5,18 @@ Usage:
     app_repo [options] ftp-server [--signal-upstart]
     app_repo [options] web-server [--signal-upstart]
     app_repo [options] rpc-server [--signal-upstart]
-    app_repo [options] rpc-client
+    app_repo [options] rpc-client [--style=<style>] [<method> [<arg>...]]
     app_repo [options] config show
     app_repo [options] config apply (production-defaults | development-defaults)
 
 Options:
     -f --file=CONFIGFILE     Use this config file [default: data/config.json]
+    --style=<style>          Output style [default: solarized]
 """
 
 from sys import argv
-from infi.pyutils.decorators import wraps
+from infi.pyutils.contexts import contextmanager
+from infi.pyutils.decorators import wraps, _ipython_inspect_module
 from logging import getLogger
 
 logger = getLogger(__name__)
@@ -78,26 +80,10 @@ def app_repo(argv=argv[1:]):
         return web_server(config, args['--signal-upstart'])
     elif args['ftp-server']:
         return ftp_server(config, args['--signal-upstart'])
-    # if args['server'] and args['start']:
-    #     return server_start(args)
-    # if args['server'] and args['stop']:
-    #     return server_stop(args)
-    # if args['dump'] and args['defaults']:
-    #     return config_dump_defaults(args)
-    # if args['dump'] and args['metadata']:
-    #     return dump_metadata(args)
-    # if args['remote'] and args['show']:
-    #     return remote_show(args)
-    # if args['remote'] and args['set']:
-    #     return remote_set(args)
-    # if args['install']:
-    #     return install(args)
-    # if args['pull']:
-    #     return pull(args)
-    # if args['hide']:
-    #     return hide(args)
-    # if args['add']:
-    #     return add(args)
+    elif args['rpc-server']:
+        return rpc_server(config, args['--signal-upstart'])
+    elif args['rpc-client']:
+        return rpc_client(config, args['<method>'],  args['<arg...>'], args['--style'])
 
 
 def get_config(args):
@@ -130,14 +116,10 @@ def ftp_server(config, signal_upstart):
     ftpserver.close()
 
 
-@console_script(name="app_repo")
-def _server_start(config):
-    from gevent.monkey import patch_socket
-    patch_socket()
-
+@console_script(name="app_repo_rpc")
+def rpc_server(config, signal_upstart):
     from infi.rpc import Server, ZeroRPCServerTransport
     from .service import AppRepoService
-    from .webserver import webserver_start
 
     def shutdown_requested():
         logger.debug("shutting down all services")
@@ -152,106 +134,141 @@ def _server_start(config):
     server = Server(transport, service)
     server.bind()
 
-    logger.debug("binding web server")
-    webserver = webserver_start(service, config)
-
-    if config.daemonize:
+    if signal_upstart:
         from infi.app_repo.upstart import signal_init_that_i_am_ready
         signal_init_that_i_am_ready()
 
-    # TODO add a wait method on server in infi.rpc
     server._shutdown_event.wait()
     webserver.close()
     server.unbind()
 
 
-def server_start(args):
-    config = get_config(args)
-    if args['--no-daemonize']:
-        config.daemonize = False
-    if config.auto_reload:
-        from functools import partial
-        from .reloader import run_with_reloader
-        run_with_reloader(partial(_server_start, config))
+@console_script(name="app_repo_client")
+def client(config, method, arguments, style):
+    from IPython import embed
+    from .service import get_client
+
+    client = get_client(config)
+    from os import environ
+    if arguments.get("<method>"):
+        _pretty_print(getattr(client, method)(*_jsonify_arguments(*arguments)), style)
     else:
-        _server_start(config)
+        with patched_ipython_getargspec_context(client):
+            embed()
 
 
-def server_stop(args):
-    config = get_config(args)
-    from infi.rpc import Client, ZeroRPCClientTransport
-    transport = ZeroRPCClientTransport.create_tcp(config.rpcserver.port, config.rpcserver.address)
-    client = Client(transport)
-    client.stop()
+@contextmanager
+def patched_ipython_getargspec_context(client):
+    original = _ipython_inspect_module.getargspec
+
+    @wraps(original)
+    def patched(func):
+        if hasattr(func, "rpc_call") and getattr(func, "rpc_call"):
+            return client.get_rpc_ipython_argspec(getattr(func, "rpc_method_name", func.__name__))
+        return original(func)
+    _ipython_inspect_module.getargspec = patched
+    _ipython_inspect_module.getargspec = patched
+    try:
+        yield
+    finally:
+        _ipython_inspect_module.getargspec = original
 
 
-def create_standalone_service(args):
-    from .service import AppRepoService
-    config = get_config(args)
-    return AppRepoService(config, lambda: None)
+def _pretty_print(builtin_datatype, style="solarized"):
+    from json import dumps
+    from pygments import highlight
+    from pygments.lexers import JsonLexer
+    from httpie.solarized import Solarized256Style
+    from pygments.formatters import Terminal256Formatter
+    print highlight(dumps(builtin_datatype, indent=4), JsonLexer(),
+                    Terminal256Formatter(style= Solarized256Style if style == "solarized" else style))
 
 
-def dump_metadata(args):
-    from pprint import pprint
-    pprint(create_standalone_service(args).get_metadata())
+def _jsonify_arguments(*args):
+    def _jsonify_or_string(item):
+        from izbox.utils import json_utils
+        try:
+            return json_utils.decode(item)
+        except json_utils.DecodeError:
+            return item
+    return [_jsonify_or_string(item) for item in args]
 
 
-def remote_show(args):
-    from pprint import pprint
-    config = get_config(args)
-    remote = config.remote
-    method = getattr(remote, "to_python") if hasattr(remote, "to_python") else getattr(remote, "serialize")
-    pprint(method())
+# def server_stop(args):
+#     config = get_config(args)
+#     from infi.rpc import Client, ZeroRPCClientTransport
+#     transport = ZeroRPCClientTransport.create_tcp(config.rpcserver.port, config.rpcserver.address)
+#     client = Client(transport)
+#     client.stop()
 
 
-def remote_set(args):
-    config = get_config(args)
-    config.remote.fqdn = args['<fqdn>']
-    config.remote.username = args['<username>']
-    config.remote.password = args['<password>']
-    config.to_disk()
+# def create_standalone_service(args):
+#     from .service import AppRepoService
+#     config = get_config(args)
+#     return AppRepoService(config, lambda: None)
 
 
-def install(args):
-    from . import ApplicationRepository
-    from .config import Configuration
-    config = Configuration()
-    app_repo = ApplicationRepository(config.base_directory)
-    app_repo.setup()
+# def dump_metadata(args):
+#     from pprint import pprint
+#     pprint(create_standalone_service(args).get_metadata())
 
 
-def determine_packages_to_download(args, missing_packages, ignored_packages):
-    from pprint import pprint
-    if args['--check']:
-        if not missing_packages:
-            print 'There are no packages available'
-        else:
-            pprint(missing_packages)
-        return set([])
-    if args['--all']:
-        return set(missing_packages).union(set())
-    if args['<package>']:
-        return set(args['<package>']).intersection(missing_packages)
+# def remote_show(args):
+#     from pprint import pprint
+#     config = get_config(args)
+#     remote = config.remote
+#     method = getattr(remote, "to_python") if hasattr(remote, "to_python") else getattr(remote, "serialize")
+#     pprint(method())
 
 
-@console_script(name="app_repo")
-def pull(args):
-    service = create_standalone_service(args)
-    missing_packages, ignored_packages = service.suggest_packages_to_pull()
-    packages_to_download = determine_packages_to_download(args, missing_packages, ignored_packages)
-    for package in packages_to_download:
-        service.download_package(package)
-    service.process_incoming()
+# def remote_set(args):
+#     config = get_config(args)
+#     config.remote.fqdn = args['<fqdn>']
+#     config.remote.username = args['<username>']
+#     config.remote.password = args['<password>']
+#     config.to_disk()
 
 
-@console_script(name="app_repo")
-def hide(args):
-    packages = args['<package>']
-    service = create_standalone_service(args)
-    service.hide_packages(packages)
+# def install(args):
+#     from . import ApplicationRepository
+#     from .config import Configuration
+#     config = Configuration()
+#     app_repo = ApplicationRepository(config.base_directory)
+#     app_repo.setup()
 
 
-@console_script(name="app_repo")
-def add(args):
-    d = args['<directory>']
-    create_standalone_service(args).process_source(d)
+# def determine_packages_to_download(args, missing_packages, ignored_packages):
+#     from pprint import pprint
+#     if args['--check']:
+#         if not missing_packages:
+#             print 'There are no packages available'
+#         else:
+#             pprint(missing_packages)
+#         return set([])
+#     if args['--all']:
+#         return set(missing_packages).union(set())
+#     if args['<package>']:
+#         return set(args['<package>']).intersection(missing_packages)
+
+
+# @console_script(name="app_repo")
+# def pull(args):
+#     service = create_standalone_service(args)
+#     missing_packages, ignored_packages = service.suggest_packages_to_pull()
+#     packages_to_download = determine_packages_to_download(args, missing_packages, ignored_packages)
+#     for package in packages_to_download:
+#         service.download_package(package)
+#     service.process_incoming()
+
+
+# @console_script(name="app_repo")
+# def hide(args):
+#     packages = args['<package>']
+#     service = create_standalone_service(args)
+#     service.hide_packages(packages)
+
+
+# @console_script(name="app_repo")
+# def add(args):
+#     d = args['<directory>']
+#     create_standalone_service(args).process_source(d)

@@ -2,25 +2,19 @@ from pyftpdlib.authorizers import DummyAuthorizer
 from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
 
-class AppRepoFtpHandler(FTPHandler):
-    def on_file_sent(self, file):
-        # do something when a file has been sent
-        pass
 
-    def on_file_received(self, file):
-        # do something when a file has been received
-        pass
+class AppRepoFtpHandler(FTPHandler):
+    def on_file_received(self, filepath):
+        server.rpc_client.process_source(filepath)
 
 
 def start(config):
     # Instantiate a dummy authorizer for managing 'virtual' users
     authorizer = DummyAuthorizer()
 
-    # Define a new user having full r/w permissions and a read-only
-    # anonymous user
-    # authorizer.add_user('user', '12345', '.', perm='elradfmwM')
-    # TODO users with authenication and upload capabilities
-
+    # Define a new user that can upload files
+    authorizer.add_user(config.ftpserver.username, config.ftpserver.app_repo, incoming_directory, perm='lrw')
+    # Define a read-only user
     authorizer.add_anonymous(config.base_directory)
 
     # Instantiate FTP handler class
@@ -38,6 +32,9 @@ def start(config):
     # Instantiate FTP server class and listen on 0.0.0.0:2121
     address = (config.ftpserver.address, config.ftpserver.port)
     server = FTPServer(address, handler)
+
+    # we need this for later
+    server.rpc_client = get_client(config)
 
     # set a limit for connections
     server.max_cons = 256

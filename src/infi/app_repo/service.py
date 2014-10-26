@@ -224,3 +224,8 @@ class AppRepoService(ServiceWithSynchronized):
             self.upload_package(package)
             logger.debug("upload worker finished processing package {}".format(package))
             self.upload_set.discard(package)
+
+
+def get_client(config):
+    client_transport = ZeroRPCClientTransport("tcp://127.0.0.1:{}".format(config.rpcserver.port))
+    return AutoTimeoutClient(client_transport)

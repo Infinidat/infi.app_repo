@@ -28,7 +28,8 @@ class RPCServerConfiguration(Model):
 class FtpServerConfiguration(Model):
     address = StringType(default="127.0.0.1")
     port = IntType(default=8002)
-
+    username = StringType(default="app_repo")
+    password = StringType(default="app_repo")
 
 class RemoteConfiguration(Model):
     fqdn = StringType(default="repo.infinidat.com")
