@@ -83,7 +83,7 @@ def app_repo(argv=argv[1:]):
     elif args['rpc-server']:
         return rpc_server(config, args['--signal-upstart'])
     elif args['rpc-client']:
-        return rpc_client(config, args['<method>'],  args['<arg...>'], args['--style'])
+        return rpc_client(config, args['<method>'],  args['<arg>'], args['--style'])
 
 
 def get_config(args):
@@ -144,13 +144,13 @@ def rpc_server(config, signal_upstart):
 
 
 @console_script(name="app_repo_client")
-def client(config, method, arguments, style):
+def rpc_client(config, method, arguments, style):
     from IPython import embed
     from .service import get_client
 
     client = get_client(config)
     from os import environ
-    if arguments.get("<method>"):
+    if method:
         _pretty_print(getattr(client, method)(*_jsonify_arguments(*arguments)), style)
     else:
         with patched_ipython_getargspec_context(client):

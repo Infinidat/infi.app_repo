@@ -5,6 +5,7 @@ from gevent.queue import Queue, Empty
 from infi.gevent_utils.safe_greenlets import safe_spawn
 from infi.pyutils.contexts import contextmanager
 from infi.rpc import ServiceWithSynchronized, rpc_call, synchronized
+from infi.rpc import AutoTimeoutClient, IPython_Mixin
 from infi.app_repo.analyser import Analyser
 from infi.app_repo import ApplicationRepository
 
@@ -226,6 +227,11 @@ class AppRepoService(ServiceWithSynchronized):
             self.upload_set.discard(package)
 
 
+class Client(AutoTimeoutClient, IPython_Mixin):
+    pass
+
+
 def get_client(config):
+    from infi.rpc import ZeroRPCClientTransport
     client_transport = ZeroRPCClientTransport("tcp://127.0.0.1:{}".format(config.rpcserver.port))
-    return AutoTimeoutClient(client_transport)
+    return Client(client_transport)
