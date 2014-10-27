@@ -7,7 +7,7 @@ from gevent import sleep
 from logging import getLogger
 from pkg_resources import parse_version
 
-from .utils import log_execute_assert_success, sign_rpm_package, sign_deb_package
+from .utils import log_execute_assert_success, sign_rpm_package, sign_deb_package, ensure_directory_exists, find_files
 
 GPG_TEMPLATE = """
 %_signature gpg
@@ -20,29 +20,13 @@ GPG_TEMPLATE = """
 
 GPG_FILENAMES = ['gpg.conf', 'pubring.gpg', 'random_seed', 'secring.gpg', 'trustdb.gpg']
 
-def _ensure_directory_exists(dirpath):
-    if not path.exists(dirpath):
-        makedirs(dirpath)
-
-
-def _ensure_packages_json_file_exists_in_directory(dirpath):
-    filepath = path.join(dirpath, 'packages.json')
-    if path.exists(filepath):
-        try:
-            with open(filepath) as fd:
-                if isinstance(encode(fd.read()), list):
-                    return
-        except:
-            pass
-    with open(filepath, 'w') as fd:
-        fd.write(encode([], indent=4))
-
 
 def ensure_directory_tree_exists(config):
-    _ensure_directory_exists(config.incoming_directory)
-    for dirpath in config.web_index_directories.values():
-        _ensure_directory_exists(dirpath)
-        _ensure_packages_json_file_exists_in_directory(dirpath)
+    for index_name in config.indexes:
+        ensure_directory_exists(path.join(config.rejected_directory, index_name))
+        ensure_directory_exists(path.join(config.incoming_directory, index_name))
+        for indexer in config.get_indexers(index_name):
+            indexer.initialise()
 
 
 def setup_upstart_services(config): # TODO implement this
@@ -107,3 +91,7 @@ def setup_all(config):
     if config.production_mode:
         setup_upstart_services(config) # TODO do we still need the docker support?
     setup_gpg(config)
+
+
+def destroy_all(config):
+    log_execute_assert_success(['rm', '-rf', config.base_directory, '/usr/local/var/lib/rpm', '/var/lib/rpm'])

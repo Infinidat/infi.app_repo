@@ -1,9 +1,11 @@
 import os
 import logging
 from schematics.models import Model
+from schematics.types.compound import ListType
 from schematics.types import StringType, IntType, BooleanType
 from schematics.types.compound import ModelType
 from munch import Munch
+
 
 def get_projectroot():
     from os import path, pardir
@@ -43,12 +45,32 @@ class PropertyMixin(object):
         return os.path.join(self.base_directory, 'incoming')
 
     @property
+    def hashes_directory(self):
+        return os.path.join(self.base_directory, 'hashes')
+
+    @property
+    def rejected_directory(self):
+        return os.path.join(self.base_directory, 'rejected')
+
+    @property
+    def packages_directory(self):
+        return os.path.join(self.base_directory, 'packages')
+
+    def get_index_directory(self, index_name):
+        return os.path.join(self.base_directory, 'packages', 'main')
+
+    @property
     def stable_directory(self):
         return os.path.join(self.base_directory, 'packages', 'stable')
 
     @property
     def unstable_directory(self):
         return os.path.join(self.base_directory, 'packages', 'stable')
+
+    @property
+    def rpm_directories(self):
+        return Munch(stable=os.path.join(self.stable_directory, 'rpm'),
+                     unstable=os.path.join(self.unstable_directory, 'rpm'))
 
     @property
     def web_index_directories(self):
@@ -62,10 +84,12 @@ class Configuration(Model, PropertyMixin):
     rpcserver = ModelType(RPCServerConfiguration, required=True, default=RPCServerConfiguration)
     ftpserver = ModelType(FtpServerConfiguration, required=True, default=FtpServerConfiguration)
     remote = ModelType(RemoteConfiguration, required=True, default=RemoteConfiguration)
+
     base_directory = StringType(default=get_base_directory())
     logging_level = IntType(default=logging.DEBUG)
     development_mode = BooleanType(default=False)
     production_mode = BooleanType(default=False)
+    indexes = ListType(StringType(), required=True, default=['main'])
 
     @classmethod
     def get_default_config_file(cls):
@@ -119,3 +143,7 @@ class Configuration(Model, PropertyMixin):
         self.production_mode = True
         self.development_mode = False
         self.to_disk()
+
+    def get_indexers(self, index_name):
+        from .indexers import get_indexers
+        return get_indexers(self, index_name)

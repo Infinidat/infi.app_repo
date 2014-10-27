@@ -15,41 +15,6 @@ from pkg_resources import parse_version
 
 logger = getLogger(__name__)
 
-RELEASE_FILE_HEADER = "Codename: {}\nArchitectures: am64 i386\nComponents: main"
-
-
-def log_execute_assert_success(args, allow_to_fail=False):
-    logger.info("Executing {}".format(' '.join(args)))
-    try:
-        return execute_assert_success(args)
-    except ExecutionError:
-        logger.exception("Execution failed")
-        if not allow_to_fail:
-            raise
-
-
-def is_file_open(filepath):
-    return filepath in log_execute_assert_success(['lsof']).get_stdout()
-
-
-def is_file_size_changed(file_sizes, filepath):
-    from infi.gevent_utils.os import stat
-    old = file_sizes.get(filepath)
-    new = stat(filepath).st_size
-    file_sizes[filepath] = new
-    return old != new
-
-
-def wait_for_sources_to_stabalize(sources):
-    file_sizes = dict()
-    while True:
-        if any([is_file_open(filepath) for filepath in sources]):
-            sleep(1)
-            continue
-        if any([is_file_size_changed(file_sizes, filepath) for filepath in sources]):
-            sleep(1)
-            continue
-        break
 
 NAME = r"""(?P<package_name>[a-zA-Z]*[a-zA-Z\-_]+[0-9_]?[a-zA-Z\-_]+[a-zA-Z][0-9]?)"""
 VERSION = r"""v?(?P<package_version>(?:[\d+\.]+)(?:-develop|-[0-9\.]+(?:_g[0-9a-f]{7})?|(?:(?:\.post\d+\.|\.\d+\.|-\d+-|-develop-\d+-)g[a-z0-9]{7}))?)"""
@@ -86,11 +51,6 @@ def parse_filepath(filepath):
             group['architecture'], group['extension']))
 
 
-def copy2(source_path, destination_directory):
-    destination_path = path.join(destination_directory, path.basename(source_path))
-    rename(source_path, destination_path)
-
-
 class ApplicationRepository(object):
     def __init__(self, base_directory):
         super(ApplicationRepository, self).__init__()
@@ -99,21 +59,6 @@ class ApplicationRepository(object):
         self.appliances_directory = path.join(base_directory, 'appliances')
         self.appliances_updates_directory = path.join(self.appliances_directory, 'updates')
         self.homedir = path.expanduser("~")
-
-    def initialize(self):
-        for required_path in [self.base_directory,
-                              self.incoming_directory,
-                              self.appliances_directory,
-                              self.appliances_updates_directory]:
-            if not path.exists(required_path):
-                makedirs(required_path)
-
-    def is_upload_user_exists(self):
-        try:
-            log_execute_assert_success(['id', 'app_repo'])
-        except ExecutionError:
-            return False
-        return True
 
     def add(self, source_path):
         """:returns: list of callables to update metadata"""
@@ -177,13 +122,6 @@ class ApplicationRepository(object):
         factory = add_package_by_postfix[extension]
         return factory
 
-    def sign_deb_package(self, filepath):
-        logger.info("Signing {!r}".format(filepath))
-        log_execute_assert_success(['dpkg-sig', '--sign', 'builder', filepath])
-
-    @cached_method
-    def _prepare_callback(self, func, *args, **kwargs):
-        return lambda: func(*args, **kwargs)
 
     def add_package__deb(self, filepath):
         package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
@@ -197,29 +135,6 @@ class ApplicationRepository(object):
         copy2(filepath, destination_directory)
         return [self._prepare_callback(self.update_metadata_for_apt_repositories, destination_directory),
                 self.get_update_metadata_for_views_callback()]
-
-    def sign_rpm_package(self, filepath):
-        from os import environ
-        logger.info("Signing {!r}".format(filepath))
-        command = ['rpm', '--addsign', filepath]
-        logger.debug("Spawning {}".format(command))
-        env = environ.copy()
-        env['HOME'] = env.get('HOME', "/root")
-
-        def _sign_rpm():
-            # execute_assert_success(['rpm', '-vv', '--checksig', filepath])
-            pid = spawn(command[0], command[1:], timeout=120, cwd=self.incoming_directory, env=env)
-            logger.debug("Waiting for passphrase request")
-            pid.expect("Enter pass phrase:")
-            pid.sendline("\n")
-            logger.debug("Passphrase entered, waiting for rpm to exit")
-            pid.wait() if pid.isalive() else None
-            assert pid.exitstatus == 0
-
-        # TODO: make a function of this pattern in gevent utils
-        from infi.gevent_utils.deferred import create_threadpool_executed_func
-        __sign_rpm = create_threadpool_executed_func(_sign_rpm)
-        __sign_rpm()
 
     def add_package__rpm(self, filepath):
         package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
@@ -277,129 +192,6 @@ class ApplicationRepository(object):
         self.update_metadata_for_views()
         self.update_metadata_for_yum_repositories()
         self.update_metadata_for_apt_repositories()
-
-    def update_metadata_for_views(self):
-        packages = list(self.gather_metadata_for_views())
-        with open(path.join(self.base_directory, 'metadata.json'), 'w') as fd:
-            fd.write(encode(dict(packages=packages)))
-
-    def _exclude_filepath_from_views(self, filepath):
-        return filepath.startswith(self.incoming_directory) or \
-            path.join("ova", "updates") in filepath or \
-            "archives" in filepath
-
-    def get_hidden_packages(self):
-        hidden_filepath = path.join(self.base_directory, 'hidden.json')
-        if not path.exists(hidden_filepath):
-            return []
-        with open(hidden_filepath) as fd:
-            return decode(fd.read())
-
-    def set_hidden_packages(self, packages):
-        hidden_filepath = path.join(self.base_directory, 'hidden.json')
-        with open(hidden_filepath, 'w') as fd:
-            return fd.write(encode(list(packages)))
-
-    def gather_metadata_for_views(self):
-        all_files = []
-        all_files = [filepath for filepath in find_files(self.base_directory, '*')
-                     if not self._exclude_filepath_from_views(filepath)
-                     and parse_filepath(filepath) != (None, None, None, None, None)]
-        distributions = [parse_filepath(distribution) + (distribution, ) for distribution in all_files]
-        package_names = set([distribution[0] for distribution in distributions])
-        hidden_package_names = self.get_hidden_packages()
-        distributions_by_package = {package_name: [distribution for distribution in distributions
-                                                   if distribution[0] == package_name]
-                                    for package_name in package_names}
-        for package_name, package_distributions in sorted(distributions_by_package.items(),
-                                                          key=lambda item: item[0]):
-            package_versions = set([distribution[1] for distribution in package_distributions])
-            distributions_by_version = {package_version: [dict(platform=distribution[2],
-                                                               architecture=distribution[3],
-                                                               extension=distribution[4],
-                                                               filepath=distribution[5].replace(self.base_directory, ''))
-                                                          for distribution in package_distributions
-                                                          if distribution[1] == package_version]
-                                        for package_version in package_versions}
-            yield dict(name=package_name,
-                       hidden=package_name in hidden_package_names,
-                       display_name=' '.join([item.capitalize() for item in package_name.split('-')]),
-                       releases=[dict(version=key, distributions=value)
-                                 for key, value in sorted(distributions_by_version.items(),
-                                                          key=lambda item: parse_version(item[0]),
-                                                          reverse=True)])
-
-    def update_metadata_for_yum_repositories(self, yum_repo_dir=None):
-        all_yum_repos = glob(path.join(self.base_directory, 'rpm', '*', '*', '*'))
-        for dirpath in [yum_repo_dir] if yum_repo_dir else all_yum_repos:
-            if not path.isdir(dirpath):
-                continue
-            if path.exists(path.join(dirpath, 'repodata')):
-                try:
-                    log_execute_assert_success(['createrepo', '--update', dirpath])
-                except:
-                    logger.exception("Failed to update metadata, will attempt to remove it and create it from scratch")
-                    rmtree(path.join(dirpath, 'repodata'), ignore_errors=True)
-                    log_execute_assert_success(['createrepo', dirpath])
-            else:
-                log_execute_assert_success(['createrepo', dirpath])
-
-    def get_update_metadata_for_views_callback(self):
-        return self._prepare_callback(self.update_metadata_for_views)
-
-    def call_callbacks(self, callbacks):
-        for item in callbacks:
-            item()
-
-    def _write_packages_gz_file(self, dirpath, ftp_base):
-        import gzip
-        # cache = path.join(self.incoming_directory, "apt_cache.db")
-        # pid = log_execute_assert_success(['apt-ftparchive', '--db', cache, 'packages', dirpath])
-        pid = log_execute_assert_success(['dpkg-scanpackages', "--multiversion", dirpath, '/dev/null'])
-        content = pid.get_stdout()
-        content = content.replace(ftp_base + '/', '')
-        packages = path.join(dirpath, 'Packages')
-        with open(packages, 'w') as fd:
-            fd.write(content)
-        fd = gzip.open(packages + '.gz', 'wb')
-        fd.write(content)
-        fd.close()
-
-    def _write_release_file(self, dirpath):
-        base, deb, distribution_name, dists, codename = dirpath.rsplit('/', 4)
-        cache = path.join(self.incoming_directory, "apt_cache.db")
-        pid = log_execute_assert_success(['apt-ftparchive', '--db', cache, 'release', dirpath])
-        content = pid.get_stdout()
-        release = path.join(dirpath, 'Release')
-        with open(release, 'w') as fd:
-            fd.write((RELEASE_FILE_HEADER + "\n{}").format(codename, content))
-        in_release = path.join(dirpath, 'InRelease')
-        release_gpg = path.join(dirpath, 'Release.gpg')
-        for filepath in [in_release, release_gpg]:
-            if path.exists(filepath):
-                remove(filepath)
-        log_execute_assert_success(['gpg', '--clearsign', '-o', in_release, release])
-        log_execute_assert_success(['gpg', '-abs', '-o', release_gpg, release])
-
-    def update_metadata_for_apt_repositories(self, apt_repo_dir=None):
-        all_apt_repos = glob(path.join(self.base_directory, 'deb', '*', 'dists', '*', 'main', 'binary-*'))
-        for dirpath in [apt_repo_dir] if apt_repo_dir else all_apt_repos:
-            if not path.isdir(dirpath):
-                continue
-            base, deb, distribution_name, dists, codename, main, binary = dirpath.rsplit('/', 6)
-            ftp_base = path.join(base, deb, distribution_name)
-            self._write_packages_gz_file(dirpath, ftp_base)
-        for dirpath in glob(path.join(self.base_directory, 'deb', '*', 'dists', '*')):
-            if not path.isdir(dirpath):
-                continue
-            self._write_release_file(dirpath)
-
-    def get_views_metadata(self):
-        filepath = path.join(self.base_directory, 'metadata.json')
-        if not path.exists(filepath):
-            return dict(packages=())
-        with open(filepath) as fd:
-            return decode(fd.read())
 
 # TODO
 # * Replace the metadata json file with redis

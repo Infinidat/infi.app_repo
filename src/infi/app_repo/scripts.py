@@ -1,7 +1,8 @@
 """Application Repository Management Tool
 
 Usage:
-    app_repo [options] setup (production-defaults | development-defaults)
+    app_repo [options] setup (production-defaults | development-defaults) [--with-mock]
+    app_repo [options] destroy [--yes]
     app_repo [options] ftp-server [--signal-upstart]
     app_repo [options] web-server [--signal-upstart]
     app_repo [options] rpc-server [--signal-upstart]
@@ -64,7 +65,7 @@ def console_script(func=None, name=None):
 def app_repo(argv=argv[1:]):
     from docopt import docopt
     from .config import Configuration
-    from .install import setup_all
+    from .install import destroy_all
     args = docopt(__doc__, argv=argv, help=True)
     config = get_config(args)
     if args['config'] and args['show']:
@@ -75,7 +76,9 @@ def app_repo(argv=argv[1:]):
     elif args['setup']:
         config.reset_to_development_defaults() if args['development-defaults'] else None
         config.reset_to_production_defaults() if args['production-defaults'] else None
-        return setup_all(config)
+        return setup(config, args['--with-mock'])
+    elif args['destroy'] and args['--yes']:
+        destroy_all(config)
     elif args['web-server']:
         return web_server(config, args['--signal-upstart'])
     elif args['ftp-server']:
@@ -89,6 +92,14 @@ def app_repo(argv=argv[1:]):
 def get_config(args):
     from .config import Configuration
     return Configuration.from_disk(args.get("--file", Configuration.get_default_config_file()))
+
+
+@console_script(name="app_repo_setup")
+def setup(config, apply_mock_patches):
+    from .install import setup_all
+    from .mock import patch_all, empty_context
+    with (patch_all if apply_mock_patches else empty_context)():
+        setup_all(config)
 
 
 @console_script(name="app_repo_web")

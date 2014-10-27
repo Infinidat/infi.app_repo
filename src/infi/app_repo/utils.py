@@ -1,7 +1,9 @@
 from logging import getLogger
-from infi.gevent_utils.os import path, walk
+from infi.gevent_utils.os import path, walk, link, makedirs
 from infi.execute import execute_assert_success, ExecutionError
+from infi.pyutils.contexts import contextmanager
 from fnmatch import fnmatch
+from .errors import FileAlreadyExists
 logger = getLogger(__name__)
 
 
@@ -48,3 +50,49 @@ def find_files(directory, pattern):
             if fnmatch(basename, pattern):
                 filename = path.join(root, basename)
                 yield filename
+
+
+def _chdir_and_log(path):
+    from infi.gevent_utils.os import chdir as _chdir
+    _chdir(path)
+    logger.debug("Changed directory to {!r}".format(path))
+
+
+@contextmanager
+def chdir(path):
+    from infi.gevent_utils.os.path import abspath
+    from infi.gevent_utils.os import curdir
+    path = abspath(path)
+    current_dir = abspath(curdir)
+    _chdir_and_log(path)
+    try:
+        yield
+    finally:
+        _chdir_and_log(current_dir)
+
+
+@contextmanager
+def temporary_directory_context():
+    from infi.gevent_utils.tempfile import mkdtemp
+    from infi.gevent_utils.os import chdir
+    from infi.gevent_utils.shutil import rmtree
+    tempdir = mkdtemp()
+    try:
+        with chdir(tempdir):
+            yield tempdir
+    finally:
+        rmtree(tempdir, ignore_errors=True)
+
+
+def hard_link_or_raise_exception(src, dst):
+    if not path.exists(dst):
+        link(src, dst)
+    elif path.isfile(dst):
+        raise FileAlreadyExists()
+    elif path.isdir(dst):
+        link(src, path.join(dst, path.basename(src)))
+
+
+def ensure_directory_exists(dirpath):
+    if not path.exists(dirpath):
+        makedirs(dirpath)

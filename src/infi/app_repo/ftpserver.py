@@ -9,11 +9,12 @@ class AppRepoFtpHandler(FTPHandler):
 
 
 def start(config):
+    from .service import get_client
     # Instantiate a dummy authorizer for managing 'virtual' users
     authorizer = DummyAuthorizer()
 
     # Define a new user that can upload files
-    authorizer.add_user(config.ftpserver.username, config.ftpserver.app_repo, incoming_directory, perm='lrw')
+    authorizer.add_user(config.ftpserver.username, config.ftpserver.password, config.incoming_directory, perm='lrwe')
     # Define a read-only user
     authorizer.add_anonymous(config.base_directory)
 
