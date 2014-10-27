@@ -26,6 +26,9 @@ class PrettyIndexer(Indexer):
             ensure_directory_exists(dirpath)
             _ensure_packages_json_file_exists_in_directory(dirpath)
 
+    def are_you_interested_in_file(self, filepath, platform, arch, stable):
+        return False
+
 
     # def gather_metadata_for_views(self):
     #     all_files = []

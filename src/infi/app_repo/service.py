@@ -61,7 +61,11 @@ class AppRepoService(ServiceWithSynchronized):
         indexers = [indexer for indexer in self.config.get_indexers(index) if
                     indexer.are_you_interested_in_file(filepath, platform_string, architecture, stable)]
         for indexer in indexers:
-            indexer.consume_file(filepath, platform_string, architecture, stable)
+            try:
+                indexer.consume_file(filepath, platform_string, architecture, stable)
+            except errors.FileAlreadyExists:
+                logger.warning("indexer says file {} already exists, moving on".format(indexer, filepath))
+                continue
 
     @rpc_call
     @synchronized

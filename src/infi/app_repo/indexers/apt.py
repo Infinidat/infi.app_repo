@@ -1,10 +1,36 @@
+import gzip
 from .base import Indexer
 from infi.app_repo.utils import ensure_directory_exists
 from infi.gevent_utils.os import path
+from infi.app_repo.utils import temporary_directory_context, log_execute_assert_success
 from itertools import product
 
-KNWON_VERSIONS = ('lucid', 'natty', 'oneiric', 'precise', 'quantal', 'raring', 'saucy', 'trusty')
-KNOWN_ARCHS = ("amd64", "i386")
+
+KNOWN_DISTRIBUTIONS = {
+    "ubuntu": {
+        'lucid': ('i386', 'amd64'),
+        'natty': ('i386', 'amd64'),
+        'oneiric': ('i386', 'amd64'),
+        'precise': ('i386', 'amd64'),
+        'quantal': ('i386', 'amd64'),
+        'raring': ('i386', 'amd64'),
+        'saucy': ('i386', 'amd64'),
+        'trusty': ('i386', 'amd64'),
+    }
+}
+
+TRANSLATE_ARCH = {'x86': 'i386', 'x64': 'amd64', 'i386': 'i386', 'amd64': 'amd64'}
+
+
+def touch_packages_file(dirpath):
+    packages_filepath = path.join(dirpath, 'Packages')
+    if path.exists(packages_filepath):
+        return
+    with open(packages_filepath, 'w'):
+        pass
+    fd = gzip.open(packages_filepath + '.gz', 'wb')
+    fd.write(content)
+    fd.close()
 
 
 class AptIndexer(Indexer):
@@ -12,11 +38,44 @@ class AptIndexer(Indexer):
 
     def initialise(self):
         ensure_directory_exists(self.base_directory)
-        for version, arch in product(KNWON_VERSIONS, KNOWN_ARCHS):
-            platform = 'ubuntu-%s' % version
-            dirpath = path.join(self.base_directory, 'dists', platform, 'main', 'binary-%s' % arch)
-            ensure_directory_exists(dirpath)
+        for item in ('stable', 'unstable'):
+            for distribution_name, distribution_dict in KNOWN_DISTRIBUTIONS.items():
+                for version, architectures in distribution_dict.items():
+                    for arch in architectures:
+                        platform = '%s-%s' % (distribution_name, name)
+                        dirpath = path.join(self.base_directory, item, distribution_name, 'dists', version, 'main', 'binary-%s' % arch)
+                        ensure_directory_exists(dirpath)
+                        touch_packages_file(dirpath)
+                    self.generate_release_file_for_specific_distribution_and_version(stable_string, distribution, version)
 
+    def are_you_interested_in_file(self, filepath, platform, arch, stable):
+        return filepath.endswith('.deb')
+
+    def generate_release_file_for_specific_distribution_and_version(self, stable_string, distribution, version):
+        dirpath = self.path.join(self.base_directory, stable_string, distribution, 'dists', version)
+        cache = path.join(dirpath, 'apt_cache.db')
+        contents = log_execute_assert_success(['apt-ftparchive', '--db', cache, 'release', dirpath]).get_stdout()
+        # TODO I AM HEREEEEEEE
+
+        content = pid.get_stdout()
+        release = path.join(dirpath, 'Release')
+        with open(release, 'w') as fd:
+            fd.write((RELEASE_FILE_HEADER + "\n{}").format(codename, content))
+        in_release = path.join(dirpath, 'InRelease')
+        release_gpg = path.join(dirpath, 'Release.gpg')
+        for filepath in [in_release, release_gpg]:
+            if path.exists(filepath):
+                remove(filepath)
+        log_execute_assert_success(['gpg', '--clearsign', '-o', in_release, release])
+        log_execute_assert_success(['gpg', '-abs', '-o', release_gpg, release])
+
+    def consume_file(self, filepath, platform, arch, stable):
+        with temporary_directory_context() as dirpath:
+            # link file to this directory
+            # run dpkg-scanpackages here to gather the _Package_ information
+            # append it to the exising Packages file
+            # replace the gzip copy
+        raise NotImplementedError()
 
 # RELEASE_FILE_HEADER = "Codename: {}\nArchitectures: am64 i386\nComponents: main"
 
