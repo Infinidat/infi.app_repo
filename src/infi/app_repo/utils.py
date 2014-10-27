@@ -84,6 +84,18 @@ def temporary_directory_context():
         rmtree(tempdir, ignore_errors=True)
 
 
+@contextmanager
+def with_tempfile():
+    from tempfile import mkstemp
+    from os import close, remove
+    fd, path = mkstemp()  # TODO gevent-aware
+    close(fd)
+    try:
+        yield path
+    finally:
+        remove(path)
+
+
 def hard_link_or_raise_exception(src, dst):
     if not path.exists(dst):
         link(src, dst)

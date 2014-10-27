@@ -25,7 +25,6 @@ from logging import getLogger
 
 logger = getLogger(__name__)
 
-
 def console_script(func=None, name=None):
     def decorate(f):
         @wraps(f)
