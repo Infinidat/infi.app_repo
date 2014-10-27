@@ -9,6 +9,8 @@ class AppRepoFtpHandler(FTPHandler):
         logger.info("received {}".format(filepath))
         self.server.rpc_client.process_source(filepath)
 
+    def on_file_send(self, filepath):
+        pass
 
 def start(config):
     from .service import get_client

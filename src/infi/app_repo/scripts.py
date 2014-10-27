@@ -127,7 +127,7 @@ def ftp_server(config, signal_upstart):
         from infi.app_repo.upstart import signal_init_that_i_am_ready
         signal_init_that_i_am_ready()
     ftpserver.serve_forever()
-    ftpserver.close()
+    ftpserver.close_all()
 
 
 @console_script(name="app_repo_rpc")

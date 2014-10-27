@@ -1,9 +1,9 @@
-import os
 import logging
 from schematics.models import Model
 from schematics.types.compound import ListType
 from schematics.types import StringType, IntType, BooleanType
 from schematics.types.compound import ModelType
+from infi.gevent_utils.os import path
 from munch import Munch
 
 
@@ -42,40 +42,30 @@ class RemoteConfiguration(Model):
 class PropertyMixin(object):
     @property
     def incoming_directory(self):
-        return os.path.join(self.base_directory, 'incoming')
+        return path.join(self.base_directory, 'incoming')
 
     @property
     def artifacts_directory(self):
-        return os.path.join(self.base_directory, 'artifacts')
+        return path.join(self.base_directory, 'artifacts')
 
     @property
     def rejected_directory(self):
-        return os.path.join(self.base_directory, 'rejected')
+        return path.join(self.base_directory, 'rejected')
 
     @property
     def packages_directory(self):
-        return os.path.join(self.base_directory, 'packages')
-
-    def get_index_directory(self, index_name):
-        return os.path.join(self.base_directory, 'packages', 'main')
+        return path.join(self.base_directory, 'packages')
 
     @property
     def stable_directory(self):
-        return os.path.join(self.base_directory, 'packages', 'stable')
+        return path.join(self.base_directory, 'packages', 'stable')
 
     @property
     def unstable_directory(self):
-        return os.path.join(self.base_directory, 'packages', 'stable')
+        return path.join(self.base_directory, 'packages', 'stable')
 
-    @property
-    def rpm_directories(self):
-        return Munch(stable=os.path.join(self.stable_directory, 'rpm'),
-                     unstable=os.path.join(self.unstable_directory, 'rpm'))
-
-    @property
-    def web_index_directories(self):
-        return Munch(stable=os.path.join(self.stable_directory, 'web_index'),
-                     unstable=os.path.join(self.unstable_directory, 'web_index'))
+    def get_index_directory(self, index_name):
+        return path.join(self.base_directory, 'packages', 'main')
 
 
 class Configuration(Model, PropertyMixin):
@@ -87,7 +77,7 @@ class Configuration(Model, PropertyMixin):
 
     base_directory = StringType(default=get_base_directory())
     logging_level = IntType(default=logging.DEBUG)
-    development_mode = BooleanType(default=False)
+    development_mode = BooleanType(default=True)
     production_mode = BooleanType(default=False)
     indexes = ListType(StringType(), required=True, default=['main'])
 

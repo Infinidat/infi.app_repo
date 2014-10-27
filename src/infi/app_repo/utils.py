@@ -74,7 +74,6 @@ def chdir(path):
 @contextmanager
 def temporary_directory_context():
     from infi.gevent_utils.tempfile import mkdtemp
-    from infi.gevent_utils.os import chdir
     from infi.gevent_utils.shutil import rmtree
     tempdir = mkdtemp()
     try:
