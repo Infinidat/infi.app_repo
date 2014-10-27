@@ -1,14 +1,16 @@
 from __future__ import absolute_import
 
-from logbook import Logger
+from logging import getLogger
 from gevent.queue import Queue, Empty
 from infi.gevent_utils.safe_greenlets import safe_spawn
+from infi.gevent_utils.os import remove, path
 from infi.rpc import ServiceWithSynchronized, rpc_call, synchronized
 from infi.rpc import AutoTimeoutClient, IPython_Mixin
-from infi.app_repo.remote_sync import Analyser
 from infi.app_repo import ApplicationRepository
+from infi.app_repo import errors
+from infi.app_repo.utils import hard_link_or_raise_exception
 
-logger = Logger(__name__)
+logger = getLogger(__name__)
 
 SUPPORTED_ARCHIVES = ['.msi', '.rpm', '.deb', '.tar.gz', '.zip', '.ova', '.img', '.iso']
 IDLE_TIMEOUT = 5  # seconds
@@ -42,6 +44,43 @@ class AppRepoService(ServiceWithSynchronized):
         # self.upload_worker.join()
         self.shutdown_callback()
 
+    def _process_source(self, filepath):
+        from os.path import sep
+        from .filename_parser import parse_filepath, is_final_version
+        from pkg_resources import parse_version
+
+        try:
+            package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
+        except:
+            logger.exception("failed parting {}".format(filepath))
+            raise errors.FileRejected("filename parsing failed")
+
+        stable = is_final_version(package_version)
+        relpath = filepath.replace(self.config.incoming_directory, '').strip(sep)
+        index, filename = relpath.split(sep) if sep in relpath else ('main', relpath)
+        indexers = [indexer for indexer in self.config.get_indexers(index) if
+                    indexer.are_you_interested_in_file(filepath, platform_string, architecture, stable)]
+        for indexer in indexers:
+            indexer.consume_file(filepath, platform_string, architecture, stable)
+
+    @rpc_call
+    @synchronized
+    def process_source(self, filepath):
+        try:
+            self._process_source(filepath)
+        except:
+            logger.exception("processing source {} failed, moving it to {}".format(filepath, self.config.rejected_directory))
+            try:
+                hard_link_or_raise_exception(filepath, path.join(self.config.rejected_directory))
+            except:
+                pass
+        finally:
+            remove(filepath)
+
+    @rpc_call
+    @synchronized
+    def process_incoming(self, index):
+        raise NotImplementedError()
     # @rpc_call
     # @synchronized
     # def suggest_packages_to_pull(self):
@@ -116,64 +155,58 @@ class AppRepoService(ServiceWithSynchronized):
     #         move(filename, dst)
 
 
-    @rpc_call
-    @synchronized
-    def process_source(self, source_path):
-        callbacks = self.app_repo.add(source_path)
-        self.app_repo.call_callbacks(callbacks)
+    # @rpc_call
+    # @synchronized
+    # def update_metadata_for_views(self):
+    #     self.app_repo.update_metadata_for_views()
 
-    @rpc_call
-    @synchronized
-    def update_metadata_for_views(self):
-        self.app_repo.update_metadata_for_views()
+    # @rpc_call
+    # @synchronized
+    # def hide_packages(self, package_names):
+    #     packages = set(self.app_repo.get_hidden_packages())
+    #     packages = packages.union(set([package_names] if isinstance(package_names, basestring) else package_names))
+    #     self.app_repo.set_hidden_packages(packages)
+    #     self.app_repo.update_metadata_for_views()
 
-    @rpc_call
-    @synchronized
-    def hide_packages(self, package_names):
-        packages = set(self.app_repo.get_hidden_packages())
-        packages = packages.union(set([package_names] if isinstance(package_names, basestring) else package_names))
-        self.app_repo.set_hidden_packages(packages)
-        self.app_repo.update_metadata_for_views()
+    # @rpc_call
+    # @synchronized
+    # def get_metadata(self):
+    #     return self.app_repo.get_views_metadata()
 
-    @rpc_call
-    @synchronized
-    def get_metadata(self):
-        return self.app_repo.get_views_metadata()
+    # def get_queued_download_items(self):
+    #     return list(self.download_set)
 
-    def get_queued_download_items(self):
-        return list(self.download_set)
+    # def get_queued_upload_items(self):
+    #     return list(self.upload_set)
 
-    def get_queued_upload_items(self):
-        return list(self.upload_set)
+    # def download_worker(self):
+    #     logger.debug("download worker started.")
+    #     while True:
+    #         try:
+    #             package = self.download_queue.get(timeout=IDLE_TIMEOUT)
+    #             if self.shutdown:
+    #                 logger.debug("download worker exitting.")
+    #                 break
+    #             # FIXME error handling on download
+    #             logger.debug("download worker started processing package {}".format(package))
+    #             self.download_package(package)
+    #             logger.debug("download worker finished processing package {}".format(package))
+    #             self.download_set.discard(package)
+    #         except Empty:
+    #             self._process_incoming()
 
-    def download_worker(self):
-        logger.debug("download worker started.")
-        while True:
-            try:
-                package = self.download_queue.get(timeout=IDLE_TIMEOUT)
-                if self.shutdown:
-                    logger.debug("download worker exitting.")
-                    break
-                # FIXME error handling on download
-                logger.debug("download worker started processing package {}".format(package))
-                self.download_package(package)
-                logger.debug("download worker finished processing package {}".format(package))
-                self.download_set.discard(package)
-            except Empty:
-                self._process_incoming()
-
-    def upload_worker(self):
-        logger.debug("upload worker started.")
-        while True:
-            package = self.upload_queue.get()
-            if self.shutdown:
-                logger.debug("upload worker exitting.")
-                break
-            # FIXME error handling on upload
-            logger.debug("upload worker started processing package {}".format(package))
-            self.upload_package(package)
-            logger.debug("upload worker finished processing package {}".format(package))
-            self.upload_set.discard(package)
+    # def upload_worker(self):
+    #     logger.debug("upload worker started.")
+    #     while True:
+    #         package = self.upload_queue.get()
+    #         if self.shutdown:
+    #             logger.debug("upload worker exitting.")
+    #             break
+    #         # FIXME error handling on upload
+    #         logger.debug("upload worker started processing package {}".format(package))
+    #         self.upload_package(package)
+    #         logger.debug("upload worker finished processing package {}".format(package))
+    #         self.upload_set.discard(package)
 
 
 class Client(AutoTimeoutClient, IPython_Mixin):

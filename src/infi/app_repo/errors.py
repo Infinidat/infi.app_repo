@@ -1,7 +1,18 @@
 from infi.exceptools import InfiException
+from infi.rpc.errors import RPCUserException
 
-class AppRepoBaseException(InfiException):
+
+class AppRepoBaseException(RPCUserException, InfiException):
     pass
 
+
 class FileAlreadyExists(AppRepoBaseException):
+    pass
+
+
+class FileRejected(AppRepoBaseException):
+    pass
+
+
+class FileProcessingFailed(FileRejected):
     pass

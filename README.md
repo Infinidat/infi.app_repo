@@ -25,10 +25,8 @@ On Ubuntu, you willl need to pre-install the following packages:
 * alien
 * createrepo
 * yum
-* vsftpd
 * rng-tools
 * dpkg-sig
-* redis-server
 
 You will also need to install the Python package `infi.projector` by running `easy_install infi.projector`.
 After sorting all these requirements, run:

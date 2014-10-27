@@ -9,10 +9,13 @@ Usage:
     app_repo [options] rpc-client [--style=<style>] [<method> [<arg>...]]
     app_repo [options] config show
     app_repo [options] config apply (production-defaults | development-defaults)
+    app_repo [options] upload-file <filepath> [--index=<index>]
+
 
 Options:
     -f --file=CONFIGFILE     Use this config file [default: data/config.json]
     --style=<style>          Output style [default: solarized]
+    --index=<index>          Index name [default: main]
 """
 
 from sys import argv
@@ -33,8 +36,7 @@ def console_script(func=None, name=None):
             from datetime import datetime
             from docopt import DocoptExit
             from sys import stderr
-            basename = datetime.now().strftime("%Y-%m-%d.%H-%m-%S")
-            filename = '/tmp/{}_{}_{}_{}.log'.format(name if name else f.__name__, basename, getpid(), getuid())
+            filename = '/tmp/{}.log'.format(name if name else f.__name__)
             with script_logging_context(logfile_path=filename):
                 logger.info("Logging started")
                 with traceback_context():
@@ -87,6 +89,8 @@ def app_repo(argv=argv[1:]):
         return rpc_server(config, args['--signal-upstart'])
     elif args['rpc-client']:
         return rpc_client(config, args['<method>'],  args['<arg>'], args['--style'])
+    elif args['upload-file']:
+        return upload_file(config, args['<filepath>'], args['--index'])
 
 
 def get_config(args):
@@ -166,6 +170,16 @@ def rpc_client(config, method, arguments, style):
     else:
         with patched_ipython_getargspec_context(client):
             embed()
+
+def upload_file(config, filepath, index):
+    from ftplib import FTP
+    from infi.gevent_utils.os import path
+    ftp = FTP()
+    ftp.connect('127.0.0.1', config.ftpserver.port)
+    ftp.login(config.ftpserver.username, config.ftpserver.password)
+    ftp.cwd(index)
+    with open(filepath) as fd:
+        ftp.storbinary("STOR %s" % path.basename(filepath), fd)
 
 
 @contextmanager

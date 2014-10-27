@@ -70,7 +70,6 @@ class YumIndexer(Indexer):
         self.rebuild_index()
 
 
-
 def createrepo_update(dirpath):
     log_execute_assert_success(['createrepo', '--update', dirpath])
 

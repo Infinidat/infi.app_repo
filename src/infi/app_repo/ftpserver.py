@@ -1,11 +1,13 @@
 from pyftpdlib.authorizers import DummyAuthorizer
 from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
-
+from logging import getLogger
+logger = getLogger(__name__)
 
 class AppRepoFtpHandler(FTPHandler):
     def on_file_received(self, filepath):
-        server.rpc_client.process_source(filepath)
+        logger.info("received {}".format(filepath))
+        self.server.rpc_client.process_source(filepath)
 
 
 def start(config):

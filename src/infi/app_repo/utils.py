@@ -1,5 +1,5 @@
 from logging import getLogger
-from infi.gevent_utils.os import path, walk, link, makedirs
+from infi.gevent_utils.os import path, walk, link, makedirs, remove
 from infi.execute import execute_assert_success, ExecutionError
 from infi.pyutils.contexts import contextmanager
 from fnmatch import fnmatch
@@ -89,6 +89,15 @@ def hard_link_or_raise_exception(src, dst):
         link(src, dst)
     elif path.isfile(dst):
         raise FileAlreadyExists()
+    elif path.isdir(dst):
+        link(src, path.join(dst, path.basename(src)))
+
+def hard_link_and_override(src, dst):
+    if not path.exists(dst):
+        link(src, dst)
+    elif path.isfile(dst):
+        remove(dst)
+        link(src, dst)
     elif path.isdir(dst):
         link(src, path.join(dst, path.basename(src)))
 

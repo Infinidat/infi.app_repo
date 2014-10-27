@@ -45,8 +45,8 @@ class PropertyMixin(object):
         return os.path.join(self.base_directory, 'incoming')
 
     @property
-    def hashes_directory(self):
-        return os.path.join(self.base_directory, 'hashes')
+    def artifacts_directory(self):
+        return os.path.join(self.base_directory, 'artifacts')
 
     @property
     def rejected_directory(self):
