@@ -38,7 +38,6 @@ class FlaskApp(flask.Flask):
             self.route("/home/<index_name>")(index_home_page)
             self.route("/")(default_homepage)
 
-
         _directory_index()
         _setup_script()
         _homepage()
