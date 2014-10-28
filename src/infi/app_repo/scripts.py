@@ -54,8 +54,6 @@ def console_script(func=None, name=None):
                         stderr.write(str(e) + "\n")
                         logger.info("printed usage, exitting.")
                     except SystemExit, e:
-                        if e.code != 3:  # SystemExit(3) --> reloading
-                            logger.exception("Caught SystemExit")
                         raise
                     except:
                         logger.exception("Caught exception")
