@@ -6,12 +6,12 @@ from logging import getLogger
 logger = getLogger(__name__)
 
 KNOWN_PLATFORMS = {
-    "redhat-5": ("i686", "x86_64"),
-    "redhat-6": ("i686", "x86_64"),
-    "redhat-7": ("x86_64", ),
-    "centos-5": ("i686", "x86_64"),
-    "centos-6": ("i686", "x86_64"),
-    "centos-7": ("x86_64", ),
+    "linux-redhat-5": ("i686", "x86_64"),
+    "linux-redhat-6": ("i686", "x86_64"),
+    "linux-redhat-7": ("x86_64", ),
+    "linux-centos-5": ("i686", "x86_64"),
+    "linux-centos-6": ("i686", "x86_64"),
+    "linux-centos-7": ("x86_64", ),
 }
 
 TRANSLATE_ARCH = {'x86': 'i686', 'x64': 'x86_64', 'i686': 'i686', 'x86_64': 'x86_64'}
@@ -22,39 +22,38 @@ class YumIndexer(Indexer):
 
     def initialise(self):
         ensure_directory_exists(self.base_directory)
-        for item in ('stable', 'unstable'):
-            for platform, architectures in KNOWN_PLATFORMS.items():
-                for arch in architectures:
-                    ensure_directory_exists(path.join(self.base_directory, item, '%s-%s' % (platform, arch)))
+        for platform, architectures in KNOWN_PLATFORMS.items():
+            for arch in architectures:
+                ensure_directory_exists(path.join(self.base_directory, '%s-%s' % (platform, arch)))
         self.rebuild_index()
 
     def are_you_interested_in_file(self, filepath, platform, arch):
-        return filepath.endswith('.rpm')
+        return filepath.endswith('.rpm') and \
+               platform in KNOWN_PLATFORMS and \
+               arch in TRANSLATE_ARCH and \
+               TRANSLATE_ARCH[arch] in KNOWN_PLATFORMS[platform]
 
     def consume_file(self, filepath, platform, arch):
-        assert arch in TRANSLATE_ARCH
         dirpath = path.join(self.base_directory, '%s-%s' % (platform, TRANSLATE_ARCH[arch]))
         hard_link_or_raise_exception(filepath, dirpath)
-        self._update_platform_index(platform)
+        self._update_index(platform)
 
     def update_index(self):
-        for dirpath in glob(path.join(self.base_directory, '*', '*')):
-            self._update_platform_index(dirpath)
+        for dirpath in glob(path.join(self.base_directory, '*')):
+            self._update_index(dirpath)
 
     def rebuild_index(self):
-        for dirpath in glob(path.join(self.base_directory, '*', '*')):
+        for dirpath in glob(path.join(self.base_directory, '*')):
             self._delete_repo_metadata(dirpath)
-            self._update_platform_index(dirpath)
+            self._update_index(dirpath)
 
-    def _update_platform_index(self, platform):
-        for item in ('stable', 'unstable'):
-            dirpath = path.join(self.base_directory, item, platform)
-            try:
-                createrepo_update(dirpath)
-            except:
-                logger.exception("Failed to update metadata, will attempt to remove it and create it from scratch")
-                self._delete_repo_metadata(dirpath)
-                createrepo(dirpath)
+    def _update_index(self, dirpath):
+        try:
+            createrepo_update(dirpath)
+        except:
+            logger.exception("Failed to update metadata, will attempt to remove it and create it from scratch")
+            self._delete_repo_metadata(dirpath)
+            createrepo(dirpath)
 
     def _delete_repo_metadata(self, dirpath):
         repodata = path.join(dirpath, 'repodata')

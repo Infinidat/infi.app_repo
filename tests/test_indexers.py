@@ -37,7 +37,7 @@ class IndexersTestCase(TestCase):
             indexer = AptIndexer(config, 'main-stable')
             indexer.initialise()
             filepath = self.write_new_package(config, 'deb')
-            self.assertTrue(indexer.are_you_interested_in_file(filepath, 'linux-ubuntu-natty', 'i386'))
+            self.assertTrue(indexer.are_you_interested_in_file(filepath, 'linux-ubuntu-natty', 'x86'))
             indexer.consume_file(filepath, 'linux-ubuntu-natty', 'i386')
 
             packages_file = path.join(indexer.base_directory, 'linux-ubuntu', 'dists', 'natty', 'main', 'binary-i386', 'Packages')
@@ -51,3 +51,12 @@ class IndexersTestCase(TestCase):
             self.assertTrue(path.exists(path.join(release_dirpath, 'Release')))
             self.assertTrue(path.exists(path.join(release_dirpath, 'Release.gpg')))
             self.assertTrue(path.exists(path.join(release_dirpath, 'InRelease')))
+
+    def test_yum_consume_file(self):
+        from infi.app_repo.indexers.yum import YumIndexer
+        with self._setup_context() as config:
+            indexer = YumIndexer(config, 'main-stable')
+            indexer.initialise()
+            filepath = self.write_new_package(config, 'rpm')
+            self.assertTrue(indexer.are_you_interested_in_file(filepath, 'linux-redhat-7', 'x64'))
+            indexer.consume_file(filepath, 'linux-redhat-7', 'x64')

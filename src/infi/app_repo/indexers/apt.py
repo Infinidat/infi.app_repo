@@ -62,7 +62,8 @@ class AptIndexer(Indexer):
         return filepath.endswith('.deb') and \
                distribution_name in KNOWN_DISTRIBUTIONS and \
                codename in KNOWN_DISTRIBUTIONS[distribution_name] and \
-               arch in KNOWN_DISTRIBUTIONS[distribution_name][codename]
+               arch in TRANSLATE_ARCH and \
+               TRANSLATE_ARCH[arch] in KNOWN_DISTRIBUTIONS[distribution_name][codename]
 
     def generate_release_file_for_specific_distribution_and_version(self, distribution, codename):
         dirpath = path.join(self.base_directory, distribution, 'dists', codename)
@@ -96,7 +97,6 @@ class AptIndexer(Indexer):
         sign_release_file()
 
     def consume_file(self, filepath, platform, arch):
-        assert arch in TRANSLATE_ARCH
         distribution_name, codename = platform.rsplit('-', 1    )
         dirpath = self.deduce_dirname(distribution_name, codename, arch)
 
