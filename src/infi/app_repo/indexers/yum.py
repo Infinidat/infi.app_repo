@@ -36,7 +36,7 @@ class YumIndexer(Indexer):
     def consume_file(self, filepath, platform, arch):
         dirpath = path.join(self.base_directory, '%s-%s' % (platform, TRANSLATE_ARCH[arch]))
         hard_link_or_raise_exception(filepath, dirpath)
-        self._update_index(platform)
+        self._update_index(dirpath)
 
     def update_index(self):
         for dirpath in glob(path.join(self.base_directory, '*')):
@@ -48,6 +48,8 @@ class YumIndexer(Indexer):
             self._update_index(dirpath)
 
     def _update_index(self, dirpath):
+        if not self._is_repodata_exists(dirpath):
+            return createrepo(dirpath)
         try:
             createrepo_update(dirpath)
         except:
