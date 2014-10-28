@@ -34,8 +34,8 @@ def parse_filepath(filepath):
         return (None, None, None, None, None)
     group = result.groupdict()
     return translate_filepath((group['package_name'], group['package_version'],
-            PLATFORM_STRING.get(group['extension'], group['platform_string']),
-            group['architecture'], group['extension']))
+                               PLATFORM_STRING.get(group['extension'], group['platform_string']),
+                               group['architecture'], group['extension']))
 
 
 

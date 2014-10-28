@@ -98,7 +98,7 @@ class AptIndexer(Indexer):
         sign_release_file()
 
     def consume_file(self, filepath, platform, arch):
-        distribution_name, codename = platform.rsplit('-', 1    )
+        distribution_name, codename = platform.rsplit('-', 1)
         dirpath = self.deduce_dirname(distribution_name, codename, arch)
 
         hard_link_or_raise_exception(filepath, dirpath)

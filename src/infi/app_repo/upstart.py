@@ -19,7 +19,7 @@ def install(base_directory, service_name, exec_cmd):  # pragma: no cover
     kwargs = {'version': __version__.__version__,
               'chdir': abspath(join(base_directory, pardir)),
               'exec': exec_cmd,
-              }
+             }
     config = TEMPLATE.format(**kwargs)
     with open(join(sep, 'etc', 'init', service_name + '.conf'), 'w') as fd:
         fd.write(config)

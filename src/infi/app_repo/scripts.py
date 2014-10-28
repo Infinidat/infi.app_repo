@@ -91,7 +91,7 @@ def app_repo(argv=argv[1:]):
     elif args['rpc-server']:
         return rpc_server(config, args['--signal-upstart'])
     elif args['rpc-client']:
-        return rpc_client(config, args['<method>'],  args['<arg>'], args['--style'])
+        return rpc_client(config, args['<method>'], args['<arg>'], args['--style'])
     elif args['upload-file']:
         return upload_file(config, args['<filepath>'], args['--index'])
     elif args['process-incoming']: # TODO implement this
@@ -214,8 +214,8 @@ def _pretty_print(builtin_datatype, style="solarized"):
     from pygments.lexers import JsonLexer
     from httpie.solarized import Solarized256Style
     from pygments.formatters import Terminal256Formatter
-    print highlight(dumps(builtin_datatype, indent=4), JsonLexer(),
-                    Terminal256Formatter(style= Solarized256Style if style == "solarized" else style))
+    style = Solarized256Style if style == "solarized" else style
+    print highlight(dumps(builtin_datatype, indent=4), JsonLexer(), Terminal256Formatter(style=style))
 
 
 def _jsonify_arguments(*args):

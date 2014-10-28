@@ -1,12 +1,6 @@
-from glob import glob
 from shutil import copy, rmtree
-from infi.gevent_utils.os import makedirs, path, remove, listdir, walk, rename, symlink
-from infi.gevent_utils.json_utils import encode, decode
+from infi.gevent_utils.os import path
 from pkg_resources import resource_filename
-from gevent import sleep
-from logging import getLogger
-from pkg_resources import parse_version
-
 from .utils import log_execute_assert_success, sign_rpm_package, sign_deb_package, ensure_directory_exists, find_files
 
 GPG_TEMPLATE = """
@@ -46,7 +40,7 @@ def _generate_gpg_key_if_does_not_exist(config):
     if not already_generated:
         rmtree(gnupg_directory, ignore_errors=True)
         log_execute_assert_success(['gpg', '--batch', '--gen-key',
-                                   resource_filename(__name__, 'gpg_batch_file')])
+                                    resource_filename(__name__, 'gpg_batch_file')])
         pid = log_execute_assert_success(['gpg', '--export', '--armor'])
         with open(path.join(path.expanduser("~"), ".rpmmacros"), 'w') as fd:
             fd.write(GPG_TEMPLATE)
