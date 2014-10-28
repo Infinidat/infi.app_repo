@@ -12,7 +12,7 @@ class AppRepoFtpHandler(FTPHandler):
 
     def on_file_received(self, filepath):
         logger.info("received {}".format(filepath))
-        self.server.rpc_client.process_source(filepath)
+        self.server.rpc_client.process_filepath_by_name(filepath)
 
     def on_file_send(self, filepath): # we implement this for testing purposes
         pass

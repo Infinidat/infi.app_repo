@@ -24,19 +24,13 @@ class IndexersTestCase(TestCase):
             finally:
                 destroy_all(config)
 
-    def write_new_package(self, config, extension):
-        filepath = path.join(config.incoming_directory, 'main-stable', 'some-package.%s' % extension)
-        with open(filepath, 'w') as fd:
-            pass
-        return filepath
-
     def test_apt_consume_file(self):
         from infi.app_repo.indexers.apt import AptIndexer
         import gzip
         with self._setup_context() as config:
             indexer = AptIndexer(config, 'main-stable')
             indexer.initialise()
-            filepath = self.write_new_package(config, 'deb')
+            filepath = self.write_new_package_in_incoming_directory(config, extension='deb')
             self.assertTrue(indexer.are_you_interested_in_file(filepath, 'linux-ubuntu-natty', 'x86'))
             indexer.consume_file(filepath, 'linux-ubuntu-natty', 'i386')
 
@@ -57,6 +51,6 @@ class IndexersTestCase(TestCase):
         with self._setup_context() as config:
             indexer = YumIndexer(config, 'main-stable')
             indexer.initialise()
-            filepath = self.write_new_package(config, 'rpm')
+            filepath = self.write_new_package_in_incoming_directory(config, extension='rpm')
             self.assertTrue(indexer.are_you_interested_in_file(filepath, 'linux-redhat-7', 'x64'))
             indexer.consume_file(filepath, 'linux-redhat-7', 'x64')

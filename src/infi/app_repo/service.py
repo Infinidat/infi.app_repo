@@ -8,12 +8,32 @@ from infi.rpc import ServiceWithSynchronized, rpc_call, synchronized
 from infi.rpc import AutoTimeoutClient, IPython_Mixin
 from infi.app_repo import ApplicationRepository
 from infi.app_repo import errors
-from infi.app_repo.utils import hard_link_or_raise_exception
+from infi.app_repo.utils import hard_link_or_raise_exception, path
 
 logger = getLogger(__name__)
 
 SUPPORTED_ARCHIVES = ['.msi', '.rpm', '.deb', '.tar.gz', '.zip', '.ova', '.img', '.iso']
 IDLE_TIMEOUT = 5  # seconds
+
+
+def process_filepath_by_name(config, filepath):
+    from .filename_parser import parse_filepath
+
+    package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
+    if None in (package_name, package_version, platform_string, architecture):
+        raise errors.FileRejected("filename parsing of {!r} failed".format(filepath))
+
+    relpath = filepath.replace(config.incoming_directory, '').strip(path.sep)
+    index, filename = relpath.split(path.sep) if path.sep in relpath else ('main', relpath)
+    indexers = [indexer for indexer in config.get_indexers(index) if
+                indexer.are_you_interested_in_file(filepath, platform_string, architecture)]
+    for indexer in indexers:
+        try:
+            indexer.consume_file(filepath, platform_string, architecture)
+        except errors.FileAlreadyExists:
+            logger.warning("indexer {} says file {} already exists, moving on".format(indexer, filepath))
+            continue
+
 
 
 class AppRepoService(ServiceWithSynchronized):
@@ -45,37 +65,14 @@ class AppRepoService(ServiceWithSynchronized):
         if self.shutdown_callback:
             self.shutdown_callback()
 
-    def _process_source(self, filepath):
-        from os.path import sep
-        from .filename_parser import parse_filepath, is_final_version
-        from pkg_resources import parse_version
-
-        try:
-            package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
-        except:
-            logger.exception("failed parting {}".format(filepath))
-            raise errors.FileRejected("filename parsing failed")
-
-        stable = is_final_version(package_version)
-        relpath = filepath.replace(self.config.incoming_directory, '').strip(sep)
-        index, filename = relpath.split(sep) if sep in relpath else ('main', relpath)
-        indexers = [indexer for indexer in self.config.get_indexers(index) if
-                    indexer.are_you_interested_in_file(filepath, platform_string, architecture, stable)]
-        for indexer in indexers:
-            try:
-                indexer.consume_file(filepath, platform_string, architecture, stable)
-            except errors.FileAlreadyExists:
-                logger.warning("indexer {} says file {} already exists, moving on".format(indexer, filepath))
-                continue
-
     @rpc_call
     @synchronized
-    def process_source(self, filepath):
-        return self._try_except_finally_process_source(filepath)
+    def process_filepath_by_name(self, filepath):
+        return self._try_except_finally_process_filepath_by_name(filepath)
 
-    def _try_except_finally_process_source(self, filepath):
+    def _try_except_finally_process_filepath_by_name(self, filepath):
         try:
-            self._process_source(filepath)
+            process_filepath_by_name(self.config, filepath)
         except:
             logger.exception("processing source {} failed, moving it to {}".format(filepath, self.config.rejected_directory))
             try:

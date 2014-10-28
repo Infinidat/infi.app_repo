@@ -1,5 +1,7 @@
 from infi.gevent_utils.os import path
+from logging import getLogger
 from re import match
+logger = getLogger(__name__)
 
 
 NAME = r"""(?P<package_name>[a-zA-Z]*[a-zA-Z\-_]+[0-9_]?[a-zA-Z\-_]+[a-zA-Z][0-9]?)"""

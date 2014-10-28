@@ -53,8 +53,8 @@ class FtpWithRpcTestCase(TemporaryBaseDirectoryTestCase):
 
     def test_upload(self):
         from infi.app_repo import service
-        with patch.object(service.AppRepoService, "_try_except_finally_process_source") as _try_except_finally_process_source:
-            _try_except_finally_process_source.side_effect = self.mark_success
+        with patch.object(service.AppRepoService, "_try_except_finally_process_filepath_by_name") as _try_except_finally_process_filepath_by_name:
+            _try_except_finally_process_filepath_by_name.side_effect = self.mark_success
             fd = StringIO("hello world")
             with self.ftp_server_context(), self.ftp_client_context(True) as client:
                 with self.rpc_server_context() as server:
@@ -64,8 +64,8 @@ class FtpWithRpcTestCase(TemporaryBaseDirectoryTestCase):
 
     def test_upload_2(self):
         from infi.app_repo import service
-        with patch.object(service.AppRepoService, "_try_except_finally_process_source") as _try_except_finally_process_source:
-            _try_except_finally_process_source.side_effect = self.mark_success
+        with patch.object(service.AppRepoService, "_try_except_finally_process_filepath_by_name") as _try_except_finally_process_filepath_by_name:
+            _try_except_finally_process_filepath_by_name.side_effect = self.mark_success
             fd = StringIO("hello world")
             with self.rpc_server_context() as server:
                 with self.ftp_server_context(), self.ftp_client_context(True) as client:

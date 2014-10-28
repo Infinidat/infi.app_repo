@@ -16,7 +16,7 @@ Usage:
 Options:
     -f --file=CONFIGFILE     Use this config file [default: data/config.json]
     --style=<style>          Output style [default: solarized]
-    --index=<index>          Index name [default: main]
+    --index=<index>          Index name [default: main-stable]
 """
 
 from sys import argv
@@ -298,4 +298,4 @@ def _jsonify_arguments(*args):
 # @console_script(name="app_repo")
 # def add(args):
 #     d = args['<directory>']
-#     create_standalone_service(args).process_source(d)
+#     create_standalone_service(args).process_filepath_by_name(d)
