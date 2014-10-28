@@ -3,15 +3,20 @@
 Usage:
     app_repo [options] setup (production-defaults | development-defaults) [--with-mock]
     app_repo [options] destroy [--yes]
-    app_repo [options] ftp-server [--signal-upstart]
+    app_repo [options] ftp-server [--signal-upstart] [--process-incoming-on-startup]
     app_repo [options] web-server [--signal-upstart]
     app_repo [options] rpc-server [--signal-upstart]
     app_repo [options] rpc-client [--style=<style>] [<method> [<arg>...]]
     app_repo [options] config show
     app_repo [options] config apply (production-defaults | development-defaults)
-    app_repo [options] upload-file <filepath> [--index=<index>]
+    app_repo [options] file upload <index> <filepath>
+    app_repo [options] file process-rejected <filepath> [--platform=<platform>] [--arch=<arch>]
     app_repo [options] process-incoming
-    app_repo [options] reindex (yum | apt | wget | python) <index>
+    app_repo [options] index list
+    app_repo [options] index add <index>
+    app_repo [options] index remove <index> [--yes]
+    app_repo [options] index rebuild <index> (all | --indexer=<indexer>)
+
 
 Options:
     -f --file=CONFIGFILE     Use this config file [default: data/config.json]
