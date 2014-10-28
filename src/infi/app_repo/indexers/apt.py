@@ -6,7 +6,7 @@ from infi.app_repo.utils import temporary_directory_context, log_execute_assert_
 
 
 KNOWN_DISTRIBUTIONS = {
-    "ubuntu": {
+    'linux-ubuntu': {
         'lucid': ('i386', 'amd64'),
         'natty': ('i386', 'amd64'),
         'oneiric': ('i386', 'amd64'),
@@ -26,10 +26,8 @@ RELEASE_FILE_HEADER = "Codename: {}\nArchitectures: amd64 i386\nComponents: main
 def write_to_packages_file(dirpath, contents, mode):
     import gzip
     packages_filepath = path.join(dirpath, 'Packages')
-    if path.exists(packages_filepath):
-        return
-    with open(packages_filepath, mode):
-        pass
+    with open(packages_filepath, mode) as fd:
+        fd.write(contents)
     fd = gzip.open(packages_filepath + '.gz', 'wb')
     fd.write(contents)
     fd.close()
@@ -59,8 +57,12 @@ class AptIndexer(Indexer):
     def deduce_dirname(self, distribution_name, codename, arch): # based on how apt likes it
         return path.join(self.base_directory, distribution_name, 'dists', codename, 'main', 'binary-%s' % arch)
 
-    def are_you_interested_in_file(self, filepath, platform, arch, stable):
-        return filepath.endswith('.deb')
+    def are_you_interested_in_file(self, filepath, platform, arch):
+        distribution_name, codename = platform.rsplit('-', 1)
+        return filepath.endswith('.deb') and \
+               distribution_name in KNOWN_DISTRIBUTIONS and \
+               codename in KNOWN_DISTRIBUTIONS[distribution_name] and \
+               arch in KNOWN_DISTRIBUTIONS[distribution_name][codename]
 
     def generate_release_file_for_specific_distribution_and_version(self, distribution, codename):
         dirpath = path.join(self.base_directory, distribution, 'dists', codename)
@@ -95,14 +97,14 @@ class AptIndexer(Indexer):
 
     def consume_file(self, filepath, platform, arch):
         assert arch in TRANSLATE_ARCH
-        linux, distribution_name, codename = platform.split('-')
+        distribution_name, codename = platform.rsplit('-', 1    )
         dirpath = self.deduce_dirname(distribution_name, codename, arch)
 
         hard_link_or_raise_exception(filepath, dirpath)
 
         with temporary_directory_context() as tempdir:
             hard_link_or_raise_exception(filepath, tempdir)
-            contents = dpkg_scanpackages('--multiversion', tempdir, '/dev/null')
-            write_to_packages_file(dirpath, '\n' + contents.replace('', ''), 'a')
+            contents = dpkg_scanpackages(['--multiversion', tempdir, '/dev/null'])
+            write_to_packages_file(dirpath, contents, 'a')
 
-        self.generate_release_file_for_specific_distribution_and_version(distribution_name, 'codename')
+        self.generate_release_file_for_specific_distribution_and_version(distribution_name, codename)
