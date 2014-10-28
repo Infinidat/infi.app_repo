@@ -11,7 +11,7 @@ Usage:
     app_repo [options] config apply (production-defaults | development-defaults)
     app_repo [options] file upload <index> <filepath>
     app_repo [options] file process-rejected <filepath> [--platform=<platform>] [--arch=<arch>]
-    app_repo [options] process-incoming [--index=<index>]
+    app_repo [options] process-incoming <index-regex>
     app_repo [options] index list
     app_repo [options] index add <index>
     app_repo [options] index remove <index> [--yes]
@@ -95,11 +95,23 @@ def app_repo(argv=argv[1:]):
         return rpc_server(config, args['--signal-upstart'])
     elif args['rpc-client']:
         return rpc_client(config, args['<method>'], args['<arg>'], args['--style'])
-    elif args['upload-file']:
-        return upload_file(config, args['<filepath>'], args['--index'])
-    elif args['process-incoming']: # TODO implement this
+    elif args['file'] and args['upload']:
+        return file_upload(config, args['<index>'], args['<filepath>'])
+    elif args['file'] and ['process-rejected']: # TODO implement
         raise NotImplementedError()
-    elif args['reindex']: # TODO implement this
+    elif ['process-incoming']: # TODO implement this
+        raise NotImplementedError()
+    elif args['index'] and ['list']: # TODO implement this
+        raise NotImplementedError()
+    elif args['index'] and ['add']: # TODO implement this
+        raise NotImplementedError()
+    elif args['index'] and ['remove']: # TODO implement this
+        raise NotImplementedError()
+    elif args['index'] and ['rebuild']: # TODO implement this
+        raise NotImplementedError()
+    elif args['package'] and ['list']: # TODO implement this
+        raise NotImplementedError()
+    elif args['package'] and ['remove']: # TODO implement this
         raise NotImplementedError()
 
 
@@ -167,7 +179,7 @@ def rpc_server(config, signal_upstart):
     server.unbind()
 
 
-@console_script(name="app_repo_client")
+@console_script(name="app_repo_rpc_client")
 def rpc_client(config, method, arguments, style):
     from IPython import embed
     from .service import get_client
@@ -178,9 +190,10 @@ def rpc_client(config, method, arguments, style):
         _pretty_print(getattr(client, method)(*_jsonify_arguments(*arguments)), style)
     else:
         with patched_ipython_getargspec_context(client):
-            embed()
+            embed()(config, filepat< index>)
 
-def upload_file(config, filepath, index):
+
+def file_upload(config, index, filepath):
     from ftplib import FTP
     from infi.gevent_utils.os import path
     from infi.app_repo.ftpserver import make_ftplib_gevent_friendly
