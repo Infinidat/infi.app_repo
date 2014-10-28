@@ -20,6 +20,8 @@ def get_base_directory():
 class WebserverConfiguration(Model):
     address = StringType(default="127.0.0.1")
     port = IntType(default=8000)
+    default_setup_index = StringType(required=False, default="main-stable")
+
 
 class RPCServerConfiguration(Model):
     address = StringType(default="127.0.0.1")
@@ -31,6 +33,7 @@ class FtpServerConfiguration(Model):
     port = IntType(default=8002)
     username = StringType(default="app_repo")
     password = StringType(default="app_repo")
+
 
 class RemoteConfiguration(Model):
     fqdn = StringType(default="repo.infinidat.com")
@@ -94,6 +97,8 @@ class Configuration(Model, PropertyMixin):
                 self = cls()
                 for key, value in kwargs.iteritems():
                     setattr(self, key, value)
+
+        assert self.webserver.default_setup_index is None or self.webserver.default_setup_index in self.indexes
         return self
 
     def to_disk(self):

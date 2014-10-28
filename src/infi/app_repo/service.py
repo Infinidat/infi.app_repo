@@ -6,7 +6,6 @@ from infi.gevent_utils.safe_greenlets import safe_spawn
 from infi.gevent_utils.os import remove, path
 from infi.rpc import ServiceWithSynchronized, rpc_call, synchronized
 from infi.rpc import AutoTimeoutClient, IPython_Mixin
-from infi.app_repo import ApplicationRepository
 from infi.app_repo import errors
 from infi.app_repo.utils import hard_link_or_raise_exception, path
 
