@@ -15,15 +15,13 @@ SUPPORTED_ARCHIVES = ['.msi', '.rpm', '.deb', '.tar.gz', '.zip', '.ova', '.img',
 IDLE_TIMEOUT = 5  # seconds
 
 
-def process_filepath_by_name(config, filepath):
+def process_filepath_by_name(config, index, filepath):
     from .filename_parser import parse_filepath
 
     package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
     if None in (package_name, package_version, platform_string, architecture):
         raise errors.FileRejected("filename parsing of {!r} failed".format(filepath))
 
-    relpath = filepath.replace(config.incoming_directory, '').strip(path.sep)
-    index, filename = relpath.split(path.sep) if path.sep in relpath else ('main', relpath)
     indexers = [indexer for indexer in config.get_indexers(index) if
                 indexer.are_you_interested_in_file(filepath, platform_string, architecture)]
     for indexer in indexers:
@@ -66,16 +64,16 @@ class AppRepoService(ServiceWithSynchronized):
 
     @rpc_call
     @synchronized
-    def process_filepath_by_name(self, filepath):
-        return self._try_except_finally_process_filepath_by_name(filepath)
+    def process_filepath_by_name(self, index, filepath):
+        return self._try_except_finally_process_filepath_by_name(index, filepath)
 
-    def _try_except_finally_process_filepath_by_name(self, filepath):
+    def _try_except_finally_process_filepath_by_name(self, index, filepath): # TODO rejection needs a test
         try:
-            process_filepath_by_name(self.config, filepath)
+            process_filepath_by_name(self.config, index, filepath)
         except:
             logger.exception("processing source {} failed, moving it to {}".format(filepath, self.config.rejected_directory))
             try:
-                hard_link_or_raise_exception(filepath, path.join(self.config.rejected_directory))
+                hard_link_or_raise_exception(filepath, path.join(self.config.rejected_directory, index))
             except:
                 pass
         finally:

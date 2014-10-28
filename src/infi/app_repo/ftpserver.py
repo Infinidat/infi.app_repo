@@ -3,6 +3,7 @@ from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
 from logging import getLogger
 from infi.pyutils.lazy import cached_function
+from infi.gevent_utils.os import path
 from gevent import select
 logger = getLogger(__name__)
 
@@ -12,7 +13,8 @@ class AppRepoFtpHandler(FTPHandler):
 
     def on_file_received(self, filepath):
         logger.info("received {}".format(filepath))
-        self.server.rpc_client.process_filepath_by_name(filepath)
+        _, index_name, _ = filepath.rsplit(path.sep, 2)
+        self.server.rpc_client.process_filepath_by_name(index_name, filepath)
 
     def on_file_send(self, filepath): # we implement this for testing purposes
         pass

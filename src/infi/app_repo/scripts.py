@@ -11,7 +11,7 @@ Usage:
     app_repo [options] config apply (production-defaults | development-defaults)
     app_repo [options] file upload <index> <filepath>
     app_repo [options] file process-rejected <filepath> [--platform=<platform>] [--arch=<arch>]
-    app_repo [options] process-incoming
+    app_repo [options] process-incoming [--index=<index>]
     app_repo [options] index list
     app_repo [options] index add <index>
     app_repo [options] index remove <index> [--yes]

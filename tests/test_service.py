@@ -23,5 +23,5 @@ class ServiceTestCase(TestCase):
             filepath = self.write_new_package_in_incoming_directory(config, package_basename='some-package-1.0-linux-redhat-7-x64', extension='rpm')
             indexer = DummyIndexer(config, 'main-stable')
             config.get_indexers = lambda name: [indexer]
-            service.process_filepath_by_name(config, filepath)
+            service.process_filepath_by_name(config, 'main-stable', filepath)
             self.assertTrue(indexer.consumed)
