@@ -7,7 +7,9 @@ from mock import patch
 def patch_all():
     with patch("infi.app_repo.indexers.yum.createrepo"):
         with patch("infi.app_repo.indexers.yum.createrepo_update"):
-            yield
+            with patch("infi.app_repo.indexers.apt.apt_ftparchive")as apt_ftparchive:
+                apt_ftparchive.get_stdout.return_value = ''
+                yield
 
 @contextmanager
 def empty_context():

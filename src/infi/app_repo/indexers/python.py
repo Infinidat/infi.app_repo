@@ -9,6 +9,6 @@ class PythonIndexer(Indexer):
     def initialise(self):
         ensure_directory_exists(self.base_directory)
 
-    def are_you_interested_in_file(self, filepath, platform, arch, stable):
+    def are_you_interested_in_file(self, filepath, platform, arch):
         return path.basename(filepath).startswith("python-") and filepath.endswith(".tar.gz")
 

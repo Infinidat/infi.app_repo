@@ -9,10 +9,10 @@ class Indexer(object):
         self.config = config
         self.base_directory = path.join(self.config.packages_directory, index_name, self.INDEX_TYPE)
 
-    def are_you_interested_in_file(self, filepath, platform, arch, stable):
+    def are_you_interested_in_file(self, filepath, platform, arch):
         raise NotImplementedError()
 
-    def consume_file(self, filepath, platform, arch, stable):
+    def consume_file(self, filepath, platform, arch):
         raise NotImplementedError()
 
     def update_index(self):

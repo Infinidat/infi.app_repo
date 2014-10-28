@@ -2,46 +2,58 @@ from pyftpdlib.authorizers import DummyAuthorizer
 from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
 from logging import getLogger
+from infi.pyutils.lazy import cached_function
+from gevent import select
 logger = getLogger(__name__)
 
+
 class AppRepoFtpHandler(FTPHandler):
+    banner = "app-repo ftp ready."
+
     def on_file_received(self, filepath):
         logger.info("received {}".format(filepath))
         self.server.rpc_client.process_source(filepath)
 
-    def on_file_send(self, filepath):
+    def on_file_send(self, filepath): # we implement this for testing purposes
         pass
+
+
+@cached_function
+def make_pyftpdlib_gevent_friendly():
+    from pyftpdlib import ioloop
+    ioloop.select = select
+    ioloop.IOLoop = ioloop.Select
+
+
+@cached_function
+def make_ftplib_gevent_friendly():
+    import ftplib
+    from gevent import socket
+    ftplib.socket = socket
+
+
+@cached_function
+def disable_ioloop_logging():
+    from pyftpdlib import ioloop
+    ioloop._config_logging = lambda *args, **kwargs: None
+
+
+def setup_authorization(config):
+    authorizer = DummyAuthorizer()
+    authorizer.add_user(config.ftpserver.username, config.ftpserver.password, config.incoming_directory, perm='lrwe')
+    authorizer.add_anonymous(config.artifacts_directory)
+    AppRepoFtpHandler.authorizer = authorizer
+
 
 def start(config):
     from .service import get_client
-    # Instantiate a dummy authorizer for managing 'virtual' users
-    authorizer = DummyAuthorizer()
 
-    # Define a new user that can upload files
-    authorizer.add_user(config.ftpserver.username, config.ftpserver.password, config.incoming_directory, perm='lrwe')
-    # Define a read-only user
-    authorizer.add_anonymous(config.base_directory)
+    make_pyftpdlib_gevent_friendly()
+    disable_ioloop_logging()
+    setup_authorization(config)
 
-    # Instantiate FTP handler class
-    handler = AppRepoFtpHandler
-    handler.authorizer = authorizer
-
-    # Define a customized banner (string returned when client connects)
-    handler.banner = "app-repo ftp ready."
-
-    # Specify a masquerade address and the range of ports to use for
-    # passive connections.  Decomment in case you're behind a NAT.
-    #handler.masquerade_address = '151.25.42.11'
-    #handler.passive_ports = range(60000, 65535)
-
-    # Instantiate FTP server class and listen on 0.0.0.0:2121
-    address = (config.ftpserver.address, config.ftpserver.port)
-    server = FTPServer(address, handler)
-
-    # we need this for later
+    server = FTPServer((config.ftpserver.address, config.ftpserver.port), AppRepoFtpHandler)
     server.rpc_client = get_client(config)
-
-    # set a limit for connections
     server.max_cons = 256
     server.max_cons_per_ip = 5
 

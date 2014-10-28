@@ -41,31 +41,20 @@ class RemoteConfiguration(Model):
 
 class PropertyMixin(object):
     @property
-    def incoming_directory(self):
-        return path.join(self.base_directory, 'incoming')
-
-    @property
     def artifacts_directory(self):
         return path.join(self.base_directory, 'artifacts')
 
     @property
+    def incoming_directory(self):
+        return path.join(self.artifacts_directory, 'incoming')
+
+    @property
     def rejected_directory(self):
-        return path.join(self.base_directory, 'rejected')
+        return path.join(self.artifacts_directory, 'rejected')
 
     @property
     def packages_directory(self):
-        return path.join(self.base_directory, 'packages')
-
-    @property
-    def stable_directory(self):
-        return path.join(self.base_directory, 'packages', 'stable')
-
-    @property
-    def unstable_directory(self):
-        return path.join(self.base_directory, 'packages', 'stable')
-
-    def get_index_directory(self, index_name):
-        return path.join(self.base_directory, 'packages', 'main')
+        return path.join(self.artifacts_directory, 'packages')
 
 
 class Configuration(Model, PropertyMixin):
@@ -79,7 +68,7 @@ class Configuration(Model, PropertyMixin):
     logging_level = IntType(default=logging.DEBUG)
     development_mode = BooleanType(default=True)
     production_mode = BooleanType(default=False)
-    indexes = ListType(StringType(), required=True, default=['main'])
+    indexes = ListType(StringType(), required=True, default=['main-stable', 'main-unstable'])
 
     @classmethod
     def get_default_config_file(cls):

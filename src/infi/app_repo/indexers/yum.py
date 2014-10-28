@@ -28,18 +28,13 @@ class YumIndexer(Indexer):
                     ensure_directory_exists(path.join(self.base_directory, item, '%s-%s' % (platform, arch)))
         self.rebuild_index()
 
-    def are_you_interested_in_file(self, filepath, platform, arch, stable):
+    def are_you_interested_in_file(self, filepath, platform, arch):
         return filepath.endswith('.rpm')
 
-    def consume_file(self, filepath, platform, arch, stable):
+    def consume_file(self, filepath, platform, arch):
         assert arch in TRANSLATE_ARCH
-        stable_dir = path.join(self.base_directory, 'stable', '%s-%s' % (platform, TRANSLATE_ARCH[arch]))
-        unstable_dir = path.join(self.base_directory, 'unstable', '%s-%s' % (platform, TRANSLATE_ARCH[arch]))
-
-        if stable:
-            hard_link_or_raise_exception(filepath, stable_dir)
-        hard_link_or_raise_exception(filepath, unstable_dir)
-
+        dirpath = path.join(self.base_directory, '%s-%s' % (platform, TRANSLATE_ARCH[arch]))
+        hard_link_or_raise_exception(filepath, dirpath)
         self._update_platform_index(platform)
 
     def update_index(self):

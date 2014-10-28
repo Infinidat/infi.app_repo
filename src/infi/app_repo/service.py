@@ -17,7 +17,7 @@ IDLE_TIMEOUT = 5  # seconds
 
 
 class AppRepoService(ServiceWithSynchronized):
-    def __init__(self, config, shutdown_callback):
+    def __init__(self, config, shutdown_callback=None):
         super(AppRepoService, self).__init__()
         self.config = config
         self.shutdown_callback = shutdown_callback
@@ -42,7 +42,8 @@ class AppRepoService(ServiceWithSynchronized):
         # self.upload_queue.put(None)
         # self.download_worker.join()
         # self.upload_worker.join()
-        self.shutdown_callback()
+        if self.shutdown_callback:
+            self.shutdown_callback()
 
     def _process_source(self, filepath):
         from os.path import sep
@@ -64,12 +65,15 @@ class AppRepoService(ServiceWithSynchronized):
             try:
                 indexer.consume_file(filepath, platform_string, architecture, stable)
             except errors.FileAlreadyExists:
-                logger.warning("indexer says file {} already exists, moving on".format(indexer, filepath))
+                logger.warning("indexer {} says file {} already exists, moving on".format(indexer, filepath))
                 continue
 
     @rpc_call
     @synchronized
     def process_source(self, filepath):
+        return self._try_except_finally_process_source(filepath)
+
+    def _try_except_finally_process_source(self, filepath):
         try:
             self._process_source(filepath)
         except:

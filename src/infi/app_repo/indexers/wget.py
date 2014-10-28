@@ -21,12 +21,11 @@ class PrettyIndexer(Indexer):
     INDEX_TYPE = 'wget'
 
     def initialise(self):
-        for item in ('stable', 'unstable'):
-            dirpath = path.join(self.base_directory, item)
-            ensure_directory_exists(dirpath)
-            _ensure_packages_json_file_exists_in_directory(dirpath)
+        dirpath = path.join(self.base_directory)
+        ensure_directory_exists(dirpath)
+        _ensure_packages_json_file_exists_in_directory(dirpath)
 
-    def are_you_interested_in_file(self, filepath, platform, arch, stable):
+    def are_you_interested_in_file(self, filepath, platform, arch):
         return False
 
 

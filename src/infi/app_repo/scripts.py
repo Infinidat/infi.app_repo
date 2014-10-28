@@ -153,7 +153,6 @@ def rpc_server(config, signal_upstart):
         signal_init_that_i_am_ready()
 
     server._shutdown_event.wait()
-    webserver.close()
     server.unbind()
 
 
@@ -173,6 +172,9 @@ def rpc_client(config, method, arguments, style):
 def upload_file(config, filepath, index):
     from ftplib import FTP
     from infi.gevent_utils.os import path
+    from infi.app_repo.ftpserver import make_ftplib_gevent_friendly
+
+    make_ftplib_gevent_friendly()
     ftp = FTP()
     ftp.connect('127.0.0.1', config.ftpserver.port)
     ftp.login(config.ftpserver.username, config.ftpserver.password)

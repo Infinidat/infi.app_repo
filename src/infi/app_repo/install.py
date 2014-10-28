@@ -48,7 +48,7 @@ def _generate_gpg_key_if_does_not_exist(config):
             fd.write(GPG_TEMPLATE)
         with open(home_key_path, 'w') as fd:
             fd.write(pid.get_stdout())
-    data_key_path = path.join(config.base_directory, 'packages', 'gpg.key')
+    data_key_path = path.join(config.artifacts_directory, 'packages', 'gpg.key')
     if not path.exists(data_key_path):
         copy(home_key_path, data_key_path)
     return already_generated

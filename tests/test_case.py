@@ -1,11 +1,6 @@
 from infi import unittest
 from infi.pyutils.contexts import contextmanager
-from infi.execute import execute_assert_success
 from mock import patch
-
-
-from time import sleep
-from waiting import wait
 
 
 class TestCase(unittest.TestCase):
@@ -26,6 +21,57 @@ class TemporaryBaseDirectoryTestCase(TestCase):
                     yield tempdir
                 finally:
                     Configuration.base_directory._default = previous_base_directory
+
+    @contextmanager
+    def ftp_client_context(self, login=False):
+        from ftplib import FTP
+        from infi.app_repo.ftpserver import make_ftplib_gevent_friendly
+        make_ftplib_gevent_friendly()
+
+        client = FTP()
+        client.connect('127.0.0.1', self.config.ftpserver.port)
+        if login:
+            client.login(self.config.ftpserver.username, self.config.ftpserver.password)
+        else:
+            client.login()
+        self.addCleanup(client.close)
+        try:
+            yield client
+        finally:
+            client.close()
+
+    @contextmanager
+    def ftp_server_context(self):
+        from gevent import spawn
+        from infi.app_repo import ftpserver
+        server = ftpserver.start(self.config)
+        serving = spawn(server.serve_forever)
+        serving.start()
+        try:
+            yield server
+        finally:
+            server.close_all()
+            serving.join()
+
+    @contextmanager
+    def rpc_server_context(self):
+        from infi.rpc import Server, ZeroRPCServerTransport
+        from infi.app_repo.service import AppRepoService
+
+        transport = ZeroRPCServerTransport.create_tcp(self.config.rpcserver.port, self.config.rpcserver.address)
+        service = AppRepoService(self.config)
+        service.start()
+
+        server = Server(transport, service)
+        server.bind()
+
+        try:
+            yield server
+        finally:
+            server.request_shutdown()
+            server._shutdown_event.wait()
+            server.unbind()
+            service.stop()
 
     def setUp(self):
         active_temporary_base_directory_context = self.temporary_base_directory_context()
