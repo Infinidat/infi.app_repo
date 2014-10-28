@@ -91,6 +91,10 @@ def app_repo(argv=argv[1:]):
         return rpc_client(config, args['<method>'],  args['<arg>'], args['--style'])
     elif args['upload-file']:
         return upload_file(config, args['<filepath>'], args['--index'])
+    elif args['process-incoming']: # TODO implement this
+        raise NotImplementedError()
+    elif args['reindex']: # TODO implement this
+        raise NotImplementedError()
 
 
 def get_config(args):
@@ -219,83 +223,3 @@ def _jsonify_arguments(*args):
         except json_utils.DecodeError:
             return item
     return [_jsonify_or_string(item) for item in args]
-
-
-# def server_stop(args):
-#     config = get_config(args)
-#     from infi.rpc import Client, ZeroRPCClientTransport
-#     transport = ZeroRPCClientTransport.create_tcp(config.rpcserver.port, config.rpcserver.address)
-#     client = Client(transport)
-#     client.stop()
-
-
-# def create_standalone_service(args):
-#     from .service import AppRepoService
-#     config = get_config(args)
-#     return AppRepoService(config, lambda: None)
-
-
-# def dump_metadata(args):
-#     from pprint import pprint
-#     pprint(create_standalone_service(args).get_metadata())
-
-
-# def remote_show(args):
-#     from pprint import pprint
-#     config = get_config(args)
-#     remote = config.remote
-#     method = getattr(remote, "to_python") if hasattr(remote, "to_python") else getattr(remote, "serialize")
-#     pprint(method())
-
-
-# def remote_set(args):
-#     config = get_config(args)
-#     config.remote.fqdn = args['<fqdn>']
-#     config.remote.username = args['<username>']
-#     config.remote.password = args['<password>']
-#     config.to_disk()
-
-
-# def install(args):
-#     from . import ApplicationRepository
-#     from .config import Configuration
-#     config = Configuration()
-#     app_repo = ApplicationRepository(config.base_directory)
-#     app_repo.setup()
-
-
-# def determine_packages_to_download(args, missing_packages, ignored_packages):
-#     from pprint import pprint
-#     if args['--check']:
-#         if not missing_packages:
-#             print 'There are no packages available'
-#         else:
-#             pprint(missing_packages)
-#         return set([])
-#     if args['--all']:
-#         return set(missing_packages).union(set())
-#     if args['<package>']:
-#         return set(args['<package>']).intersection(missing_packages)
-
-
-# @console_script(name="app_repo")
-# def pull(args):
-#     service = create_standalone_service(args)
-#     missing_packages, ignored_packages = service.suggest_packages_to_pull()
-#     packages_to_download = determine_packages_to_download(args, missing_packages, ignored_packages)
-#     for package in packages_to_download:
-#         service.download_package(package)
-#     service.process_incoming()
-
-
-# @console_script(name="app_repo")
-# def hide(args):
-#     packages = args['<package>']
-#     service = create_standalone_service(args)
-#     service.hide_packages(packages)
-
-
-# @console_script(name="app_repo")
-# def add(args):
-#     d = args['<directory>']
-#     create_standalone_service(args).process_filepath_by_name(d)

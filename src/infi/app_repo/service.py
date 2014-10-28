@@ -84,8 +84,9 @@ class AppRepoService(ServiceWithSynchronized):
 
     @rpc_call
     @synchronized
-    def process_incoming(self, index):
+    def process_incoming(self, index): # TODO implement this
         raise NotImplementedError()
+
     # @rpc_call
     # @synchronized
     # def suggest_packages_to_pull(self):
