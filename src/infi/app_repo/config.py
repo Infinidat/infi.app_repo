@@ -21,7 +21,6 @@ class WebserverConfiguration(Model):
     address = StringType(default="127.0.0.1")
     port = IntType(default=8000)
 
-
 class RPCServerConfiguration(Model):
     address = StringType(default="127.0.0.1")
     port = IntType(default=8001)

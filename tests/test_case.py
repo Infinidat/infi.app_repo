@@ -4,10 +4,6 @@ from mock import patch
 
 
 class TestCase(unittest.TestCase):
-    pass
-
-
-class TemporaryBaseDirectoryTestCase(TestCase):
     @contextmanager
     def temporary_base_directory_context(self):
         from infi.app_repo.utils import temporary_directory_context
@@ -73,6 +69,8 @@ class TemporaryBaseDirectoryTestCase(TestCase):
             server.unbind()
             service.stop()
 
+
+class TemporaryBaseDirectoryTestCase(TestCase):
     def setUp(self):
         active_temporary_base_directory_context = self.temporary_base_directory_context()
         active_temporary_base_directory_context.__enter__()

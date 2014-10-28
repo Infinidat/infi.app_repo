@@ -21,10 +21,14 @@ GPG_TEMPLATE = """
 GPG_FILENAMES = ['gpg.conf', 'pubring.gpg', 'random_seed', 'secring.gpg', 'trustdb.gpg']
 
 
-def ensure_directory_tree_exists(config):
+def ensure_incoming_and_rejected_directories_exist_for_all_indexers(config):
     for index_name in config.indexes:
         ensure_directory_exists(path.join(config.rejected_directory, index_name))
         ensure_directory_exists(path.join(config.incoming_directory, index_name))
+
+
+def initialize_all_indexers(config):
+    for index_name in config.indexes:
         for indexer in config.get_indexers(index_name):
             indexer.initialise()
 
@@ -79,6 +83,7 @@ def _sign_all_existing_deb_and_rpm_packages(config):
 
 
 def setup_gpg(config):
+    ensure_directory_exists(config.packages_directory)
     _fix_entropy_generator()
     if _generate_gpg_key_if_does_not_exist(config):
         _import_gpg_key_to_rpm_database()
@@ -87,7 +92,8 @@ def setup_gpg(config):
 
 def setup_all(config):
     config.to_disk()
-    ensure_directory_tree_exists(config)
+    ensure_incoming_and_rejected_directories_exist_for_all_indexers(config)
+    initialize_all_indexers(config)
     if config.production_mode:
         setup_upstart_services(config) # TODO do we still need the docker support?
     setup_gpg(config)

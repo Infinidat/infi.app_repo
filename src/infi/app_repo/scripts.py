@@ -10,7 +10,8 @@ Usage:
     app_repo [options] config show
     app_repo [options] config apply (production-defaults | development-defaults)
     app_repo [options] upload-file <filepath> [--index=<index>]
-
+    app_repo [options] process-incoming
+    app_repo [options] reindex (yum | apt | wget | python) <index>
 
 Options:
     -f --file=CONFIGFILE     Use this config file [default: data/config.json]

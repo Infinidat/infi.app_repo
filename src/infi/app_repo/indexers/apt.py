@@ -1,6 +1,7 @@
 from .base import Indexer
 from infi.app_repo.utils import ensure_directory_exists
 from infi.gevent_utils.os import path, remove
+from infi.gevent_utils.deferred import create_threadpool_executed_func
 from infi.app_repo.utils import temporary_directory_context, log_execute_assert_success, hard_link_or_raise_exception
 
 
@@ -21,14 +22,15 @@ TRANSLATE_ARCH = {'x86': 'i386', 'x64': 'amd64', 'i386': 'i386', 'amd64': 'amd64
 RELEASE_FILE_HEADER = "Codename: {}\nArchitectures: amd64 i386\nComponents: main\n"
 
 
+@create_threadpool_executed_func
 def write_to_packages_file(dirpath, contents, mode):
     import gzip
     packages_filepath = path.join(dirpath, 'Packages')
     if path.exists(packages_filepath):
         return
-    with open(packages_filepath, mode): # TODO gevent-friendly
+    with open(packages_filepath, mode):
         pass
-    fd = gzip.open(packages_filepath + '.gz', 'wb') # TODO gevent-friendly
+    fd = gzip.open(packages_filepath + '.gz', 'wb')
     fd.write(contents)
     fd.close()
 
@@ -67,11 +69,16 @@ class AptIndexer(Indexer):
         release = path.join(dirpath, 'Release')
 
         def write_release_file():
+            from infi.gevent_utils.deferred import create_threadpool_executed_func
             cache = path.join(dirpath, 'apt_cache.db')
             contents = apt_ftparchive(['--db', cache, 'release', dirpath])
 
-            with open(release, 'w') as fd:
-                fd.write(RELEASE_FILE_HEADER.format(codename, contents)) # TODO gevent-aware
+            @create_threadpool_executed_func
+            def _write():
+                with open(release, 'w') as fd:
+                    fd.write(RELEASE_FILE_HEADER.format(codename, contents))
+
+            _write()
 
         def delete_old_release_signature_files():
             for filepath in [in_release, release_gpg]:
