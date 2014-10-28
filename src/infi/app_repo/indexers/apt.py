@@ -55,7 +55,7 @@ class AptIndexer(Indexer):
                 self.generate_release_file_for_specific_distribution_and_version(distribution_name, version)
 
     def deduce_dirname(self, distribution_name, codename, arch): # based on how apt likes it
-        return path.join(self.base_directory, distribution_name, 'dists', codename, 'main', 'binary-%s' % arch)
+        return path.join(self.base_directory, distribution_name, 'dists', codename, 'main', 'binary-%s' % TRANSLATE_ARCH[arch])
 
     def are_you_interested_in_file(self, filepath, platform, arch):
         distribution_name, codename = platform.rsplit('-', 1)

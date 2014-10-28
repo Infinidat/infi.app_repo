@@ -42,6 +42,7 @@ class IndexersTestCase(TestCase):
                 self.assertEquals(packages_contents, fd.read())
 
             release_dirpath = path.join(indexer.base_directory, 'linux-ubuntu', 'dists', 'natty')
+            self.assertTrue(path.exists(path.join(release_dirpath, 'main', 'binary-i386', 'some-package.deb')))
             self.assertTrue(path.exists(path.join(release_dirpath, 'Release')))
             self.assertTrue(path.exists(path.join(release_dirpath, 'Release.gpg')))
             self.assertTrue(path.exists(path.join(release_dirpath, 'InRelease')))
