@@ -16,6 +16,8 @@ Usage:
     app_repo [options] index add <index>
     app_repo [options] index remove <index> [--yes]
     app_repo [options] index rebuild <index> (all | --indexer=<indexer>)
+    app_repo [options] package list <index>
+    app_repo [options] package remove <index> <package> (--version=<version> | --all-versions) (--platform=<platform> | --all-platforms)
 
 
 Options:

@@ -32,20 +32,36 @@ class FlaskApp(flask.Flask):
             self.register_blueprint(packages, url_prefix="/packages")
 
         def _setup_script():
-            default = self.app_repo_config.webserver.default_setup_index
-            if default:
-                func = partial(client_setup_script, index_name=default)
-                func.__name__ = 'client_setup_script__default'  # Flask.add_url_rule needs this
-                self.route("/setup")(func)
             self.route("/setup/<index_name>")(client_setup_script)
+
+        def _homepage():
+            self.route("/home/<index_name>")(index_home_page)
+            self.route("/")(default_homepage)
+
 
         _directory_index()
         _setup_script()
+        _homepage()
 
 
 def client_setup_script(index_name):
     data = dict(host=flask.request.host.split(':')[0], host_url=flask.request.host_url, index_name=index_name)
     return flask.Response(render_template("setup.mako", **data), content_type='text/plain')
+
+
+def index_home_page(index_name):
+    raise NotImplementedError()
+
+
+def indexes_tree():
+    raise NotImplementedError()
+
+
+def default_homepage():
+    default = flask.current_app.app_repo_config.webserver.default_index
+    if default:
+        return flask.redirect(flask.url_for("index_home_page", index_name=default))
+    return flask.redirect(flask.url_for("indexes_tree"))
 
 
 def start(config):

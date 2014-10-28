@@ -20,7 +20,7 @@ def get_base_directory():
 class WebserverConfiguration(Model):
     address = StringType(default="127.0.0.1")
     port = IntType(default=8000)
-    default_setup_index = StringType(required=False, default="main-stable")
+    default_index = StringType(required=False, default="main-stable")
 
 
 class RPCServerConfiguration(Model):
@@ -98,7 +98,7 @@ class Configuration(Model, PropertyMixin):
                 for key, value in kwargs.iteritems():
                     setattr(self, key, value)
 
-        assert self.webserver.default_setup_index is None or self.webserver.default_setup_index in self.indexes
+        assert self.webserver.default_index is None or self.webserver.default_index in self.indexes
         return self
 
     def to_disk(self):
