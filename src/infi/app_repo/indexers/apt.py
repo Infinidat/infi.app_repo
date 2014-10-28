@@ -19,7 +19,7 @@ KNOWN_DISTRIBUTIONS = {
 }
 
 TRANSLATE_ARCH = {'x86': 'i386', 'x64': 'amd64', 'i386': 'i386', 'amd64': 'amd64'}
-RELEASE_FILE_HEADER = "Codename: {}\nArchitectures: amd64 i386\nComponents: main\n"
+RELEASE_FILE_HEADER = "Codename: {}\nArchitectures: {}\nComponents: main\n{}"
 
 
 @create_threadpool_executed_func
@@ -79,7 +79,8 @@ class AptIndexer(Indexer):
             @create_threadpool_executed_func
             def _write():
                 with open(release, 'w') as fd:
-                    fd.write(RELEASE_FILE_HEADER.format(codename, contents))
+                    available_archs = sorted(KNOWN_DISTRIBUTIONS[distribution][codename])
+                    fd.write(RELEASE_FILE_HEADER.format(codename, " ".join(available_archs), contents))
 
             _write()
 
@@ -105,6 +106,8 @@ class AptIndexer(Indexer):
         with temporary_directory_context() as tempdir:
             hard_link_or_raise_exception(filepath, tempdir)
             contents = dpkg_scanpackages(['--multiversion', tempdir, '/dev/null'])
-            write_to_packages_file(dirpath, contents, 'a')
+            relapath = dirpath.replace(path.join(self.base_directory, distribution_name), '').strip(path.sep)
+            fixed_contents = contents.replace(tempdir, relapath)
+            write_to_packages_file(dirpath, fixed_contents, 'a')
 
         self.generate_release_file_for_specific_distribution_and_version(distribution_name, codename)

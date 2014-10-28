@@ -7,6 +7,7 @@ def pdb_side_effect(*args, **kwargs):
     import pdb; pdb.set_trace()
 
 
+APT_FTPARCHIVE_RETURN_VALUE = 'ok'
 DPKG_SCANPACKGES_OUTPUT = """
 Package: {package_name}
 Source: {package_name}
@@ -43,9 +44,10 @@ def dpkg_scanpackages_side_effect(cmdline_arguments):
 def patch_all():
     with patch("infi.app_repo.indexers.yum.createrepo"):
         with patch("infi.app_repo.indexers.yum.createrepo_update"):
-            with patch("infi.app_repo.indexers.apt.apt_ftparchive"):
+            with patch("infi.app_repo.indexers.apt.apt_ftparchive") as apt_ftparchive:
                 with patch("infi.app_repo.indexers.apt.dpkg_scanpackages") as dpkg_scanpackages:
                     dpkg_scanpackages.side_effect = dpkg_scanpackages_side_effect
+                    apt_ftparchive.return_value = APT_FTPARCHIVE_RETURN_VALUE
                     yield
 
 @contextmanager

@@ -38,13 +38,18 @@ class IndexersTestCase(TestCase):
             with open(packages_file) as fd:
                 packages_contents = fd.read()
                 self.assertNotEquals(packages_contents, '')
+                self.assertIn("Filename: dists/natty/main/binary-i386/some-package.deb", packages_contents)
             with gzip.open(packages_file + '.gz', 'rb') as fd:
                 self.assertEquals(packages_contents, fd.read())
 
             release_dirpath = path.join(indexer.base_directory, 'linux-ubuntu', 'dists', 'natty')
             self.assertTrue(path.exists(path.join(release_dirpath, 'main', 'binary-i386', 'some-package.deb')))
-            self.assertTrue(path.exists(path.join(release_dirpath, 'Release')))
-            self.assertTrue(path.exists(path.join(release_dirpath, 'Release.gpg')))
+
+            release_filepath = path.join(release_dirpath, 'Release')
+            with open(release_filepath) as fd:
+                self.assertEquals(fd.read(), 'Codename: natty\nArchitectures: amd64 i386\nComponents: main\nok')
+            self.assertTrue(path.exists(release_filepath))
+            self.assertTrue(path.exists(release_filepath + '.gpg'))
             self.assertTrue(path.exists(path.join(release_dirpath, 'InRelease')))
 
     def test_yum_consume_file(self):

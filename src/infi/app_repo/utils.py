@@ -89,7 +89,10 @@ def hard_link_or_raise_exception(src, dst):
     elif path.isfile(dst):
         raise FileAlreadyExists()
     elif path.isdir(dst):
-        link(src, path.join(dst, path.basename(src)))
+        dst_abspath = path.join(dst, path.basename(src))
+        if path.exists(dst_abspath):
+            raise FileAlreadyExists()
+        link(src, dst_abspath)
 
 
 def hard_link_and_override(src, dst):

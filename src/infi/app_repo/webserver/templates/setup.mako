@@ -4,9 +4,9 @@ _apt() {
     echo Setting up...
     distribution=`lsb_release -i | awk '{print tolower($3)}'`
     codename=`lsb_release -c | awk '{print tolower($2)}'`
-    echo "deb http://${fqdn}/packages/${index_name}/apt/linux-$distribution $codename main" > /etc/apt/sources.list.d/${fqdn}.${index_name}.list
+    echo "deb ${host_url}packages/${index_name}/apt/linux-$distribution $codename main" > /etc/apt/sources.list.d/${host}.${index_name}.list
     echo Installing GPG key...
-    curl http://${fqdn}/packages/gpg.key | apt-key add -
+    curl ${host_url}packages/gpg.key | apt-key add -
     echo Fetching package metadata...
     apt-get update > /dev/null 2>&1
 }
@@ -15,12 +15,12 @@ _yum() {
     echo Setting up...
     version=`cat /etc/$distfile | grep -Eo "[0-9]+" | head -n 1`
     arch=`uname -m`
-    echo "[${fqdn}]
-name=${fqdn}
-baseurl=http://${fqdn}/packages/${index_name}/yum/linux-$distribution-$version-$arch/
+    echo "[${host}.${index_name}]
+name=${host}.${index_name}
+baseurl=${host_url}packages/${index_name}/yum/linux-$distribution-$version-$arch/
 enabled=1
 gpgcheck=1
-gpgkey=http://${fqdn}/packages/gpg.key" > /etc/yum.repos.d/${fqdn}.${index_name}.repo
+gpgkey=${host_url}packages/gpg.key" > /etc/yum.repos.d/${host}.${index_name}.repo
     echo Fetching package metadata...
     yum makecache > /dev/null 2>&1
 }

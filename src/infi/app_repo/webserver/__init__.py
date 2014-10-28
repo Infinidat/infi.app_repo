@@ -44,8 +44,8 @@ class FlaskApp(flask.Flask):
 
 
 def client_setup_script(index_name):
-    fqdn = flask.request.headers['HOST'].split(':')[0]
-    return flask.Response(render_template("setup.mako", fqdn=fqdn, index_name=index_name), content_type='text/plain')
+    data = dict(host=flask.request.host.split(':')[0], host_url=flask.request.host_url, index_name=index_name)
+    return flask.Response(render_template("setup.mako", **data), content_type='text/plain')
 
 
 def start(config):
