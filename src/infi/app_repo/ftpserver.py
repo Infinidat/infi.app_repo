@@ -16,8 +16,9 @@ class AppRepoFtpHandler(FTPHandler):
         _, index_name, _ = filepath.rsplit(path.sep, 2)
         self.server.rpc_client.process_filepath_by_name(index_name, filepath)
 
-    def on_file_send(self, filepath): # we implement this for testing purposes
-        pass
+    def on_file_sent(self, filepath):
+        key = filepath[filepath.index(self.server.config.artifacts_directory):].replace(self.server.config.artifacts_directory, '')
+        self.server.counters[key] = self.server.counters.get(key, 0) + 1
 
 
 @cached_function
@@ -49,13 +50,16 @@ def setup_authorization(config):
 
 def start(config):
     from .service import get_client
-
+    from .persistent_dict import PersistentDict
     make_pyftpdlib_gevent_friendly()
     disable_ioloop_logging()
     setup_authorization(config)
 
     server = FTPServer((config.ftpserver.address, config.ftpserver.port), AppRepoFtpHandler)
+    server.config = config
     server.rpc_client = get_client(config)
+    server.counters = PersistentDict(config.ftpserver_counters_filepath)
+    server.counters.load()
     server.max_cons = 256
     server.max_cons_per_ip = 5
 

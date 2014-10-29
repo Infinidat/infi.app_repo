@@ -72,6 +72,15 @@ class TestCase(unittest.TestCase):
             server.unbind()
             service.stop()
 
+    @contextmanager
+    def web_server_context(self):
+        from infi.app_repo.webserver import start
+        webserver = start(self.config)
+        try:
+            yield
+        finally:
+            webserver.close()
+
     def write_new_package_in_incoming_directory(self, config, index='main-stable', package_basename='some-package', extension=None):
         filepath = path.join(config.incoming_directory, index, ('%s.%s' % (package_basename, extension)) if extension else package_basename)
         with open(filepath, 'w') as fd:

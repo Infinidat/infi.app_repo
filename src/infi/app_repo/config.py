@@ -56,6 +56,14 @@ class PropertyMixin(object):
     def packages_directory(self):
         return path.join(self.artifacts_directory, 'packages')
 
+    @property
+    def ftpserver_counters_filepath(self):
+        return path.join(self.base_directory, 'ftp_download_counters.msgpack')
+
+    @property
+    def webserver_counters_filepath(self):
+        return path.join(self.base_directory, 'http_get_counters.msgpack')
+
 
 class Configuration(Model, PropertyMixin):
     filepath = StringType(required=True)

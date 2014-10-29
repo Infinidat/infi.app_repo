@@ -1,6 +1,7 @@
 """Application Repository Management Tool
 
 Usage:
+    app_repo [options] counters show
     app_repo [options] config show
     app_repo [options] config apply (production-defaults | development-defaults)
     app_repo [options] setup (production-defaults | development-defaults) [--with-mock]
@@ -18,7 +19,8 @@ Usage:
     app_repo [options] index remove <index> [--yes]
     app_repo [options] package list <index>
     app_repo [options] package remove <index> <package-regex> <version-regex> <platform-regex> <arch-regex>
-
+    app_repo [options] package pull <remote-http-server> <remote-index> <package-regex> <version-regex> <platform-regex> <arch-regex>
+    app_repo [options] package push <remote-ftp-server> <remote-index> <package-regex> <version-regex> <platform-regex> <arch-regex>
 Options:
     -f --file=CONFIGFILE     Use this config file [default: data/config.json]
     --style=<style>          Output style [default: solarized]
@@ -75,7 +77,9 @@ def app_repo(argv=argv[1:]):
     from .install import destroy_all
     args = docopt(__doc__, argv=argv, help=True)
     config = get_config(args)
-    if args['config'] and args['show']:
+    if args['counters'] and args['show']:
+        return show_counters(config)
+    elif args['config'] and args['show']:
         print config.to_json()
     elif args['config'] and args['apply']:
         config.reset_to_development_defaults() if args['development-defaults'] else None
@@ -95,7 +99,7 @@ def app_repo(argv=argv[1:]):
     elif args['rpc-client']:
         return rpc_client(config, args['<method>'], args['<arg>'], args['--style'])
     elif args['service'] and ['upload-file']: # TODO implement this
-        raise NotImplementedError()
+        upload_file(config, args['<index>'], args['<filepath>'])
     elif args['service'] and ['process-rejected-file']: # TODO implement this
         raise NotImplementedError()
     elif args['service'] and ['process-incoming']: # TODO implement this
@@ -119,6 +123,24 @@ def get_config(args):
     return Configuration.from_disk(args.get("--file", Configuration.get_default_config_file()))
 
 
+def get_counters(config):
+    from .persistent_dict import PersistentDict
+    ftp_counters = PersistentDict(config.ftpserver_counters_filepath)
+    ftp_counters.load()
+    web_counters = PersistentDict(config.webserver_counters_filepath)
+    web_counters.load()
+    all_counters = {}
+    all_counters.update(ftp_counters)
+    for key, value in web_counters.iteritems():
+        all_counters[key] = web_counters.get(key, value) + 1
+    return all_counters
+
+
+def show_counters(config):
+    print "\n".join('{item[0]}:{item[1]}'.format(item=item) for
+                    item in sorted(get_counters(config).iteritems(), key=lambda item: item[1], reverse=True))
+
+
 @console_script(name="app_repo_setup")
 def setup(config, apply_mock_patches):
     from .install import setup_all
@@ -129,9 +151,6 @@ def setup(config, apply_mock_patches):
 
 @console_script(name="app_repo_web")
 def web_server(config, signal_upstart):
-    from gevent.monkey import patch_socket
-    patch_socket()
-
     from .webserver import start
     webserver = start(config)
     if signal_upstart:
@@ -192,7 +211,7 @@ def rpc_client(config, method, arguments, style):
             embed()(config, filepath, index)
 
 
-def file_upload(config, index, filepath):
+def upload_file(config, index, filepath):
     from ftplib import FTP
     from infi.gevent_utils.os import path
     from infi.app_repo.ftpserver import make_ftplib_gevent_friendly

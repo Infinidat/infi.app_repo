@@ -38,7 +38,7 @@ def write_file(dirpath, filename, contents):
 
 
 class PrettyIndexer(Indexer): # TODO implement this
-    INDEX_TYPE = 'wget'
+    INDEX_TYPE = 'index'
 
     def initialise(self):
         ensure_directory_exists(self.base_directory)
@@ -77,8 +77,7 @@ class PrettyIndexer(Indexer): # TODO implement this
         for version_dirpath in glob(path.join(package.abspath, 'releases', '*')):
             release = Munch(version=path.basename(version_dirpath),
                             abspath=version_dirpath,
-                            release_notes_url=None,
-                            installation_instructions=Munch(install=dict(), upgrade=dict()))
+                            release_notes_url=None)
             yield release
 
     def _iter_distributions(self, package, release):

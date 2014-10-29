@@ -1,6 +1,7 @@
 import os
 import flask
 import pkg_resources
+import mimetypes
 from infi.pyutils.lazy import cached_function
 from flask.ext.mako import MakoTemplates, render_template
 from flask.ext.autoindex import AutoIndex
@@ -23,6 +24,8 @@ class FlaskApp(flask.Flask):
         self.config['DEBUG'] = app_repo_config.development_mode
         self.mako = MakoTemplates(self)
         self._register_blueprints()
+        self._register_counters()
+        mimetypes.add_type('application/json', '.json')
         return self
 
     def _register_blueprints(self):
@@ -42,6 +45,17 @@ class FlaskApp(flask.Flask):
         _setup_script()
         _homepage()
 
+    def _register_counters(self):
+        from infi.app_repo.persistent_dict import PersistentDict
+        def _func(response):
+            if response.status_code == 200:
+                key = flask.request.path
+                self.counters[key] = self.counters.get(key, 0) + 1
+            return response
+
+        self.counters = PersistentDict(self.app_repo_config.webserver_counters_filepath)
+        self.counters.load()
+        self.after_request(_func)
 
 def client_setup_script(index_name):
     data = dict(host=flask.request.host.split(':')[0], host_url=flask.request.host_url, index_name=index_name)
