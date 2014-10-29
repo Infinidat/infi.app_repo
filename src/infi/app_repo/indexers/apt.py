@@ -68,11 +68,9 @@ class AptIndexer(Indexer):
     def generate_release_file_for_specific_distribution_and_version(self, distribution, codename):
         dirpath = path.join(self.base_directory, distribution, 'dists', codename)
         in_release = path.join(dirpath, 'InRelease')
-        release_gpg = path.join(dirpath, 'Release.gpg')
         release = path.join(dirpath, 'Release')
 
         def write_release_file():
-            from infi.gevent_utils.deferred import create_threadpool_executed_func
             cache = path.join(dirpath, 'apt_cache.db')
             contents = apt_ftparchive(['--db', cache, 'release', dirpath])
 
@@ -85,13 +83,13 @@ class AptIndexer(Indexer):
             _write()
 
         def delete_old_release_signature_files():
-            for filepath in [in_release, release_gpg]:
+            for filepath in [in_release, '%s.gpg' % release]:
                 if path.exists(filepath):
                     remove(filepath)
 
         def sign_release_file():
             log_execute_assert_success(['gpg', '--clearsign', '-o', in_release, release])
-            log_execute_assert_success(['gpg', '-abs', '-o', release_gpg, release])
+            log_execute_assert_success(['gpg', '-abs', '-o', '%s.gpg' % release, release])
 
         write_release_file()
         delete_old_release_signature_files()
@@ -113,6 +111,6 @@ class AptIndexer(Indexer):
         for version, architectures in distribution_dict.items():
             for arch in architectures:
                 dirpath = self.deduce_dirname(distribution_name, version, arch)
-                contents = dpkg_scanpackages('--multiversion', dirpath, '/dev/null')
+                contents = dpkg_scanpackages(['--multiversion', dirpath, '/dev/null'])
                 write_to_packages_file(dirpath, contents, 'w')
             self.generate_release_file_for_specific_distribution_and_version(distribution_name, version)

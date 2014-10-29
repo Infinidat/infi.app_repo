@@ -1,9 +1,9 @@
 from .base import Indexer
-from infi.gevent_utils.os import path, listdir
+from infi.gevent_utils.os import path
 from infi.gevent_utils.glob import glob
 from infi.gevent_utils.deferred import create_threadpool_executed_func
 from infi.app_repo.utils import ensure_directory_exists, path, hard_link_or_raise_exception
-from infi.gevent_utils.json_utils import encode, decode
+from infi.gevent_utils.json_utils import encode
 from infi.app_repo.filename_parser import parse_filepath, FilenameParsingFailed
 from pkg_resources import parse_version
 from munch import Munch
@@ -129,7 +129,8 @@ class PrettyIndexer(Indexer): # TODO implement this
             write_file(package.abspath, 'releases.json', encode(releases, indent=4, large_object=True))
 
             latest_release = self._get_latest_release(releases)
-            package.latest_version = latest_release.version
-            package.installation_instructions = self._get_installation_instructions(package, release)
-            packages.append(package)
+            if latest_release:
+                package.latest_version = latest_release.version
+                package.installation_instructions = self._get_installation_instructions(package, latest_release)
+                packages.append(package)
         write_file(self.base_directory, 'packages.json', encode(packages, indent=4, large_object=True))

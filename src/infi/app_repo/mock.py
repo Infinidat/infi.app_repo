@@ -30,7 +30,6 @@ Description: Some description
 def dpkg_scanpackages_side_effect(cmdline_arguments):
     from uuid import uuid1
     from glob import glob
-    from os import path
     _, tempdir, _ = cmdline_arguments
     result = MagicMock()
     contents = ''

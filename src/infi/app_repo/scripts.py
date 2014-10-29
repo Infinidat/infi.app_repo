@@ -189,7 +189,7 @@ def rpc_client(config, method, arguments, style):
         _pretty_print(getattr(client, method)(*_jsonify_arguments(*arguments)), style)
     else:
         with patched_ipython_getargspec_context(client):
-            embed()(config, filepat< index>)
+            embed()(config, filepath, index)
 
 
 def file_upload(config, index, filepath):

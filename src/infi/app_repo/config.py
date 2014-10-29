@@ -3,17 +3,15 @@ from schematics.models import Model
 from schematics.types.compound import ListType
 from schematics.types import StringType, IntType, BooleanType
 from schematics.types.compound import ModelType
-from infi.gevent_utils.os import path
-from munch import Munch
+from infi.gevent_utils.os import path, pardir, makedirs
+from infi.gevent_utils.json_utils import decode
 
 
 def get_projectroot():
-    from os import path, pardir
     return path.abspath(path.join(path.dirname(__file__), pardir, pardir, pardir))
 
 
 def get_base_directory():
-    from os import path
     return path.join(get_projectroot(), 'data')
 
 
@@ -74,7 +72,6 @@ class Configuration(Model, PropertyMixin):
 
     @classmethod
     def get_default_config_file(cls):
-        from os import path
         return path.join(get_base_directory(), 'config.json')
 
     def to_json(self):
@@ -84,8 +81,6 @@ class Configuration(Model, PropertyMixin):
 
     @classmethod
     def from_disk(cls, filepath):
-        from cjson import decode
-        from os import path
         filepath = filepath or cls.get_default_config_file()
         if not path.exists(filepath):
             self = cls()
@@ -102,14 +97,10 @@ class Configuration(Model, PropertyMixin):
         return self
 
     def to_disk(self):
-        from os import chmod, path, makedirs, getuid, getgid, chown
-        from stat import S_IRUSR, S_IWUSR
         if not path.exists(path.dirname(self.filepath)):
             makedirs(path.dirname(self.filepath))
         with open(self.filepath, 'w') as fd:
             fd.write(self.to_json())
-        chmod(self.filepath, S_IWUSR | S_IRUSR)
-        chown(self.filepath, getuid(), getgid())
 
     def reset_to_development_defaults(self):
         self.webserver = WebserverConfiguration()
