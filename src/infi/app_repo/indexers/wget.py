@@ -66,8 +66,13 @@ class PrettyIndexer(Indexer): # TODO implement this
     def _normalize_url(self, dirpath):
         return dirpath.replace(self.config.artifacts_directory, '')
 
+    def _is_hidden(self, dirpath):
+        return path.exists(path.join(dirpath, 'hidden'))
+
     def _iter_packages(self):
         for package_dirpath in glob(path.join(self.base_directory, 'packages', '*')):
+            if self._is_hidden(package_dirpath):
+                continue
             yield Munch(abspath=package_dirpath,
                         product_name=None,
                         name=path.basename(package_dirpath),
@@ -75,6 +80,8 @@ class PrettyIndexer(Indexer): # TODO implement this
 
     def _iter_releases(self, package):
         for version_dirpath in glob(path.join(package.abspath, 'releases', '*')):
+            if self._is_hidden(version_dirpath):
+                continue
             release = Munch(version=path.basename(version_dirpath),
                             abspath=version_dirpath,
                             release_notes_url=None)
@@ -82,8 +89,14 @@ class PrettyIndexer(Indexer): # TODO implement this
 
     def _iter_distributions(self, package, release):
         for distribution_dirpath in glob(path.join(release.abspath, 'distributions', '*')):
+            if self._is_hidden(distribution_dirpath):
+                continue
             for arch_dirpath in glob(path.join(distribution_dirpath, 'architectures', '*')):
+                if self._is_hidden(arch_dirpath):
+                    continue
                 for extension_dirpath in glob(path.join(arch_dirpath, 'extensions', '*')):
+                    if self._is_hidden(extension_dirpath):
+                        continue
                     [filepath] = list(glob(path.join(extension_dirpath, '*')))
                     distribution = Munch(platform=path.basename(distribution_dirpath),
                                          architecture=path.basename(arch_dirpath),
@@ -100,14 +113,14 @@ class PrettyIndexer(Indexer): # TODO implement this
 
         for distribution in release.distributions:
             for yum_platform in ('redhat', 'centos', 'oracle'):
-                if yum_platform in distribution.platform:
+                if yum_platform in distribution.platform and distribution.extension == 'rpm':
                     installation_instructions[yum_platform] = dict(upgrade=dict(command=YUM_UPGRADE_COMMAND.format(package)),
                                                                    install=dict(command=YUM_INSTALL_COMMAND.format(package)))
             for apt_platform in ('ubuntu', ):
-                if apt_platform in distribution.platform:
+                if apt_platform in distribution.platform and distribution.extension == 'deb':
                     installation_instructions[apt_platform] = dict(upgrade=dict(command=APT_INSTALL_COMMAND.format(package)),
                                                                    install=dict(command=APT_UGPRADE_COMMAND.format(package)))
-            if distribution.platform == 'windows':
+            if distribution.platform == 'windows' and distribution.extension == 'msi':
                 platform = 'windows-%s' % distribution.architecture
                 installation_instructions[platform] = dict(upgrade=dict(download_link=distribution.filepath),
                                                            install=dict(download_link=distribution.filepath))
