@@ -38,10 +38,6 @@ class YumIndexer(Indexer):
         hard_link_or_raise_exception(filepath, dirpath)
         self._update_index(dirpath)
 
-    def update_index(self):
-        for dirpath in glob(path.join(self.base_directory, '*')):
-            self._update_index(dirpath)
-
     def rebuild_index(self):
         for dirpath in glob(path.join(self.base_directory, '*')):
             self._delete_repo_metadata(dirpath)

@@ -6,6 +6,13 @@ from infi.app_repo.mock import patch_all
 from infi.app_repo.utils import path
 from infi.pyutils.contexts import contextmanager
 
+
+def read_json_file(filepath):
+    from json import load
+    with open(filepath) as fd:
+        return load(fd)
+
+
 class IndexersTestCase(TestCase):
     def test_initialize(self):
         with self._setup_context() as config:
@@ -60,3 +67,22 @@ class IndexersTestCase(TestCase):
             filepath = self.write_new_package_in_incoming_directory(config, extension='rpm')
             self.assertTrue(indexer.are_you_interested_in_file(filepath, 'linux-redhat-7', 'x64'))
             indexer.consume_file(filepath, 'linux-redhat-7', 'x64')
+
+    def test_wget_consume_file(self):
+        from infi.app_repo.indexers.wget import PrettyIndexer
+        with self._setup_context() as config:
+            indexer = PrettyIndexer(config, 'main-stable')
+            indexer.initialise()
+            filepath = self.write_new_package_in_incoming_directory(config, package_basename='my-app-0.1-linux-ubuntu-natty-x64', extension='deb')
+            self.assertTrue(indexer.are_you_interested_in_file(filepath, 'linux-ubuntu-natty', 'x64'))
+            indexer.consume_file(filepath, 'linux-ubuntu-natty', 'x64')
+
+            self.assertTrue(path.exists(path.join(indexer.base_directory, 'packages', 'my-app', 'releases', '0.1', 'distributions',
+                                                  'linux-ubuntu-natty', 'architectures', 'x64', 'extensions', 'deb',
+                                                  'my-app-0.1-linux-ubuntu-natty-x64.deb')))
+            packages = read_json_file(path.join(indexer.base_directory, 'packages.json'))
+            self.assertIsInstance(packages, list)
+            self.assertGreater(len(packages), 0)
+            releases = read_json_file(path.join(indexer.base_directory, 'packages', 'my-app', 'releases.json'))
+            self.assertIsInstance(packages, list)
+            self.assertGreater(len(packages), 0)

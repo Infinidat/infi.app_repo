@@ -100,14 +100,19 @@ class AptIndexer(Indexer):
     def consume_file(self, filepath, platform, arch):
         distribution_name, codename = platform.rsplit('-', 1)
         dirpath = self.deduce_dirname(distribution_name, codename, arch)
-
         hard_link_or_raise_exception(filepath, dirpath)
-
         with temporary_directory_context() as tempdir:
             hard_link_or_raise_exception(filepath, tempdir)
             contents = dpkg_scanpackages(['--multiversion', tempdir, '/dev/null'])
             relapath = dirpath.replace(path.join(self.base_directory, distribution_name), '').strip(path.sep)
             fixed_contents = contents.replace(tempdir, relapath)
             write_to_packages_file(dirpath, fixed_contents, 'a')
-
         self.generate_release_file_for_specific_distribution_and_version(distribution_name, codename)
+
+    def rebuild_index(self):
+        for version, architectures in distribution_dict.items():
+            for arch in architectures:
+                dirpath = self.deduce_dirname(distribution_name, version, arch)
+                contents = dpkg_scanpackages('--multiversion', dirpath, '/dev/null')
+                write_to_packages_file(dirpath, contents, 'w')
+            self.generate_release_file_for_specific_distribution_and_version(distribution_name, version)

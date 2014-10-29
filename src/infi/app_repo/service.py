@@ -19,9 +19,6 @@ def process_filepath_by_name(config, index, filepath):
     from .filename_parser import parse_filepath
 
     package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
-    if None in (package_name, package_version, platform_string, architecture):
-        raise errors.FileRejected("filename parsing of {!r} failed".format(filepath))
-
     indexers = [indexer for indexer in config.get_indexers(index) if
                 indexer.are_you_interested_in_file(filepath, platform_string, architecture)]
     for indexer in indexers:

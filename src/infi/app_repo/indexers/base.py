@@ -15,9 +15,6 @@ class Indexer(object):
     def consume_file(self, filepath, platform, arch):
         raise NotImplementedError()
 
-    def update_index(self):
-        raise NotImplementedError()
-
     def rebuild_index(self):
         raise NotImplementedError()
 

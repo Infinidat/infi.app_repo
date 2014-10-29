@@ -1,4 +1,5 @@
 from infi.gevent_utils.os import path
+from infi.app_repo.errors import FilenameParsingFailed
 from logging import getLogger
 from re import match
 logger = getLogger(__name__)
@@ -30,8 +31,8 @@ def parse_filepath(filepath):
     filename = path.basename(filepath)
     result = match(FILEPATH, filename)
     if result is None:
-        logger.debug("failed to parse {}".format(filename))
-        return (None, None, None, None, None)
+        logger.error("failed to parse {}".format(filename))
+        raise FilenameParsingFailed(filepath)
     group = result.groupdict()
     return translate_filepath((group['package_name'], group['package_version'],
                                PLATFORM_STRING.get(group['extension'], group['platform_string']),

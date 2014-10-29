@@ -1,24 +1,23 @@
 """Application Repository Management Tool
 
 Usage:
+    app_repo [options] config show
+    app_repo [options] config apply (production-defaults | development-defaults)
     app_repo [options] setup (production-defaults | development-defaults) [--with-mock]
     app_repo [options] destroy [--yes]
     app_repo [options] ftp-server [--signal-upstart] [--process-incoming-on-startup]
     app_repo [options] web-server [--signal-upstart]
     app_repo [options] rpc-server [--signal-upstart]
     app_repo [options] rpc-client [--style=<style>] [<method> [<arg>...]]
-    app_repo [options] config show
-    app_repo [options] config apply (production-defaults | development-defaults)
-    app_repo [options] file upload <index> <filepath>
-    app_repo [options] file process-rejected <filepath> [--platform=<platform>] [--arch=<arch>]
-    app_repo [options] process-incoming <index-regex>
+    app_repo [options] service upload-file <index> <filepath>
+    app_repo [options] service process-rejected-file <filepath> [--platform=<platform>] [--arch=<arch>]
+    app_repo [options] service process-incoming <index>
+    app_repo [options] service rebuild-index <index>
     app_repo [options] index list
     app_repo [options] index add <index>
     app_repo [options] index remove <index> [--yes]
-    app_repo [options] index rebuild <index> (all | --indexer=<indexer>)
     app_repo [options] package list <index>
     app_repo [options] package remove <index> <package-regex> <version-regex> <platform-regex> <arch-regex>
-
 
 Options:
     -f --file=CONFIGFILE     Use this config file [default: data/config.json]
@@ -95,19 +94,19 @@ def app_repo(argv=argv[1:]):
         return rpc_server(config, args['--signal-upstart'])
     elif args['rpc-client']:
         return rpc_client(config, args['<method>'], args['<arg>'], args['--style'])
-    elif args['file'] and args['upload']:
-        return file_upload(config, args['<index>'], args['<filepath>'])
-    elif args['file'] and ['process-rejected']: # TODO implement
+    elif args['service'] and ['upload-file']: # TODO implement this
         raise NotImplementedError()
-    elif ['process-incoming']: # TODO implement this
+    elif args['service'] and ['process-rejected-file']: # TODO implement this
+        raise NotImplementedError()
+    elif args['service'] and ['process-incoming']: # TODO implement this
+        raise NotImplementedError()
+    elif args['service'] and ['rebuild-index']: # TODO implement this
         raise NotImplementedError()
     elif args['index'] and ['list']: # TODO implement this
         raise NotImplementedError()
     elif args['index'] and ['add']: # TODO implement this
         raise NotImplementedError()
     elif args['index'] and ['remove']: # TODO implement this
-        raise NotImplementedError()
-    elif args['index'] and ['rebuild']: # TODO implement this
         raise NotImplementedError()
     elif args['package'] and ['list']: # TODO implement this
         raise NotImplementedError()

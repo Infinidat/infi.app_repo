@@ -14,5 +14,9 @@ class FileRejected(AppRepoBaseException):
     pass
 
 
+class FilenameParsingFailed(FileRejected):
+    pass
+
+
 class FileProcessingFailed(FileRejected):
     pass
