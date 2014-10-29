@@ -8,7 +8,7 @@ Usage:
     app_repo [options] destroy [--yes]
     app_repo [options] ftp-server [--signal-upstart] [--process-incoming-on-startup]
     app_repo [options] web-server [--signal-upstart]
-    app_repo [options] rpc-server [--signal-upstart]
+    app_repo [options] rpc-server [--signal-upstart] [--with-mock]
     app_repo [options] rpc-client [--style=<style>] [<method> [<arg>...]]
     app_repo [options] service upload-file <index> <filepath>
     app_repo [options] service process-rejected-file <filepath> [--platform=<platform>] [--arch=<arch>]
@@ -17,10 +17,12 @@ Usage:
     app_repo [options] index list
     app_repo [options] index add <index>
     app_repo [options] index remove <index> [--yes]
-    app_repo [options] package list <index>
-    app_repo [options] package remove <index> <package-regex> <version-regex> <platform-regex> <arch-regex>
-    app_repo [options] package pull <remote-http-server> <remote-index> <package-regex> <version-regex> <platform-regex> <arch-regex>
-    app_repo [options] package push <remote-ftp-server> <remote-index> <package-regex> <version-regex> <platform-regex> <arch-regex>
+    app_repo [options] package list
+    app_repo [options] package remove <package> <version> <platform> <arch>
+    app_repo [options] package remote-list <remote-http-server> <remote-index>
+    app_repo [options] package pull <remote-http-server> <remote-index> <package> <version> <platform> <arch>
+    app_repo [options] package push <remote-ftp-server> <remote-index> <package> <version> <platform> <arch>
+
 Options:
     -f --file=CONFIGFILE     Use this config file [default: data/config.json]
     --style=<style>          Output style [default: solarized]
@@ -95,7 +97,7 @@ def app_repo(argv=argv[1:]):
     elif args['ftp-server']:
         return ftp_server(config, args['--signal-upstart'])
     elif args['rpc-server']:
-        return rpc_server(config, args['--signal-upstart'])
+        return rpc_server(config, args['--signal-upstart'], args['--with-mock'])
     elif args['rpc-client']:
         return rpc_client(config, args['<method>'], args['<arg>'], args['--style'])
     elif args['service'] and ['upload-file']: # TODO implement this
@@ -132,12 +134,12 @@ def get_counters(config):
     all_counters = {}
     all_counters.update(ftp_counters)
     for key, value in web_counters.iteritems():
-        all_counters[key] = web_counters.get(key, value) + 1
+        all_counters[key] = all_counters.get(key, value) + 1
     return all_counters
 
 
 def show_counters(config):
-    print "\n".join('{item[0]}:{item[1]}'.format(item=item) for
+    print "\n".join('{item[1]:<10}{item[0]}'.format(item=item) for
                     item in sorted(get_counters(config).iteritems(), key=lambda item: item[1], reverse=True))
 
 
@@ -172,29 +174,31 @@ def ftp_server(config, signal_upstart):
 
 
 @console_script(name="app_repo_rpc")
-def rpc_server(config, signal_upstart):
+def rpc_server(config, signal_upstart, apply_mock_patches):
     from infi.rpc import Server, ZeroRPCServerTransport
     from .service import AppRepoService
+    from .mock import patch_all, empty_context
 
     def shutdown_requested():
         logger.debug("shutting down all services")
         server.request_shutdown()
 
-    transport = ZeroRPCServerTransport.create_tcp(config.rpcserver.port, config.rpcserver.address)
-    service = AppRepoService(config, shutdown_requested)
-    logger.debug("starting service")
-    service.start()
+    with (patch_all if apply_mock_patches else empty_context)():
+        transport = ZeroRPCServerTransport.create_tcp(config.rpcserver.port, config.rpcserver.address)
+        service = AppRepoService(config, shutdown_requested)
+        logger.debug("starting service")
+        service.start()
 
-    logger.debug("binding RPC server")
-    server = Server(transport, service)
-    server.bind()
+        logger.debug("binding RPC server")
+        server = Server(transport, service)
+        server.bind()
 
-    if signal_upstart:
-        from infi.app_repo.upstart import signal_init_that_i_am_ready
-        signal_init_that_i_am_ready()
+        if signal_upstart:
+            from infi.app_repo.upstart import signal_init_that_i_am_ready
+            signal_init_that_i_am_ready()
 
-    server._shutdown_event.wait()
-    server.unbind()
+        server._shutdown_event.wait()
+        server.unbind()
 
 
 @console_script(name="app_repo_rpc_client")
