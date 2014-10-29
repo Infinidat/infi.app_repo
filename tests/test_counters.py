@@ -10,17 +10,17 @@ from gevent import sleep
 class CountersTestCase(TestCase):
     def test_counters_from_web_and_ftp_servers(self):
         with patch_all(), self.temporary_base_directory_context():
-            self.config = Configuration.from_disk(None)
-            setup_all(self.config)
-            with self.web_server_context(), self.ftp_server_context():
-                self._get_from_ftp("/packages/main-stable/index/packages.json")
-                self._get_from_http("/packages/main-stable/index/packages.json")
+            config = Configuration.from_disk(None)
+            setup_all(config)
+            with self.web_server_context(config), self.ftp_server_context(config):
+                self._get_from_ftp(config, "/packages/main-stable/index/packages.json")
+                self._get_from_http(config, "/packages/main-stable/index/packages.json")
             sleep(1)
-            counters = get_counters(self.config)
+            counters = get_counters(config)
             self.assertEquals(counters, {"/packages/main-stable/index/packages.json": 2})
 
-    def _get_from_ftp(self, uri):
-        log_execute_assert_success(["curl", "ftp://localhost:{}/{}".format(self.config.ftpserver.port, uri)])
+    def _get_from_ftp(self, config, uri):
+        log_execute_assert_success(["curl", "ftp://localhost:{}/{}".format(config.ftpserver.port, uri)])
 
-    def _get_from_http(self, uri):
-        log_execute_assert_success(["curl", "http://localhost:{}/{}".format(self.config.webserver.port, uri)])
+    def _get_from_http(self, config, uri):
+        log_execute_assert_success(["curl", "http://localhost:{}/{}".format(config.webserver.port, uri)])

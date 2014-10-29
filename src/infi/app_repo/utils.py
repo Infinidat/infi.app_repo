@@ -1,5 +1,6 @@
 from logging import getLogger
 from infi.gevent_utils.os import path, walk, link, makedirs, remove
+from infi.gevent_utils.json_utils import encode, decode, DecodeError
 from infi.execute import execute_assert_success, ExecutionError
 from infi.pyutils.contexts import contextmanager
 from fnmatch import fnmatch
@@ -108,3 +109,21 @@ def hard_link_and_override(src, dst):
 def ensure_directory_exists(dirpath):
     if not path.exists(dirpath):
         makedirs(dirpath)
+
+
+def pretty_print(builtin_datatype, style="solarized"):
+    from pygments import highlight
+    from pygments.lexers import JsonLexer
+    from httpie.solarized import Solarized256Style
+    from pygments.formatters import Terminal256Formatter
+    style = Solarized256Style if style == "solarized" else style
+    print highlight(encode(builtin_datatype, indent=4, large_object=True), JsonLexer(), Terminal256Formatter(style=style))
+
+
+def jsonify_arguments(*args):
+    def _jsonify_or_string(item):
+        try:
+            return decode(item)
+        except DecodeError:
+            return item
+    return [_jsonify_or_string(item) for item in args]

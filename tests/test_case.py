@@ -22,15 +22,15 @@ class TestCase(unittest.TestCase):
                     Configuration.base_directory._default = previous_base_directory
 
     @contextmanager
-    def ftp_client_context(self, login=False):
+    def ftp_client_context(self, config, login_with_credentials_in_config=False):
         from ftplib import FTP
         from infi.app_repo.ftpserver import make_ftplib_gevent_friendly
         make_ftplib_gevent_friendly()
 
         client = FTP()
         client.connect('127.0.0.1', self.config.ftpserver.port)
-        if login:
-            client.login(self.config.ftpserver.username, self.config.ftpserver.password)
+        if login_with_credentials_in_config:
+            client.login(config.ftpserver.username, config.ftpserver.password)
         else:
             client.login()
         self.addCleanup(client.close)
@@ -40,10 +40,10 @@ class TestCase(unittest.TestCase):
             client.close()
 
     @contextmanager
-    def ftp_server_context(self):
+    def ftp_server_context(self, config):
         from gevent import spawn
         from infi.app_repo import ftpserver
-        server = ftpserver.start(self.config)
+        server = ftpserver.start(config)
         serving = spawn(server.serve_forever)
         serving.start()
         try:
@@ -53,13 +53,12 @@ class TestCase(unittest.TestCase):
             serving.join()
 
     @contextmanager
-    def rpc_server_context(self):
+    def rpc_server_context(self, config):
         from infi.rpc import Server, ZeroRPCServerTransport
         from infi.app_repo.service import AppRepoService
 
-        transport = ZeroRPCServerTransport.create_tcp(self.config.rpcserver.port, self.config.rpcserver.address)
-        service = AppRepoService(self.config)
-        service.start()
+        transport = ZeroRPCServerTransport.create_tcp(config.rpcserver.port, config.rpcserver.address)
+        service = AppRepoService(config)
 
         server = Server(transport, service)
         server.bind()
@@ -70,12 +69,11 @@ class TestCase(unittest.TestCase):
             server.request_shutdown()
             server._shutdown_event.wait()
             server.unbind()
-            service.stop()
 
     @contextmanager
-    def web_server_context(self):
+    def web_server_context(self, config):
         from infi.app_repo.webserver import start
-        webserver = start(self.config)
+        webserver = start(config)
         try:
             yield
         finally:

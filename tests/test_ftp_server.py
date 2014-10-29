@@ -20,7 +20,7 @@ class FtpServerTestCase(TemporaryBaseDirectoryTestCase):
         with patch.object(ftpserver.AppRepoFtpHandler, "on_file_received") as on_file_received:
             on_file_received.side_effect = self.mark_success
             fd = StringIO("hello world")
-            with self.ftp_server_context(), self.ftp_client_context(True) as client:
+            with self.ftp_server_context(self.config), self.ftp_client_context(self.config, True) as client:
                 client.storbinary("STOR testfile", fd)
 
         self.assertTrue(self.test_succeded)
@@ -33,7 +33,7 @@ class FtpServerTestCase(TemporaryBaseDirectoryTestCase):
         with patch.object(ftpserver.AppRepoFtpHandler, "on_file_sent") as on_file_sent:
             on_file_sent.side_effect = self.mark_success
 
-            with self.ftp_server_context(), self.ftp_client_context() as client:
+            with self.ftp_server_context(self.config), self.ftp_client_context(self.config) as client:
                 client.retrbinary('RETR incoming/testfile', lambda *args, **kwargs: None)
 
         self.assertTrue(self.test_succeded)
@@ -56,8 +56,8 @@ class FtpWithRpcTestCase(TemporaryBaseDirectoryTestCase):
         with patch("infi.app_repo.service.process_filepath_by_name") as process_filepath_by_name:
             process_filepath_by_name.side_effect = self.mark_success
             fd = StringIO("hello world")
-            with self.ftp_server_context(), self.ftp_client_context(True) as client:
-                with self.rpc_server_context() as server:
+            with self.ftp_server_context(self.config), self.ftp_client_context(self.config, True) as client:
+                with self.rpc_server_context(self.config) as server:
                     client.storbinary("STOR testfile", fd)
                     self.test_succeded.wait(1)
         self.assertTrue(self.test_succeded.is_set())
@@ -67,7 +67,7 @@ class FtpWithRpcTestCase(TemporaryBaseDirectoryTestCase):
         with patch("infi.app_repo.service.process_filepath_by_name") as process_filepath_by_name:
             process_filepath_by_name.side_effect = self.mark_success
             fd = StringIO("hello world")
-            with self.rpc_server_context() as server:
-                with self.ftp_server_context(), self.ftp_client_context(True) as client:
+            with self.rpc_server_context(self.config) as server:
+                with self.ftp_server_context(self.config), self.ftp_client_context(self.config, True) as client:
                     client.storbinary("STOR testfile", fd)
         self.assertTrue(self.test_succeded.is_set())

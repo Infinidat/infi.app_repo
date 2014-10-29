@@ -10,8 +10,8 @@ Usage:
     app_repo [options] web-server [--signal-upstart]
     app_repo [options] rpc-server [--signal-upstart] [--with-mock]
     app_repo [options] rpc-client [--style=<style>] [<method> [<arg>...]]
-    app_repo [options] service upload-file <index> <filepath>
-    app_repo [options] service process-rejected-file <filepath> [--platform=<platform>] [--arch=<arch>]
+    app_repo [options] service upload-file <filepath>
+    app_repo [options] service process-rejected-file <filepath> <platform> <arch>
     app_repo [options] service process-incoming <index>
     app_repo [options] service rebuild-index <index>
     app_repo [options] index list
@@ -20,13 +20,13 @@ Usage:
     app_repo [options] package list
     app_repo [options] package remove <package> <version> <platform> <arch>
     app_repo [options] package remote-list <remote-http-server> <remote-index>
-    app_repo [options] package pull <remote-http-server> <remote-index> <package> <version> <platform> <arch>
-    app_repo [options] package push <remote-ftp-server> <remote-index> <package> <version> <platform> <arch>
+    app_repo [options] package pull <remote-server> <remote-index> <package> <version> <platform> <arch>
+    app_repo [options] package push <remote-server> <remote-index> <package> <version> <platform> <arch>
 
 Options:
     -f --file=CONFIGFILE     Use this config file [default: data/config.json]
-    --style=<style>          Output style [default: solarized]
-    --index=<index>          Index name [default: main-stable]
+    --style=STYLE            Output style [default: solarized]
+    --index=INDEX            Index name [default: main-stable]
 """
 
 from sys import argv
@@ -35,6 +35,24 @@ from infi.pyutils.decorators import wraps, _ipython_inspect_module
 from logging import getLogger
 
 logger = getLogger(__name__)
+bypass_console_script = True # we want to use the functions in this module in the tests but without the logging stuff
+
+
+@contextmanager
+def exception_handling_context():
+    logger.info("Logging started")
+    try:
+        yield
+    except DocoptExit, e:
+        stderr.write(str(e) + "\n")
+        logger.info("printed usage, exitting.")
+    except SystemExit, e:
+        raise
+    except:
+        logger.exception("Caught exception")
+        raise
+    finally:
+        logger.info("Logging ended")
 
 
 def console_script(func=None, name=None):
@@ -47,25 +65,17 @@ def console_script(func=None, name=None):
             from datetime import datetime
             from docopt import DocoptExit
             from sys import stderr
+
+            if bypass_console_script:
+                return f(*args, **kwargs)
+
             filename = '/tmp/{}.log'.format(name if name else f.__name__)
-            with script_logging_context(logfile_path=filename):
-                logger.info("Logging started")
-                with traceback_context():
-                    try:
-                        logger.info("Calling {}".format(f.__name__))
-                        result = f(*args, **kwargs)
-                        logger.info("Call to {} returned {}".format(f.__name__, result))
-                        return result
-                    except DocoptExit, e:
-                        stderr.write(str(e) + "\n")
-                        logger.info("printed usage, exitting.")
-                    except SystemExit, e:
-                        raise
-                    except:
-                        logger.exception("Caught exception")
-                        raise
-                    finally:
-                        logger.info("Logging ended")
+            with script_logging_context(logfile_path=filename), traceback_context(), exception_handling_context():
+                logger.info("Calling {}".format(f.__name__))
+                result = f(*args, **kwargs)
+                logger.info("Call to {} returned {}".format(f.__name__, result))
+                return result
+
         return decorator
     if func is None:
         return decorate
@@ -77,6 +87,7 @@ def app_repo(argv=argv[1:]):
     from docopt import docopt
     from .config import Configuration
     from .install import destroy_all
+    bypass_console_script = False
     args = docopt(__doc__, argv=argv, help=True)
     config = get_config(args)
     if args['counters'] and args['show']:
@@ -100,13 +111,14 @@ def app_repo(argv=argv[1:]):
         return rpc_server(config, args['--signal-upstart'], args['--with-mock'])
     elif args['rpc-client']:
         return rpc_client(config, args['<method>'], args['<arg>'], args['--style'])
-    elif args['service'] and ['upload-file']: # TODO implement this
-        upload_file(config, args['<index>'], args['<filepath>'])
-    elif args['service'] and ['process-rejected-file']: # TODO implement this
-        raise NotImplementedError()
-    elif args['service'] and ['process-incoming']: # TODO implement this
-        raise NotImplementedError()
+    elif args['service'] and ['upload-file']:
+        upload_file(config, args['--index'], args['<filepath>'])
+    elif args['service'] and ['process-rejected-file']:
+        process_rejected_file(config, args['--index'], args['<filepath>'], args['<platform>'], args['<arch>'])
+    elif args['service'] and ['process-incoming']:
+        process_incoming(config, args['--index'])
     elif args['service'] and ['rebuild-index']: # TODO implement this
+        rebuild_index(config, args['--index'])
         raise NotImplementedError()
     elif args['index'] and ['list']: # TODO implement this
         raise NotImplementedError()
@@ -178,16 +190,10 @@ def rpc_server(config, signal_upstart, apply_mock_patches):
     from infi.rpc import Server, ZeroRPCServerTransport
     from .service import AppRepoService
     from .mock import patch_all, empty_context
-
-    def shutdown_requested():
-        logger.debug("shutting down all services")
-        server.request_shutdown()
-
+    from .utils import pretty_print, jsonify_arguments
     with (patch_all if apply_mock_patches else empty_context)():
         transport = ZeroRPCServerTransport.create_tcp(config.rpcserver.port, config.rpcserver.address)
-        service = AppRepoService(config, shutdown_requested)
-        logger.debug("starting service")
-        service.start()
+        service = AppRepoService(config)
 
         logger.debug("binding RPC server")
         server = Server(transport, service)
@@ -204,12 +210,12 @@ def rpc_server(config, signal_upstart, apply_mock_patches):
 @console_script(name="app_repo_rpc_client")
 def rpc_client(config, method, arguments, style):
     from IPython import embed
-    from .service import get_client
+    from .service import get_client, patched_ipython_getargspec_context
 
     client = get_client(config)
     from os import environ
     if method:
-        _pretty_print(getattr(client, method)(*_jsonify_arguments(*arguments)), style)
+        pretty_print(getattr(client, method)(*jsonify_arguments(*arguments)), style)
     else:
         with patched_ipython_getargspec_context(client):
             embed()(config, filepath, index)
@@ -229,38 +235,16 @@ def upload_file(config, index, filepath):
         ftp.storbinary("STOR %s" % path.basename(filepath), fd)
 
 
-@contextmanager
-def patched_ipython_getargspec_context(client):
-    original = _ipython_inspect_module.getargspec
-
-    @wraps(original)
-    def patched(func):
-        if hasattr(func, "rpc_call") and getattr(func, "rpc_call"):
-            return client.get_rpc_ipython_argspec(getattr(func, "rpc_method_name", func.__name__))
-        return original(func)
-    _ipython_inspect_module.getargspec = patched
-    _ipython_inspect_module.getargspec = patched
-    try:
-        yield
-    finally:
-        _ipython_inspect_module.getargspec = original
+def process_rejected_file(config, index, filepath, platform, arch):
+    from .service import get_client
+    return get_client(config).process_filepath(index, filepath, platform, arch)
 
 
-def _pretty_print(builtin_datatype, style="solarized"):
-    from json import dumps
-    from pygments import highlight
-    from pygments.lexers import JsonLexer
-    from httpie.solarized import Solarized256Style
-    from pygments.formatters import Terminal256Formatter
-    style = Solarized256Style if style == "solarized" else style
-    print highlight(dumps(builtin_datatype, indent=4), JsonLexer(), Terminal256Formatter(style=style))
+def process_incoming(config, index):
+    from .service import get_client
+    return get_client(config).process_incoming(index)
 
 
-def _jsonify_arguments(*args):
-    def _jsonify_or_string(item):
-        from izbox.utils import json_utils
-        try:
-            return json_utils.decode(item)
-        except json_utils.DecodeError:
-            return item
-    return [_jsonify_or_string(item) for item in args]
+def rebuild_index(config, index):
+    from .service import get_client
+    return get_client(config).rebuild_index(index)
