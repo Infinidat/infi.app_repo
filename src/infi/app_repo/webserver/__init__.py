@@ -3,7 +3,6 @@ import flask
 import pkg_resources
 import mimetypes
 from infi.pyutils.lazy import cached_function
-from flask.ext.mako import MakoTemplates, render_template
 from flask.ext.autoindex import AutoIndex
 from .auth import requires_auth
 from .json_response import json_response
@@ -22,7 +21,6 @@ class FlaskApp(flask.Flask):
         self = FlaskApp(__name__, static_folder=STATIC_FOLDER, template_folder=TEMPLATE_FOLDER)
         self.app_repo_config = app_repo_config
         self.config['DEBUG'] = app_repo_config.development_mode
-        self.mako = MakoTemplates(self)
         self._register_blueprints()
         self._register_counters()
         mimetypes.add_type('application/json', '.json')
@@ -59,11 +57,17 @@ class FlaskApp(flask.Flask):
 
 def client_setup_script(index_name):
     data = dict(host=flask.request.host.split(':')[0], host_url=flask.request.host_url, index_name=index_name)
-    return flask.Response(render_template("setup.mako", **data), content_type='text/plain')
+    return flask.Response(flask.render_template("setup.html", **data), content_type='text/plain')
 
 
 def index_home_page(index_name):
-    raise NotImplementedError()
+    import json, os
+    from infi.app_repo.indexers import get_indexers
+    indexers = get_indexers(flask.current_app.app_repo_config, index_name)
+    path = os.path.join(indexers[1].base_directory, 'packages.json')
+    with open(path) as f:
+        data = json.load(f)
+    return flask.Response(flask.render_template("home.html", packages=data))
 
 
 def indexes_tree():

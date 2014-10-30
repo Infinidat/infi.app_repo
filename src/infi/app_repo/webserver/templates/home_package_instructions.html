@@ -1,0 +1,26 @@
+<div class="row-fluid">
+    <div class="span2">
+        {% if platform == 'redhat' %}
+            <span class="label label-important">redhat</span>
+            <span class="label label-important">oracle</span>
+            <span class="label label-important">centos</span>
+        {% endif %}
+        {% if platform == 'ubuntu' %}
+            <span class="label label-warning">ubuntu</span>
+        {% endif %}
+        {% if platform == 'vmware' %}
+            <span class="label label-info">vmware</span>
+        {% endif %}
+        {% if 'windows' in platform %}
+            <span class="label label-success">{{ platform }}</span>
+        {% endif %}
+    </div>
+    <div class="span10">
+        {% if instructions.command %}
+            <code>{{ instructions.command }}</code>
+        {% endif %}
+        {% if instructions.download_link %}
+            Download and run the <a href="{{ instructions.download_link }}">installer</a>.
+        {% endif %}
+    </div>
+</div>
