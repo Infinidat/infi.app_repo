@@ -58,9 +58,10 @@ class AptIndexer(Indexer):
         return path.join(self.base_directory, distribution_name, 'dists', codename, 'main', 'binary-%s' % TRANSLATE_ARCH[arch])
 
     def are_you_interested_in_file(self, filepath, platform, arch):
+        if not filepath.endswith('deb'):
+            return False
         distribution_name, codename = platform.rsplit('-', 1)
-        return filepath.endswith('.deb') and \
-               distribution_name in KNOWN_DISTRIBUTIONS and \
+        return distribution_name in KNOWN_DISTRIBUTIONS and \
                codename in KNOWN_DISTRIBUTIONS[distribution_name] and \
                arch in TRANSLATE_ARCH and \
                TRANSLATE_ARCH[arch] in KNOWN_DISTRIBUTIONS[distribution_name][codename]
