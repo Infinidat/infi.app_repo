@@ -39,6 +39,7 @@ class IndexersTestCase(TestCase):
             indexer.initialise()
             filepath = self.write_new_package_in_incoming_directory(config, extension='deb')
             self.assertTrue(indexer.are_you_interested_in_file(filepath, 'linux-ubuntu-natty', 'x86'))
+            self.assertFalse(indexer.are_you_interested_in_file('foo.rpm', 'linux-ubuntu-natty', 'x86'))
             indexer.consume_file(filepath, 'linux-ubuntu-natty', 'i386')
 
             packages_file = path.join(indexer.base_directory, 'linux-ubuntu', 'dists', 'natty', 'main', 'binary-i386', 'Packages')
@@ -66,6 +67,7 @@ class IndexersTestCase(TestCase):
             indexer.initialise()
             filepath = self.write_new_package_in_incoming_directory(config, extension='rpm')
             self.assertTrue(indexer.are_you_interested_in_file(filepath, 'linux-redhat-7', 'x64'))
+            self.assertFalse(indexer.are_you_interested_in_file('foo.deb', 'linux-redhat-7', 'x64'))
             indexer.consume_file(filepath, 'linux-redhat-7', 'x64')
 
     def test_wget_consume_file(self):
@@ -84,5 +86,24 @@ class IndexersTestCase(TestCase):
             self.assertIsInstance(packages, list)
             self.assertGreater(len(packages), 0)
             releases = read_json_file(path.join(indexer.base_directory, 'packages', 'my-app', 'releases.json'))
+            self.assertIsInstance(packages, list)
+            self.assertGreater(len(packages), 0)
+
+    def test_wget_consumes_ova(self):
+        from infi.app_repo.indexers.wget import PrettyIndexer
+        with self._setup_context() as config:
+            indexer = PrettyIndexer(config, 'main-stable')
+            indexer.initialise()
+            filepath = self.write_new_package_in_incoming_directory(config, package_basename='application-repository-0.2.31-linux-ubuntu-lucid-x86_OVF10', extension='ova')
+            self.assertTrue(indexer.are_you_interested_in_file(filepath, 'linux-ubuntu-lucid', 'x86_OVF10'))
+            indexer.consume_file(filepath, 'linux-ubuntu-lucid', 'x86_OVF10')
+
+            self.assertTrue(path.exists(path.join(indexer.base_directory, 'packages', 'application-repository', 'releases', '0.2.31', 'distributions',
+                                                  'vmware-esx', 'architectures', 'x86_OVF10', 'extensions', 'ova',
+                                                  'application-repository-0.2.31-linux-ubuntu-lucid-x86_OVF10.ova')))
+            packages = read_json_file(path.join(indexer.base_directory, 'packages.json'))
+            self.assertIsInstance(packages, list)
+            self.assertGreater(len(packages), 0)
+            releases = read_json_file(path.join(indexer.base_directory, 'packages', 'application-repository', 'releases.json'))
             self.assertIsInstance(packages, list)
             self.assertGreater(len(packages), 0)

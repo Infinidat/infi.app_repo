@@ -6,7 +6,6 @@ from infi.app_repo.utils import ensure_directory_exists, path, hard_link_or_rais
 from infi.gevent_utils.json_utils import encode
 from infi.app_repo.filename_parser import parse_filepath, FilenameParsingFailed
 from pkg_resources import parse_version
-from munch import Munch
 
 
 YUM_INSTALL_COMMAND = 'sudo yum install -y {0}'
@@ -73,22 +72,22 @@ class PrettyIndexer(Indexer): # TODO implement this
         for package_dirpath in glob(path.join(self.base_directory, 'packages', '*')):
             if self._is_hidden(package_dirpath):
                 continue
-            yield Munch(abspath=package_dirpath,
+            yield dict(abspath=package_dirpath,
                         product_name=None,
                         name=path.basename(package_dirpath),
                         releases_uri=self._normalize_url(path.join(package_dirpath, 'releases.json')))
 
     def _iter_releases(self, package):
-        for version_dirpath in glob(path.join(package.abspath, 'releases', '*')):
+        for version_dirpath in glob(path.join(package['abspath'], 'releases', '*')):
             if self._is_hidden(version_dirpath):
                 continue
-            release = Munch(version=path.basename(version_dirpath),
+            release = dict(version=path.basename(version_dirpath),
                             abspath=version_dirpath,
                             release_notes_url=None)
             yield release
 
     def _iter_distributions(self, package, release):
-        for distribution_dirpath in glob(path.join(release.abspath, 'distributions', '*')):
+        for distribution_dirpath in glob(path.join(release['abspath'], 'distributions', '*')):
             if self._is_hidden(distribution_dirpath):
                 continue
             for arch_dirpath in glob(path.join(distribution_dirpath, 'architectures', '*')):
@@ -98,37 +97,37 @@ class PrettyIndexer(Indexer): # TODO implement this
                     if self._is_hidden(extension_dirpath):
                         continue
                     [filepath] = list(glob(path.join(extension_dirpath, '*')))
-                    distribution = Munch(platform=path.basename(distribution_dirpath),
+                    distribution = dict(platform=path.basename(distribution_dirpath),
                                          architecture=path.basename(arch_dirpath),
                                          extension=path.basename(extension_dirpath),
                                          filepath=self._normalize_url(filepath))
                     yield distribution
 
     def _get_latest_release(self, releases):
-        return sorted(releases, key=lambda release: parse_version(release.version))[-1] if releases else None
+        return sorted(releases, key=lambda release: parse_version(release['version']))[-1] if releases else None
 
     def _get_installation_instructions(self, package, release):
         installation_instructions = {}
-        platforms = {distribution.platform for distribution in release.distributions}
+        platforms = {distribution['platform'] for distribution in release['distributions']}
 
-        for distribution in release.distributions:
+        for distribution in release['distributions']:
             for yum_platform in ('redhat', 'centos', 'oracle'):
-                if yum_platform in distribution.platform and distribution.extension == 'rpm':
+                if yum_platform in distribution['platform'] and distribution['extension'] == 'rpm':
                     installation_instructions[yum_platform] = dict(upgrade=dict(command=YUM_UPGRADE_COMMAND.format(package)),
                                                                    install=dict(command=YUM_INSTALL_COMMAND.format(package)))
             for apt_platform in ('ubuntu', ):
-                if apt_platform in distribution.platform and distribution.extension == 'deb':
+                if apt_platform in distribution['platform'] and distribution['extension'] == 'deb':
                     installation_instructions[apt_platform] = dict(upgrade=dict(command=APT_INSTALL_COMMAND.format(package)),
                                                                    install=dict(command=APT_UGPRADE_COMMAND.format(package)))
-            if distribution.platform == 'windows' and distribution.extension == 'msi':
-                platform = 'windows-%s' % distribution.architecture
-                installation_instructions[platform] = dict(upgrade=dict(download_link=distribution.filepath),
-                                                           install=dict(download_link=distribution.filepath))
-            elif distribution.platform == 'vmware-esx' and extension == 'ova':
-                installation_instructions['vmware'] = dict(upgrade=dict(download_link=distribution.filepath,
+            if distribution['platform'] == 'windows' and distribution['extension'] == 'msi':
+                platform = 'windows-%s' % distribution['architecture']
+                installation_instructions[platform] = dict(upgrade=dict(download_link=distribution['filepath']),
+                                                           install=dict(download_link=distribution['filepath']))
+            elif distribution['platform'] == 'vmware-esx' and distribution['extension'] == 'ova':
+                installation_instructions['vmware'] = dict(upgrade=dict(download_link=distribution['filepath'],
                                                                         notes=["Upgrade the appliance through vCenter by using the VMware Update Manager Plug-in",
                                                                                "If vCenter does not have internet connectivity to this repository, you can download a ZIP/ISO update file from the list below and upload it to the VMware Update Manager"]),
-                                                           install=dict(download_link=distribution.filepath))
+                                                           install=dict(download_link=distribution['filepath']))
         return installation_instructions
 
     def rebuild_index(self):
@@ -136,13 +135,13 @@ class PrettyIndexer(Indexer): # TODO implement this
         for package in self._iter_packages():
             releases = []
             for release in self._iter_releases(package):
-                release.distributions = list(self._iter_distributions(package, release))
+                release['distributions'] = list(self._iter_distributions(package, release))
                 releases.append(release)
-            write_file(package.abspath, 'releases.json', encode(releases, indent=4, large_object=True))
+            write_file(package['abspath'], 'releases.json', encode(releases, indent=4, large_object=True))
 
             latest_release = self._get_latest_release(releases)
             if latest_release:
-                package.latest_version = latest_release.version
-                package.installation_instructions = self._get_installation_instructions(package, latest_release)
+                package['latest_version'] = latest_release['version']
+                package['installation_instructions'] = self._get_installation_instructions(package, latest_release)
                 packages.append(package)
         write_file(self.base_directory, 'packages.json', encode(packages, indent=4, large_object=True))

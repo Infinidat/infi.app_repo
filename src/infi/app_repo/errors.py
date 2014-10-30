@@ -20,3 +20,7 @@ class FilenameParsingFailed(FileRejected):
 
 class FileProcessingFailed(FileRejected):
     pass
+
+
+class FileNeglectedByIndexers(FileRejected):
+    pass

@@ -13,8 +13,8 @@ class CountersTestCase(TestCase):
             config = Configuration.from_disk(None)
             setup_all(config)
             with self.web_server_context(config), self.ftp_server_context(config):
-                self._get_from_ftp(config, "/packages/main-stable/index/packages.json")
                 self._get_from_http(config, "/packages/main-stable/index/packages.json")
+                self._get_from_ftp(config, "/packages/main-stable/index/packages.json")
             sleep(1)
             counters = get_counters(config)
             self.assertEquals(counters, {"/packages/main-stable/index/packages.json": 2})

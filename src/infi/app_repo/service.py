@@ -1,12 +1,11 @@
 from __future__ import absolute_import
 
 from logging import getLogger
-from gevent.queue import Queue, Empty
 from infi.gevent_utils.safe_greenlets import safe_spawn
 from infi.gevent_utils.os import remove, path
 from infi.gevent_utils.glob import glob
 from infi.rpc import ServiceWithSynchronized, rpc_call, synchronized
-from infi.rpc import AutoTimeoutClient, IPython_Mixin, patched_ipython_getargspec_context
+from infi.rpc import AutoTimeoutClient, IPython_Mixin
 from infi.app_repo import errors
 from infi.app_repo.utils import hard_link_or_raise_exception, path
 
@@ -19,6 +18,8 @@ IDLE_TIMEOUT = 5  # seconds
 def process_filepath(config, index, filepath, platform, arch):
     indexers = [indexer for indexer in config.get_indexers(index) if
                 indexer.are_you_interested_in_file(filepath, platform, arch)]
+    if not indexers:
+        raise errors.FileNeglectedByIndexers("all indexers are not interested in file".format(filepath))
     for indexer in indexers:
         try:
             indexer.consume_file(filepath, platform, arch)
