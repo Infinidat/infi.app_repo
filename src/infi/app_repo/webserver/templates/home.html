@@ -6,13 +6,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="">
         <meta name="author" content="">
-        <!-- Le styles -->
         <link href="/static/css/bootstrap.css" rel="stylesheet">
         <link href="/static/css/apprepo.css" rel="stylesheet">
         <style>
             body {
-                padding-top: 60px;
-                  /* 60px to make the container go all the way to the bottom of the topbar */
+                padding-top: 20px;
             }
             .big-code {
                 font-size: 150%;
@@ -25,14 +23,9 @@
 
             </script>
         <![endif]-->
-        <!-- Le fav and touch icons -->
         <link rel="shortcut icon" href="/static/favicon.ico">
     </head>
     <body>
-        <div class="navbar navbar-fixed-top navbar-inverse">
-            <div class="navbar-inner">
-            </div>
-        </div>
         <div class="container-fluid">
             <div class="row-fluid">
                 <div class="span3">
@@ -96,64 +89,70 @@
                 </div>
             </div>
         </div>
+
+        <div class="modal" id="versions_modal" tabindex="-1" role="dialog" style="display: none;">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                <h4 class="modal-title" id="versions_modal_title">Modal title</h4>
+              </div>
+              <div class="modal-body">
+                <table class="table table-bordered table-hover download-links">
+                    <thead>
+                        <tr>
+                            <th>version</th>
+                            <th>platform</th>
+                            <th>architecture</th>
+                            <th>link</th>
+                        </tr>
+                    </thead>
+                </table>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <br><br>
+
         <script src="/static/jquery-1.8.1.min.js"></script>
         <script src="/static/js/underscore-min.js"></script>
         <script src="/static/jquery.dataTables.min.js"></script>
         <script src="/static/js/bootstrap.js"></script>
         <script>
-            var options = new Object();
-            options.bPaginate = true;
-            options.bSort = false;
-            options.bProcessing = false;
-            options.bInfo = false;
-            options.bAutoWidth = true;
-            /*options.aoColumnDefs = [{"asSorting ": ['desc']}];*/
-            $(document).ready(function() {
+
+            $(function() {
+                // Initialize versions datatable
                 $.fn.dataTableExt.oStdClasses.sPagePrevEnabled = "btn btn-info";
                 $.fn.dataTableExt.oStdClasses.sPagePrevDisabled = "btn btn-info disabled";
                 $.fn.dataTableExt.oStdClasses.sPageNextEnabled = "btn btn-info";
                 $.fn.dataTableExt.oStdClasses.sPageNextDisabled = "btn btn-info disabled";
-                $(".download-links").dataTable(options);
+                $(".download-links").dataTable({
+                    bPaginate: true,
+                    bSort: false,
+                    bProcessing: false,
+                    bInfo: false,
+                    bAutoWidth: true
+                });
             });
 
-            function render() {
-                var template = _.template()
-                $.get('/packages/main-stable/index/packages.json', function(data) {
-                    _.each(data, function(package) {
-                        var a = $('<a/>').text(package.name).attr('href', '#' + package.name);
-                        $('ul.nav').append($('<li/>').append(a));
-                        $('#packages').append($('<h2/>').text())
+            function show_versions(title, url) {
+                $.get(url, function(data) {
+                    var table = $(".download-links").dataTable();
+                    table.fnClearTable();
+                    _.each(data, function(version) {
+                        _.each(version.distributions, function(distro) {
+                            var link = '<a href="' + distro.filepath + '">download</a>';
+                            table.fnAddData([version.version, distro.platform, distro.architecture, link], false);
+                        });
                     });
+                    table.fnDraw();
+                    $('#versions_modal_title').text(title);
+                    $('#versions_modal').modal();
                 });
-            }
-
-            $(function() {
-                //render();
-                $(".show-other").click(function() {
-                    var table = $(".table_wrapper", $(this).parent());
-                    if (table.is(':visible')) {
-                        $('i', this).removeClass('icon-chevron-down').addClass('icon-chevron-right');
-                        table.slideUp();
-                    }
-                    else {
-                        $('i', this).removeClass('icon-chevron-right').addClass('icon-chevron-down');
-                        table.slideDown();
-                    }
-                })
-            })
-        </script>
-        <script>
-            var OSName="Unknown OS";
-            if (navigator.appVersion.indexOf("Win")!=-1) {
-                if (navigator.userAgent.indexOf('WOW64')>-1 || window.navigator.platform=='Win64') {
-                    $(".windows-x64").show();
-                }
-                else {
-                    $(".windows-x86").show();
-                }
-            }
-            else {
-                $(".windows-undef").show();
             }
 
             // Set the size of the sidebar

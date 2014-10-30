@@ -20,3 +20,7 @@
         {% endfor %}
     </div>
 </div>
+<br>
+<a href="#" onclick="show_versions('{{ package.name|replace("-", " ")|title }}', '{{ package.releases_uri }}'); return false;">
+    Other versions and platforms &raquo;
+</a>
