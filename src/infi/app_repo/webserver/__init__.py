@@ -8,6 +8,7 @@ from .auth import requires_auth
 from .json_response import json_response
 from logbook import Logger
 from functools import partial
+from infi.app_repo.utils import path, read_file, decode
 
 
 logger = Logger(__name__)
@@ -61,12 +62,8 @@ def client_setup_script(index_name):
 
 
 def index_home_page(index_name):
-    import json, os
-    from infi.app_repo.indexers import get_indexers
-    indexers = get_indexers(flask.current_app.app_repo_config, index_name)
-    path = os.path.join(indexers[1].base_directory, 'packages.json')
-    with open(path) as f:
-        data = json.load(f)
+    packages_json = path.join(flask.current_app.app_repo_config.packages_directory, index_name, 'index', 'packages.json')
+    data = decode(read_file(packages_json))
     return flask.Response(flask.render_template("home.html", packages=data))
 
 

@@ -1,6 +1,7 @@
 from logging import getLogger
 from infi.gevent_utils.os import path, walk, link, makedirs, remove
 from infi.gevent_utils.json_utils import encode, decode, DecodeError
+from infi.gevent_utils.deferred import create_threadpool_executed_func
 from infi.execute import execute_assert_success, ExecutionError
 from infi.pyutils.contexts import contextmanager
 from fnmatch import fnmatch
@@ -127,3 +128,10 @@ def jsonify_arguments(*args):
         except DecodeError:
             return item
     return [_jsonify_or_string(item) for item in args]
+
+
+@create_threadpool_executed_func
+def read_file(filepath):
+    """ Read the contents of a file in a gevent-friendly way """
+    with open(filepath) as fd:
+        return fd.read()

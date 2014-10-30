@@ -3,7 +3,7 @@
 <div class="row-fluid">
     <div class="span9">
         <h2>
-            {{ package.name }}
+            {{ package.name|replace("-", " ")|title }}
             <span class="label ver">{{ package.latest_version }}</span>
         </h2>
         <h3>Installation instructions</h3>
