@@ -3,6 +3,8 @@ from infi.app_repo import service
 from infi.app_repo.config import Configuration
 from infi.app_repo.indexers.base import Indexer
 from infi.app_repo.install import ensure_incoming_and_rejected_directories_exist_for_all_indexers
+
+
 class DummyIndexer(Indexer):
     def __init__(self, *args, **kwargs):
         super(DummyIndexer, self).__init__(*args, **kwargs)

@@ -3,7 +3,7 @@ from infi.gevent_utils.os import path
 from infi.app_repo.utils import ensure_directory_exists, hard_link_or_raise_exception
 
 
-class PythonIndexer(Indexer): # TODO implement this
+class PythonIndexer(Indexer):
     INDEX_TYPE = "python"
 
     def initialise(self):

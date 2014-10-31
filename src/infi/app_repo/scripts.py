@@ -18,10 +18,9 @@ Usage:
     app_repo [options] index add <index>
     app_repo [options] index remove <index> [--yes]
     app_repo [options] package list
-    app_repo [options] package remove <package> <version> <platform> <arch>
-    app_repo [options] package remote-list <remote-http-server> <remote-index>
-    app_repo [options] package pull <remote-server> <remote-index> <package> <version> <platform> <arch>
-    app_repo [options] package push <remote-server> <remote-index> <package> <version> <platform> <arch>
+    app_repo [options] package remote-list <remote-server> <remote-index>
+    app_repo [options] package pull <remote-server> <remote-index> <package> [<version> [<platform> [<arch>]]]
+    app_repo [options] package push <remote-server> <remote-index> <package> [<version> [<platform> [<arch>]]]
 
 Options:
     -f --file=CONFIGFILE     Use this config file [default: data/config.json]
@@ -87,6 +86,7 @@ def app_repo(argv=argv[1:]):
     from docopt import docopt
     from .config import Configuration
     from .install import destroy_all
+    from .sync import pull_packages, push_packages
     bypass_console_script = False
     args = docopt(__doc__, argv=argv, help=True)
     config = get_config(args)
@@ -112,24 +112,29 @@ def app_repo(argv=argv[1:]):
     elif args['rpc-client']:
         return rpc_client(config, args['<method>'], args['<arg>'], args['--style'])
     elif args['service'] and ['upload-file']:
-        upload_file(config, args['--index'], args['<filepath>'])
+        return upload_file(config, args['--index'], args['<filepath>'])
     elif args['service'] and ['process-rejected-file']:
-        process_rejected_file(config, args['--index'], args['<filepath>'], args['<platform>'], args['<arch>'])
+        return process_rejected_file(config, args['--index'], args['<filepath>'], args['<platform>'], args['<arch>'])
     elif args['service'] and ['process-incoming']:
-        process_incoming(config, args['--index'])
-    elif args['service'] and ['rebuild-index']: # TODO implement this
-        rebuild_index(config, args['--index'])
-        raise NotImplementedError()
-    elif args['index'] and ['list']: # TODO implement this
-        raise NotImplementedError()
-    elif args['index'] and ['add']: # TODO implement this
-        raise NotImplementedError()
-    elif args['index'] and ['remove']: # TODO implement this
-        raise NotImplementedError()
-    elif args['package'] and ['list']: # TODO implement this
-        raise NotImplementedError()
-    elif args['package'] and ['remove']: # TODO implement this
-        raise NotImplementedError()
+        return process_incoming(config, args['--index'])
+    elif args['service'] and ['rebuild-index']:
+        return rebuild_index(config, args['--index'])
+    elif args['index'] and ['list']:
+        print ' '.join(config.indexes)
+    elif args['index'] and ['add']:
+        return add_index(config, args['<index>'])
+    elif args['index'] and ['remove'] and args['--yes']:
+        return remove_index(config, args['<index>'])
+    elif args['package'] and ['list']:
+        return show_packages(config, args['--index'])
+    elif args['package'] and args['remote-list']:
+        return show_remote_packages(config, args['<remote-server>'], args['<remote-index>'])
+    elif args['package'] and ['pull']:
+        return pull_packages(config, args['--index'], args['<remote-server>'], args['<remote-index>'],
+                             args['<package>'], args['<version>'], args['platform'], args['<arch>'])
+    elif args['package'] and ['push']:
+        return push_packages(config, args['--index'], args['<remote-server>'], args['<remote-index>'],
+                             args['<package>'], args['<version>'], args['platform'], args['<arch>'])
 
 
 def get_config(args):
@@ -165,6 +170,7 @@ def setup(config, apply_mock_patches):
 
 @console_script(name="app_repo_web")
 def web_server(config, signal_upstart):
+    from gevent import monkey; monkey.patch_thread()
     from .webserver import start
     webserver = start(config)
     if signal_upstart:
@@ -225,13 +231,15 @@ def upload_file(config, index, filepath):
     from ftplib import FTP
     from infi.gevent_utils.os import path
     from infi.app_repo.ftpserver import make_ftplib_gevent_friendly
-
+    from infi.gevent_utils.deferred import create_threadpool_executed_func
     make_ftplib_gevent_friendly()
     ftp = FTP()
     ftp.connect('127.0.0.1', config.ftpserver.port)
     ftp.login(config.ftpserver.username, config.ftpserver.password)
     ftp.cwd(index)
-    with open(filepath) as fd:
+
+    with create_threadpool_executed_func(open)(filepath) as fd:
+        fd.read = create_threadpool_executed_func(fd.read)
         ftp.storbinary("STOR %s" % path.basename(filepath), fd)
 
 
@@ -248,3 +256,35 @@ def process_incoming(config, index):
 def rebuild_index(config, index):
     from .service import get_client
     return get_client(config).rebuild_index(index)
+
+
+def add_index(config, index_name):
+    from .indexers import get_indexers
+    assert index_name not in config.indexes
+    for indexer in get_indexers(config, index_name):
+        index_name.initialse()
+    config.indexes.append(index_name)
+    config.to_disk()
+
+
+def remove_index(config, index_name):
+    from .indexers import get_indexers
+    from .utils import log_execute_assert_success
+    assert index_name in config.indexes
+    config.indexes = [name for name in config.indexes if name != index_name]
+    config.to_disk()
+    for indexer in get_indexers(config, index_name):
+        log_execute_assert_success(["rm", "-rf", indexer.base_directory])
+
+
+def show_packages(config, index_name):
+    from .utils import pretty_print, decode, read_file, path
+    packages_json = path.join(config.packages_directory, index_name, 'index', 'packages.json')
+    data = decode(read_file(packages_json))
+    pretty_print(data)
+
+
+def show_remote_packages(config, remote_host, remote_index):
+    from requests import get
+    from .utils import pretty_print
+    pretty_print(get("http://{}/packages/{}/index/packages.json".format(remote_host, remote_index)).get_json())

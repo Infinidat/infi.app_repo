@@ -2,7 +2,7 @@ from .base import Indexer
 from infi.gevent_utils.os import path
 from infi.gevent_utils.glob import glob
 from infi.gevent_utils.deferred import create_threadpool_executed_func
-from infi.app_repo.utils import ensure_directory_exists, path, hard_link_or_raise_exception
+from infi.app_repo.utils import ensure_directory_exists, path, hard_link_or_raise_exception, write_file
 from infi.gevent_utils.json_utils import encode
 from infi.app_repo.filename_parser import parse_filepath, FilenameParsingFailed
 from pkg_resources import parse_version
@@ -14,6 +14,7 @@ YUM_UPGRADE_COMMAND = 'sudo yum makecache; sudo yum update -y {0}'
 APT_INSTALL_COMMAND = 'sudo apt-get install -y {0}'
 APT_UGPRADE_COMMAND = 'sudo apt-get update; sudo apt-get install -y {0}'
 
+# TODO add support for shared libraries, executables, sources, symbol files
 
 @create_threadpool_executed_func
 def ensure_packages_json_file_exists_in_directory(dirpath):
@@ -27,13 +28,6 @@ def ensure_packages_json_file_exists_in_directory(dirpath):
             pass
     with open(filepath, 'w') as fd:
         fd.write('[]')
-
-
-@create_threadpool_executed_func
-def write_file(dirpath, filename, contents):
-    filepath = path.join(dirpath, filename)
-    with open(filepath, 'w') as fd:
-        fd.write(contents)
 
 
 class PrettyIndexer(Indexer): # TODO implement this
@@ -73,9 +67,9 @@ class PrettyIndexer(Indexer): # TODO implement this
             if self._is_hidden(package_dirpath):
                 continue
             yield dict(abspath=package_dirpath,
-                        product_name=None,
-                        name=path.basename(package_dirpath),
-                        releases_uri=self._normalize_url(path.join(package_dirpath, 'releases.json')))
+                       product_name=None,
+                       name=path.basename(package_dirpath),
+                       releases_uri=self._normalize_url(path.join(package_dirpath, 'releases.json')))
 
     def _iter_releases(self, package):
         for version_dirpath in glob(path.join(package['abspath'], 'releases', '*')):
@@ -137,11 +131,11 @@ class PrettyIndexer(Indexer): # TODO implement this
             for release in self._iter_releases(package):
                 release['distributions'] = list(self._iter_distributions(package, release))
                 releases.append(release)
-            write_file(package['abspath'], 'releases.json', encode(releases, indent=4, large_object=True))
+            write_file(path.join(package['abspath'], 'releases.json'), encode(releases, indent=4, large_object=True))
 
             latest_release = self._get_latest_release(releases)
             if latest_release:
                 package['latest_version'] = latest_release['version']
                 package['installation_instructions'] = self._get_installation_instructions(package, latest_release)
                 packages.append(package)
-        write_file(self.base_directory, 'packages.json', encode(packages, indent=4, large_object=True))
+        write_file(path.join(self.base_directory, 'packages.json'), encode(packages, indent=4, large_object=True))

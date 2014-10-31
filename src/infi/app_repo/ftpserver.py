@@ -4,7 +4,6 @@ from pyftpdlib.servers import FTPServer
 from logging import getLogger
 from infi.pyutils.lazy import cached_function
 from infi.gevent_utils.os import path
-from gevent import select
 logger = getLogger(__name__)
 
 
@@ -23,10 +22,16 @@ class AppRepoFtpHandler(FTPHandler):
 
 @cached_function
 def make_pyftpdlib_gevent_friendly():
-    from pyftpdlib import ioloop
+    from pyftpdlib import ioloop, servers, handlers
+    from gevent import socket, select
+    import asyncore
     ioloop.select = select
     ioloop.IOLoop = ioloop.Select
-
+    ioloop.socket = socket
+    servers.socket = socket
+    handlers.socket = socket
+    asyncore.socket = socket
+    asyncore.select = select
 
 @cached_function
 def make_ftplib_gevent_friendly():
@@ -56,6 +61,7 @@ def start(config):
     setup_authorization(config)
 
     server = FTPServer((config.ftpserver.address, config.ftpserver.port), AppRepoFtpHandler)
+    server.socket.setblocking(1)
     server.config = config
     server.rpc_client = get_client(config)
     server.counters = PersistentDict(config.ftpserver_counters_filepath)

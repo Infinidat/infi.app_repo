@@ -1,40 +1,54 @@
+from infi.app_repo.utils import path, log_execute_assert_success
+from infi.pyutils.contexts import contextmanager
+
+INIT = path.join(path.sep, 'etc', 'init')
+SERVICES = {"app-repo-ftp": '--signal-upstart --process-incoming-on-startup',
+            "app-repo-web": '--signal-upstart',
+            "app-repo-rpc": '--signal-upstart'}
+
 TEMPLATE = """
-author "Infinidat, Ltd."
-description "Infinidat Application Repository"
+author "INFINIDAT, Ltd."
+description "INFINIDAT Host Powertools for VMware"
 version {version}
 chdir {chdir}
-exec {exec}
+exec su root -c 'HTTPS_PROXY=$http_proxy {exec}'
 expect stop
 respawn
-respawn limit 5 1
+respawn limit 30 2
 start on (local-filesystems and net-device-up IFACE!=lo)
 stop on runlevel [016]
 """
 
 
-def install(base_directory, service_name, exec_cmd):  # pragma: no cover
-    from infi.app_repo import __version__
-    from os.path import abspath, join, sep
-    from os import pardir
-    kwargs = {'version': __version__.__version__,
-              'chdir': abspath(join(base_directory, pardir)),
-              'exec': exec_cmd,
-             }
+@contextmanager
+def restart_after():
+    require_restart = [service for service in SERVICES if
+                       path.exists(path.join(INIT, '%s.conf' % service))]
+    for service in require_restart:
+        log_execute_assert_success(['stop', service], allow_to_fail=True)
+    yield
+    for service in require_restart:
+        log_execute_assert_success(['start', service])
+
+
+def _install_upstart_job(service_name, commandline_arguments):
+    from infi.app_repo import PROJECTROOT
+    from infi.app_repo.__version__ import __version__
+    script = join(PROJECTROOT, 'bin', 'app_repo')
+    kwargs = {'version': __version__,
+              'chdir': PROJECTROOT,
+              'exec': '{} {}'.format(script, commandline_arguments).strip(),
+              }
     config = TEMPLATE.format(**kwargs)
-    with open(join(sep, 'etc', 'init', service_name + '.conf'), 'w') as fd:
+    with open(path.join(INIT, '%s.conf' % service_name), 'w') as fd:
         fd.write(config)
 
 
-def get_executable(base_directory):
-    from os.path import abspath, join
-    from os import pardir
-    return join(abspath(join(base_directory, pardir)), 'bin', 'app_repo')
-
-
-def install_server(base_directory):
-    executable = get_executable(base_directory)
-    exec_cmd = "{} -f /etc/app_repo.conf server start".format(executable)
-    install(base_directory, "app_repo_server", exec_cmd)
+def install():  # pragma: no cover
+    with restart_after():
+        for service, commandline in SERVICES.items():
+            _install_upstart_job(service,c commandline_arguments)
+    execute_assert_success(['initctl', 'reload-configuration'])
 
 
 def signal_init_that_i_am_ready():  # pragma: no cover

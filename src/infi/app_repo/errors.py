@@ -24,3 +24,7 @@ class FileProcessingFailed(FileRejected):
 
 class FileNeglectedByIndexers(FileRejected):
     pass
+
+
+class NoCredentialsException(Exception):
+    pass

@@ -34,9 +34,11 @@ class FtpServerConfiguration(Model):
 
 
 class RemoteConfiguration(Model):
-    fqdn = StringType(default="repo.infinidat.com")
-    username = StringType(default="not")
-    password = StringType(default="really")
+    address = StringType(required=True)
+    username = StringType(default='')
+    password = StringType(default='')
+    ftp_port = IntType(default=21)
+    http_port = IntType(default=80)
 
 
 class PropertyMixin(object):
@@ -70,7 +72,8 @@ class Configuration(Model, PropertyMixin):
     webserver = ModelType(WebserverConfiguration, required=True, default=WebserverConfiguration)
     rpcserver = ModelType(RPCServerConfiguration, required=True, default=RPCServerConfiguration)
     ftpserver = ModelType(FtpServerConfiguration, required=True, default=FtpServerConfiguration)
-    remote = ModelType(RemoteConfiguration, required=True, default=RemoteConfiguration)
+    remote_servers = ListType(ModelType(RemoteConfiguration), required=True,
+                                        default=[RemoteConfiguration(dict(address="repo.infinidat.com"))])
 
     base_directory = StringType(default=get_base_directory())
     logging_level = IntType(default=logging.DEBUG)
@@ -82,10 +85,15 @@ class Configuration(Model, PropertyMixin):
     def get_default_config_file(cls):
         return path.join(get_base_directory(), 'config.json')
 
+    def to_builtins(self):
+        from json import dumps
+        method = getattr(self, "to_python") if hasattr(self, "to_python") else getattr(self, "serialize")
+        return method()
+
     def to_json(self):
         from json import dumps
         method = getattr(self, "to_python") if hasattr(self, "to_python") else getattr(self, "serialize")
-        return dumps(method(), indent=4)
+        return dumps(self.to_builtins(), indent=4)
 
     @classmethod
     def from_disk(cls, filepath):

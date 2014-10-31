@@ -83,7 +83,6 @@ def start(config):
     from gevent.wsgi import WSGIServer
     from werkzeug.contrib.fixers import ProxyFix
     from werkzeug.debug import DebuggedApplication
-    from gevent import monkey; monkey.patch_thread()
 
     app = FlaskApp.from_config(config)
     app_wrapper = ProxyFix(DebuggedApplication(app, True))
@@ -92,6 +91,3 @@ def start(config):
     server.start()
     return server
 
-
-# TODO implement the pull/push mechanism
-# TODO refactor the client-side code to fetch the packages json, it is no longer part of the template

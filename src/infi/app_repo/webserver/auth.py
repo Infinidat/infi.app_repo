@@ -4,8 +4,8 @@ import flask
 
 def check_password(username, password):
     """Checks the user name and password with PAM"""
-    ftpserver_config = flask.current_app.app_repo.config.ftpserver
-    return ftpserver_config.username == username and ftpserver_password == password
+    ftpserver_config = flask.current_app.app_repo_config.ftpserver
+    return ftpserver_config.username == username and ftpserver_config.password == password
 
 
 def requires_auth(func):

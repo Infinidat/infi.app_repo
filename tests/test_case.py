@@ -72,6 +72,7 @@ class TestCase(unittest.TestCase):
 
     @contextmanager
     def web_server_context(self, config):
+        from gevent import monkey; monkey.patch_thread()
         from infi.app_repo.webserver import start
         webserver = start(config)
         try:

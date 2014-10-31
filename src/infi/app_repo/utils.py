@@ -135,3 +135,9 @@ def read_file(filepath):
     """ Read the contents of a file in a gevent-friendly way """
     with open(filepath) as fd:
         return fd.read()
+
+
+@create_threadpool_executed_func
+def write_file(filepath, contents):
+    with open(filepath, 'w') as fd:
+        fd.write(contents)

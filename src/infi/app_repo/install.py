@@ -27,8 +27,9 @@ def initialize_all_indexers(config):
             indexer.initialise()
 
 
-def setup_upstart_services(config): # TODO implement this
-    raise NotImplementedError()
+def setup_upstart_services(config):
+    from .upstart import install
+    install()
 
 
 def _generate_gpg_key_if_does_not_exist(config):
@@ -89,7 +90,7 @@ def setup_all(config):
     ensure_incoming_and_rejected_directories_exist_for_all_indexers(config)
     initialize_all_indexers(config)
     if config.production_mode:
-        setup_upstart_services(config) # TODO do we still need the docker support?
+        setup_upstart_services(config)
     setup_gpg(config)
 
 
