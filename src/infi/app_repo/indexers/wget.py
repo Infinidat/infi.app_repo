@@ -62,12 +62,19 @@ class PrettyIndexer(Indexer): # TODO implement this
     def _is_hidden(self, dirpath):
         return path.exists(path.join(dirpath, 'hidden'))
 
+    def _deduce_produce_name(self, dirpath):
+        try:
+            with fopen(path.join(dirpath, 'product_name')) as fd:
+                return fd.read()
+        except:
+            return ' '.join(word.capitalize() for word in path.basename(dirpath).split('-'))
+
     def _iter_packages(self):
         for package_dirpath in glob(path.join(self.base_directory, 'packages', '*')):
             if self._is_hidden(package_dirpath):
                 continue
             yield dict(abspath=package_dirpath,
-                       product_name=None,
+                       product_name=self._deduce_produce_name(package_dirpath),
                        name=path.basename(package_dirpath),
                        releases_uri=self._normalize_url(path.join(package_dirpath, 'releases.json')))
 
@@ -107,12 +114,12 @@ class PrettyIndexer(Indexer): # TODO implement this
         for distribution in release['distributions']:
             for yum_platform in ('redhat', 'centos', 'oracle'):
                 if yum_platform in distribution['platform'] and distribution['extension'] == 'rpm':
-                    installation_instructions[yum_platform] = dict(upgrade=dict(command=YUM_UPGRADE_COMMAND.format(package)),
-                                                                   install=dict(command=YUM_INSTALL_COMMAND.format(package)))
+                    installation_instructions[yum_platform] = dict(upgrade=dict(command=YUM_UPGRADE_COMMAND.format(package['name'])),
+                                                                   install=dict(command=YUM_INSTALL_COMMAND.format(package['name'])))
             for apt_platform in ('ubuntu', ):
                 if apt_platform in distribution['platform'] and distribution['extension'] == 'deb':
-                    installation_instructions[apt_platform] = dict(upgrade=dict(command=APT_INSTALL_COMMAND.format(package)),
-                                                                   install=dict(command=APT_UGPRADE_COMMAND.format(package)))
+                    installation_instructions[apt_platform] = dict(upgrade=dict(command=APT_INSTALL_COMMAND.format(package['name'])),
+                                                                   install=dict(command=APT_UGPRADE_COMMAND.format(package['name'])))
             if distribution['platform'] == 'windows' and distribution['extension'] == 'msi':
                 platform = 'windows-%s' % distribution['architecture']
                 installation_instructions[platform] = dict(upgrade=dict(download_link=distribution['filepath']),

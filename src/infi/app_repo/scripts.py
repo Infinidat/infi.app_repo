@@ -111,28 +111,28 @@ def app_repo(argv=argv[1:]):
         return rpc_server(config, args['--signal-upstart'], args['--with-mock'])
     elif args['rpc-client']:
         return rpc_client(config, args['<method>'], args['<arg>'], args['--style'])
-    elif args['service'] and ['upload-file']:
+    elif args['service'] and args['upload-file']:
         return upload_file(config, args['--index'], args['<filepath>'])
-    elif args['service'] and ['process-rejected-file']:
+    elif args['service'] and args['process-rejected-file']:
         return process_rejected_file(config, args['--index'], args['<filepath>'], args['<platform>'], args['<arch>'])
-    elif args['service'] and ['process-incoming']:
+    elif args['service'] and args['process-incoming']:
         return process_incoming(config, args['--index'])
-    elif args['service'] and ['rebuild-index']:
+    elif args['service'] and args['rebuild-index']:
         return rebuild_index(config, args['--index'])
-    elif args['index'] and ['list']:
+    elif args['index'] and args['list']:
         print ' '.join(config.indexes)
-    elif args['index'] and ['add']:
+    elif args['index'] and args['add']:
         return add_index(config, args['<index>'])
-    elif args['index'] and ['remove'] and args['--yes']:
+    elif args['index'] and args['remove'] and args['--yes']:
         return remove_index(config, args['<index>'])
-    elif args['package'] and ['list']:
+    elif args['package'] and args['list']:
         return show_packages(config, args['--index'])
     elif args['package'] and args['remote-list']:
         return show_remote_packages(config, args['<remote-server>'], args['<remote-index>'])
-    elif args['package'] and ['pull']:
+    elif args['package'] and args['pull']:
         return pull_packages(config, args['--index'], args['<remote-server>'], args['<remote-index>'],
                              args['<package>'], args['<version>'], args['platform'], args['<arch>'])
-    elif args['package'] and ['push']:
+    elif args['package'] and args['push']:
         return push_packages(config, args['--index'], args['<remote-server>'], args['<remote-index>'],
                              args['<package>'], args['<version>'], args['platform'], args['<arch>'])
 
