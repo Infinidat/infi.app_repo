@@ -3,9 +3,8 @@ from schematics.models import Model
 from schematics.types.compound import ListType
 from schematics.types import StringType, IntType, BooleanType
 from schematics.types.compound import ModelType
-from infi.gevent_utils.os import path, pardir, makedirs
+from infi.gevent_utils.os import path, pardir, makedirs, fopen
 from infi.gevent_utils.json_utils import decode
-
 
 def get_projectroot():
     return path.abspath(path.join(path.dirname(__file__), pardir, pardir, pardir))
@@ -102,7 +101,7 @@ class Configuration(Model, PropertyMixin):
             self = cls()
             self.filepath = filepath
         else:
-            with open(filepath) as fd:
+            with fopen(filepath) as fd:
                 kwargs = decode(fd.read())
                 kwargs['filepath'] = filepath
                 self = cls()
@@ -115,7 +114,7 @@ class Configuration(Model, PropertyMixin):
     def to_disk(self):
         if not path.exists(path.dirname(self.filepath)):
             makedirs(path.dirname(self.filepath))
-        with open(self.filepath, 'w') as fd:
+        with fopen(self.filepath, 'w') as fd:
             fd.write(self.to_json())
 
     def reset_to_development_defaults(self):

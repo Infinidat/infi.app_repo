@@ -1,5 +1,5 @@
 from logging import getLogger
-from infi.gevent_utils.os import path, walk, link, makedirs, remove
+from infi.gevent_utils.os import path, walk, link, makedirs, remove, fopen
 from infi.gevent_utils.json_utils import encode, decode, DecodeError
 from infi.gevent_utils.deferred import create_threadpool_executed_func
 from infi.execute import execute_assert_success, ExecutionError
@@ -133,11 +133,11 @@ def jsonify_arguments(*args):
 @create_threadpool_executed_func
 def read_file(filepath):
     """ Read the contents of a file in a gevent-friendly way """
-    with open(filepath) as fd:
+    with fopen(filepath) as fd:
         return fd.read()
 
 
 @create_threadpool_executed_func
 def write_file(filepath, contents):
-    with open(filepath, 'w') as fd:
+    with fopen(filepath, 'w') as fd:
         fd.write(contents)

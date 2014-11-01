@@ -3,14 +3,13 @@ from infi.app_repo.indexers import get_indexers
 from infi.app_repo.config import Configuration
 from infi.app_repo.install import setup_gpg, ensure_incoming_and_rejected_directories_exist_for_all_indexers, destroy_all
 from infi.app_repo.mock import patch_all
-from infi.app_repo.utils import path
+from infi.app_repo.utils import path, fopen, decode
 from infi.pyutils.contexts import contextmanager
 
 
 def read_json_file(filepath):
-    from json import load
-    with open(filepath) as fd:
-        return load(fd)
+    with fopen(filepath) as fd:
+        return decode(fd.read())
 
 
 class IndexersTestCase(TestCase):
@@ -43,7 +42,7 @@ class IndexersTestCase(TestCase):
             indexer.consume_file(filepath, 'linux-ubuntu-natty', 'i386')
 
             packages_file = path.join(indexer.base_directory, 'linux-ubuntu', 'dists', 'natty', 'main', 'binary-i386', 'Packages')
-            with open(packages_file) as fd:
+            with fopen(packages_file) as fd:
                 packages_contents = fd.read()
                 self.assertNotEquals(packages_contents, '')
                 self.assertIn("Filename: dists/natty/main/binary-i386/some-package.deb", packages_contents)
@@ -54,7 +53,7 @@ class IndexersTestCase(TestCase):
             self.assertTrue(path.exists(path.join(release_dirpath, 'main', 'binary-i386', 'some-package.deb')))
 
             release_filepath = path.join(release_dirpath, 'Release')
-            with open(release_filepath) as fd:
+            with fopen(release_filepath) as fd:
                 self.assertEquals(fd.read(), 'Codename: natty\nArchitectures: amd64 i386\nComponents: main\nok')
             self.assertTrue(path.exists(release_filepath))
             self.assertTrue(path.exists(release_filepath + '.gpg'))

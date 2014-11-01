@@ -229,7 +229,7 @@ def rpc_client(config, method, arguments, style):
 
 def upload_file(config, index, filepath):
     from ftplib import FTP
-    from infi.gevent_utils.os import path
+    from infi.gevent_utils.os import path, fopen
     from infi.app_repo.ftpserver import make_ftplib_gevent_friendly
     from infi.gevent_utils.deferred import create_threadpool_executed_func
     make_ftplib_gevent_friendly()
@@ -238,8 +238,7 @@ def upload_file(config, index, filepath):
     ftp.login(config.ftpserver.username, config.ftpserver.password)
     ftp.cwd(index)
 
-    with create_threadpool_executed_func(open)(filepath) as fd:
-        fd.read = create_threadpool_executed_func(fd.read)
+    with fopen(filepath) as fd:
         ftp.storbinary("STOR %s" % path.basename(filepath), fd)
 
 

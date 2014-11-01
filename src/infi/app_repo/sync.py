@@ -42,15 +42,15 @@ def _download_file(url):
 
 def _upload_file(address, port, username, password, index, filepath):
     from ftplib import FTP
-    from infi.gevent_utils.os import path
+    from infi.gevent_utils.os import path, fopen
     from infi.app_repo.ftpserver import make_ftplib_gevent_friendly
-
     make_ftplib_gevent_friendly()
     ftp = FTP()
     ftp.connect(address, port)
     ftp.login(username, password)
     ftp.cwd(index)
-    with open(filepath) as fd:
+
+    with fopen(filepath) as fd:
         ftp.storbinary("STOR %s" % path.basename(filepath), fd)
 
 

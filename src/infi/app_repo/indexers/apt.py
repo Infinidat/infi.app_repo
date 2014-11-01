@@ -1,6 +1,6 @@
 from .base import Indexer
 from infi.app_repo.utils import ensure_directory_exists
-from infi.gevent_utils.os import path, remove
+from infi.gevent_utils.os import path, remove, fopen
 from infi.gevent_utils.deferred import create_threadpool_executed_func
 from infi.app_repo.utils import temporary_directory_context, log_execute_assert_success, hard_link_or_raise_exception
 
@@ -22,11 +22,10 @@ TRANSLATE_ARCH = {'x86': 'i386', 'x64': 'amd64', 'i386': 'i386', 'amd64': 'amd64
 RELEASE_FILE_HEADER = "Codename: {}\nArchitectures: {}\nComponents: main\n{}"
 
 
-@create_threadpool_executed_func
 def write_to_packages_file(dirpath, contents, mode):
     import gzip
     packages_filepath = path.join(dirpath, 'Packages')
-    with open(packages_filepath, mode) as fd:
+    with fopen(packages_filepath, mode) as fd:
         fd.write(contents)
     fd = gzip.open(packages_filepath + '.gz', 'wb')
     fd.write(contents)
@@ -75,9 +74,8 @@ class AptIndexer(Indexer):
             cache = path.join(dirpath, 'apt_cache.db')
             contents = apt_ftparchive(['--db', cache, 'release', dirpath])
 
-            @create_threadpool_executed_func
             def _write():
-                with open(release, 'w') as fd:
+                with fopen(release, 'w') as fd:
                     available_archs = sorted(KNOWN_DISTRIBUTIONS[distribution][codename])
                     fd.write(RELEASE_FILE_HEADER.format(codename, " ".join(available_archs), contents))
 

@@ -1,5 +1,5 @@
 from shutil import copy, rmtree
-from infi.gevent_utils.os import path
+from infi.gevent_utils.os import path, fopen
 from pkg_resources import resource_filename
 from .utils import log_execute_assert_success, sign_rpm_package, sign_deb_package, ensure_directory_exists, find_files
 
@@ -43,9 +43,9 @@ def _generate_gpg_key_if_does_not_exist(config):
         log_execute_assert_success(['gpg', '--batch', '--gen-key',
                                     resource_filename(__name__, 'gpg_batch_file')])
         pid = log_execute_assert_success(['gpg', '--export', '--armor'])
-        with open(path.join(path.expanduser("~"), ".rpmmacros"), 'w') as fd:
+        with fopen(path.join(path.expanduser("~"), ".rpmmacros"), 'w') as fd:
             fd.write(GPG_TEMPLATE)
-        with open(home_key_path, 'w') as fd:
+        with fopen(home_key_path, 'w') as fd:
             fd.write(pid.get_stdout())
     data_key_path = path.join(config.artifacts_directory, 'packages', 'gpg.key')
     if not path.exists(data_key_path):
@@ -59,7 +59,7 @@ def _fix_entropy_generator():
     if not path.exists(rng_tools_script) or getuid() != 0:
         return
     log_execute_assert_success([rng_tools_script, 'stop'], True)
-    with open("/etc/default/rng-tools", 'a') as fd:
+    with fopen("/etc/default/rng-tools", 'a') as fd:
         fd.write("HRNGDEVICE=/dev/urandom\n")
     log_execute_assert_success([rng_tools_script, 'start'], True)
 

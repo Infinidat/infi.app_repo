@@ -1,10 +1,10 @@
-from infi.app_repo.utils import path, log_execute_assert_success
+from infi.app_repo.utils import path, log_execute_assert_success, fopen
 from infi.pyutils.contexts import contextmanager
 
 INIT = path.join(path.sep, 'etc', 'init')
-SERVICES = {"app-repo-ftp": '--signal-upstart --process-incoming-on-startup',
-            "app-repo-web": '--signal-upstart',
-            "app-repo-rpc": '--signal-upstart'}
+SERVICES = {"app-repo-ftp": 'ftp-server --signal-upstart --process-incoming-on-startup',
+            "app-repo-web": 'web-server --signal-upstart',
+            "app-repo-rpc": 'rpc-server --signal-upstart'}
 
 TEMPLATE = """
 author "INFINIDAT, Ltd."
@@ -34,21 +34,21 @@ def restart_after():
 def _install_upstart_job(service_name, commandline_arguments):
     from infi.app_repo import PROJECTROOT
     from infi.app_repo.__version__ import __version__
-    script = join(PROJECTROOT, 'bin', 'app_repo')
+    script = path.join(PROJECTROOT, 'bin', 'app_repo')
     kwargs = {'version': __version__,
               'chdir': PROJECTROOT,
               'exec': '{} {}'.format(script, commandline_arguments).strip(),
               }
     config = TEMPLATE.format(**kwargs)
-    with open(path.join(INIT, '%s.conf' % service_name), 'w') as fd:
+    with fopen(path.join(INIT, '%s.conf' % service_name), 'w') as fd:
         fd.write(config)
 
 
 def install():  # pragma: no cover
     with restart_after():
-        for service, commandline in SERVICES.items():
-            _install_upstart_job(service,c commandline_arguments)
-    execute_assert_success(['initctl', 'reload-configuration'])
+        for service, commandline_arguments in SERVICES.items():
+            _install_upstart_job(service, commandline_arguments)
+    log_execute_assert_success(['initctl', 'reload-configuration'])
 
 
 def signal_init_that_i_am_ready():  # pragma: no cover

@@ -1,4 +1,4 @@
-from infi.gevent_utils.os import path, remove
+from infi.gevent_utils.os import path, remove, fopen
 from infi.gevent_utils.deferred import create_threadpool_executed_func
 from UserDict import UserDict
 from msgpack import packb, unpackb
@@ -8,13 +8,13 @@ from gevent.lock import RLock
 
 @create_threadpool_executed_func
 def _read(filepath):
-    with open(filepath, 'rb') as fd:
+    with fopen(filepath, 'rb') as fd:
         return unpackb(fd.read())
 
 
 @create_threadpool_executed_func
 def _write(filepath, contents):
-    with open(filepath, 'wb') as fd:
+    with fopen(filepath, 'wb') as fd:
         fd.write(packb(contents))
 
 

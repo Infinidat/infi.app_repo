@@ -1,7 +1,7 @@
 from .test_case import TemporaryBaseDirectoryTestCase
 from infi.app_repo.config import Configuration
 from infi.app_repo import ftpserver
-from infi.app_repo.utils import ensure_directory_exists, path
+from infi.app_repo.utils import ensure_directory_exists, path, fopen
 from mock import patch
 from StringIO import StringIO
 
@@ -27,7 +27,7 @@ class FtpServerTestCase(TemporaryBaseDirectoryTestCase):
         self.assertTrue(path.exists(path.join(self.config.incoming_directory, 'testfile')))
 
     def test_download(self):
-        with open(path.join(self.config.incoming_directory, 'testfile'), 'w') as fd:
+        with fopen(path.join(self.config.incoming_directory, 'testfile'), 'w') as fd:
             fd.write('hello world')
 
         with patch.object(ftpserver.AppRepoFtpHandler, "on_file_sent") as on_file_sent:

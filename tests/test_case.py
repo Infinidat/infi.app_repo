@@ -1,6 +1,6 @@
 from infi import unittest
 from infi.pyutils.contexts import contextmanager
-from infi.app_repo.utils import path
+from infi.app_repo.utils import path, fopen
 from mock import patch
 from logging import getLogger
 logger = getLogger(__name__)
@@ -82,7 +82,7 @@ class TestCase(unittest.TestCase):
 
     def write_new_package_in_incoming_directory(self, config, index='main-stable', package_basename='some-package', extension=None):
         filepath = path.join(config.incoming_directory, index, ('%s.%s' % (package_basename, extension)) if extension else package_basename)
-        with open(filepath, 'w') as fd:
+        with fopen(filepath, 'w') as fd:
             pass
         logger.debug("write_new_package_in_incoming_directory %s" % filepath)
         return filepath

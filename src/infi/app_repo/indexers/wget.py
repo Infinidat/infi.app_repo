@@ -1,8 +1,8 @@
 from .base import Indexer
-from infi.gevent_utils.os import path
+from infi.gevent_utils.os import path, fopen
 from infi.gevent_utils.glob import glob
 from infi.gevent_utils.deferred import create_threadpool_executed_func
-from infi.app_repo.utils import ensure_directory_exists, path, hard_link_or_raise_exception, write_file
+from infi.app_repo.utils import ensure_directory_exists, hard_link_or_raise_exception, write_file
 from infi.gevent_utils.json_utils import encode
 from infi.app_repo.filename_parser import parse_filepath, FilenameParsingFailed
 from pkg_resources import parse_version
@@ -16,17 +16,17 @@ APT_UGPRADE_COMMAND = 'sudo apt-get update; sudo apt-get install -y {0}'
 
 # TODO add support for shared libraries, executables, sources, symbol files
 
-@create_threadpool_executed_func
+
 def ensure_packages_json_file_exists_in_directory(dirpath):
     filepath = path.join(dirpath, 'packages.json')
     if path.exists(filepath):
         try:
-            with open(filepath) as fd:
+            with fopen(filepath) as fd:
                 if isinstance(encode(fd.read()), list):
                     return
         except:
             pass
-    with open(filepath, 'w') as fd:
+    with fopen(filepath, 'w') as fd:
         fd.write('[]')
 
 
