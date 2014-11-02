@@ -6,6 +6,7 @@ from schematics.types.compound import ModelType
 from infi.gevent_utils.os import path, pardir, makedirs, fopen
 from infi.gevent_utils.json_utils import decode
 
+
 def get_projectroot():
     return path.abspath(path.join(path.dirname(__file__), pardir, pardir, pardir))
 

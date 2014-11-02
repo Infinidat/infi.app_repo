@@ -64,7 +64,9 @@ def client_setup_script(index_name):
 def index_home_page(index_name):
     packages_json = path.join(flask.current_app.app_repo_config.packages_directory, index_name, 'index', 'packages.json')
     data = decode(read_file(packages_json))
-    return flask.Response(flask.render_template("home.html", packages=data))
+    setup_url = '%s%s' % (flask.request.host_url.rstrip('/'),
+                          flask.url_for("client_setup_script", index_name=index_name))
+    return flask.Response(flask.render_template("home.html", packages=data, setup_url=setup_url))
 
 
 def indexes_tree():
