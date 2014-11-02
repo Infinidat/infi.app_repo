@@ -30,7 +30,7 @@ Options:
 
 from sys import argv
 from infi.pyutils.contexts import contextmanager
-from infi.pyutils.decorators import wraps, _ipython_inspect_module
+from infi.pyutils.decorators import wraps
 from logging import getLogger
 
 logger = getLogger(__name__)
@@ -85,8 +85,6 @@ def console_script(func=None, name=None):
 def app_repo(argv=argv[1:]):
     from docopt import docopt
     from .config import Configuration
-    from .install import destroy_all
-    from .sync import pull_packages, push_packages
 
     global bypass_console_script_logging
     bypass_console_script_logging = False
@@ -104,6 +102,7 @@ def app_repo(argv=argv[1:]):
         config.reset_to_production_defaults() if args['production-defaults'] else None
         return setup(config, args['--with-mock'])
     elif args['destroy'] and args['--yes']:
+        from .install import destroy_all
         destroy_all(config)
     elif args['web-server']:
         return web_server(config, args['--signal-upstart'])
@@ -132,9 +131,11 @@ def app_repo(argv=argv[1:]):
     elif args['package'] and args['remote-list']:
         return show_remote_packages(config, args['<remote-server>'], args['<remote-index>'])
     elif args['package'] and args['pull']:
+        from .sync import pull_packages
         return pull_packages(config, args['--index'], args['<remote-server>'], args['<remote-index>'],
                              args['<package>'], args['<version>'], args['platform'], args['<arch>'])
     elif args['package'] and args['push']:
+        from .sync import push_packages
         return push_packages(config, args['--index'], args['<remote-server>'], args['<remote-index>'],
                              args['<package>'], args['<version>'], args['platform'], args['<arch>'])
 
