@@ -87,11 +87,11 @@ def setup_gpg(config):
 
 def setup_all(config):
     config.to_disk()
+    setup_gpg(config)
     ensure_incoming_and_rejected_directories_exist_for_all_indexers(config)
     initialize_all_indexers(config)
     if config.production_mode:
         setup_upstart_services(config)
-    setup_gpg(config)
 
 
 def destroy_all(config):
