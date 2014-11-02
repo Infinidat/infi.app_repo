@@ -34,7 +34,7 @@ from infi.pyutils.decorators import wraps, _ipython_inspect_module
 from logging import getLogger
 
 logger = getLogger(__name__)
-bypass_console_script = True # we want to use the functions in this module in the tests but without the logging stuff
+bypass_console_script_logging = True # we want to use the functions in this module in the tests but without the logging stuff
 
 
 @contextmanager
@@ -65,7 +65,7 @@ def console_script(func=None, name=None):
             from docopt import DocoptExit
             from sys import stderr
 
-            if bypass_console_script:
+            if bypass_console_script_logging:
                 return f(*args, **kwargs)
 
             filename = '/tmp/{}.log'.format(name if name else f.__name__)
@@ -87,7 +87,9 @@ def app_repo(argv=argv[1:]):
     from .config import Configuration
     from .install import destroy_all
     from .sync import pull_packages, push_packages
-    bypass_console_script = False
+
+    global bypass_console_script_logging
+    bypass_console_script_logging = False
     args = docopt(__doc__, argv=argv, help=True)
     config = get_config(args)
     if args['counters'] and args['show']:
