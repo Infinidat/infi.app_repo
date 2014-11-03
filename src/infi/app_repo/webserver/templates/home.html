@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title></title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <link href="/static/css/bootstrap.css" rel="stylesheet">
+        <link href="/static/css/apprepo.css" rel="stylesheet">
+        <style>
+            body {
+                padding-top: 20px;
+            }
+            .big-code {
+                font-size: 150%;
+            }
+        </style>
+        <link href="/static/css/bootstrap-responsive.css" rel="stylesheet">
+        <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+        <!--[if lt IE 9]>
+            <script src="http://html5shim.googlecode.com/svn/trunk/html5.js">
+
+            </script>
+        <![endif]-->
+        <link rel="shortcut icon" href="/static/favicon.ico">
+    </head>
+    <body>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span3">
+                    <div class="well sidebar-nav affix" style="overflow-y: scroll;">
+                        <ul class="nav nav-list">
+                            <li class="">
+                                <a href="#hero">Setting up the repository</a>
+                            </li>
+                            <li class="nav-header">
+                                Available packages
+                            </li>
+                            {% for package in packages %}
+                                <li><a href="#{{ package.product_name }}">{{ package.product_name|title }}</a></li>
+                            {% endfor %}
+                    </div>
+                </div>
+                <div class="span9" id="hero">
+                    <div class="hero-unit">
+                        <h1>Setup Instructions</h1>
+                        <br>
+                        <h2>
+                            Step 1 (first time only)
+                        </h2>
+                        <div class="row-fluid">
+                            <div class="span3">
+                                <span class="label label-important">redhat</span>
+                                <span class="label label-important">oracle</span>
+                                <span class="label label-important">centos</span>
+                                <span class="label label-warning">ubuntu</span>
+                            </div>
+                            <div class="span9">
+                                Execute in shell: <code>curl {{ setup_url }} | sudo sh -</code>
+                            </div>
+                        </div>
+                        <hr style="margin:0px; margin-bottom: 10px;">
+                        <div class="row-fluid">
+                            <div class="span3">
+                                <span class="label label-info">vmware</span>
+                                <span class="label label-success">windows</span>
+                                <span class="label label-inverse">other</span>
+                            </div>
+                            <div class="span9">
+                                Skip to step 2
+                            </div>
+                        </div>
+                        <br>
+                        <h2>
+                            Step 2
+                        </h2>
+                        <p>
+                            Choose a package from the list on the left
+                        </p>
+                    </div>
+                    <br>
+                    <div style="height: 1080px">
+                    </div>
+                    <h1>Available packages</h1>
+                    {% for package in packages %}
+                        {% include "home_package.html" %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="versions_modal" tabindex="-1" role="dialog" style="display: none;">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                <h4 class="modal-title" id="versions_modal_title">Modal title</h4>
+              </div>
+              <div class="modal-body">
+                <table class="table table-bordered table-hover download-links">
+                    <thead>
+                        <tr>
+                            <th>version</th>
+                            <th>platform</th>
+                            <th>architecture</th>
+                            <th>link</th>
+                        </tr>
+                    </thead>
+                </table>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <br><br>
+
+        <script src="/static/jquery-1.8.1.min.js"></script>
+        <script src="/static/js/underscore-min.js"></script>
+        <script src="/static/jquery.dataTables.min.js"></script>
+        <script src="/static/js/bootstrap.js"></script>
+        <script>
+
+            $(function() {
+                // Initialize versions datatable
+                $.fn.dataTableExt.oStdClasses.sPagePrevEnabled = "btn btn-info";
+                $.fn.dataTableExt.oStdClasses.sPagePrevDisabled = "btn btn-info disabled";
+                $.fn.dataTableExt.oStdClasses.sPageNextEnabled = "btn btn-info";
+                $.fn.dataTableExt.oStdClasses.sPageNextDisabled = "btn btn-info disabled";
+                $(".download-links").dataTable({
+                    bPaginate: true,
+                    bSort: false,
+                    bProcessing: false,
+                    bInfo: false,
+                    bAutoWidth: true
+                });
+            });
+
+            function show_versions(title, url) {
+                $.get(url, function(data) {
+                    var table = $(".download-links").dataTable();
+                    table.fnClearTable();
+                    _.each(data, function(version) {
+                        _.each(version.distributions, function(distro) {
+                            var link = '<a href="' + distro.filepath + '">download</a>';
+                            table.fnAddData([version.version, distro.platform, distro.architecture, link], false);
+                        });
+                    });
+                    table.fnDraw();
+                    $('#versions_modal_title').text(title);
+                    $('#versions_modal').modal();
+                });
+            }
+
+            // Set the size of the sidebar
+            function resize_sidebar() {
+                $('.sidebar-nav').height($(window).height() - 120);
+            }
+            resize_sidebar();
+            $(window).on('resize', resize_sidebar);
+
+        </script>
+    </body>
+</html>

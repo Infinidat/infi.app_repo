@@ -1,104 +1,139 @@
-
 import logging
-import os
 from schematics.models import Model
+from schematics.types.compound import ListType
 from schematics.types import StringType, IntType, BooleanType
 from schematics.types.compound import ModelType
+from infi.gevent_utils.os import path, pardir, makedirs, fopen
+from infi.gevent_utils.json_utils import decode
+
 
 def get_projectroot():
-    from os import path, pardir
     return path.abspath(path.join(path.dirname(__file__), pardir, pardir, pardir))
 
+
 def get_base_directory():
-    from os import path
     return path.join(get_projectroot(), 'data')
 
-{
-     '/static': {'tools.staticdir.on': True,
-                 'tools.staticdir.dir': os.path.join(os.path.dirname(__file__), 'static')},
-     '/assets': {'tools.staticdir.on': True,
-                 'tools.staticdir.dir': os.path.join(os.path.dirname(__file__), 'assets')},
-     '/favicon.ico': {'tools.staticfile.on': True,
-                      'tools.staticfile.filename': os.path.join(os.path.dirname(__file__), 'static', 'favicon.ico')},
-     }
-
-def get_webserver_directory():
-    from os import path
-    return path.join(get_projectroot(), 'src', 'infi', 'app_repo', 'webserver')
 
 class WebserverConfiguration(Model):
     address = StringType(default="127.0.0.1")
     port = IntType(default=8000)
-    daemonize = BooleanType(default=True)
-    auto_reload = BooleanType(default=False)
-    static_dir = StringType(default=os.path.join(get_webserver_directory(), "static"))
-    assets_dir = StringType(default=os.path.join(get_webserver_directory(), "assets"))
-    favicon = StringType(default=os.path.join(get_webserver_directory(), "static", "favicon.ico"))
+    default_index = StringType(required=False, default="main-stable")
+
+
+class RPCServerConfiguration(Model):
+    address = StringType(default="127.0.0.1")
+    port = IntType(default=8001)
+
+
+class FtpServerConfiguration(Model):
+    address = StringType(default="127.0.0.1")
+    port = IntType(default=8002)
+    username = StringType(default="app_repo")
+    password = StringType(default="app_repo")
+
 
 class RemoteConfiguration(Model):
-    fqdn = StringType(default="repo.infinidat.com")
-    username = StringType(default="not")
-    password = StringType(default="really")
+    address = StringType(required=True)
+    username = StringType(default='')
+    password = StringType(default='')
+    ftp_port = IntType(default=21)
+    http_port = IntType(default=80)
 
-class WorkerConfig(Model):
-    number_of_workers = IntType(default=1)
-    scheduler = BooleanType(default=True)
-    process_incoming_interval = IntType(default=600)
 
-class Configuration(Model):
+class PropertyMixin(object):
+    @property
+    def artifacts_directory(self):
+        return path.join(self.base_directory, 'artifacts')
+
+    @property
+    def incoming_directory(self):
+        return path.join(self.artifacts_directory, 'incoming')
+
+    @property
+    def rejected_directory(self):
+        return path.join(self.artifacts_directory, 'rejected')
+
+    @property
+    def packages_directory(self):
+        return path.join(self.artifacts_directory, 'packages')
+
+    @property
+    def ftpserver_counters_filepath(self):
+        return path.join(self.base_directory, 'ftp_download_counters.msgpack')
+
+    @property
+    def webserver_counters_filepath(self):
+        return path.join(self.base_directory, 'http_get_counters.msgpack')
+
+
+class Configuration(Model, PropertyMixin):
     filepath = StringType(required=True)
     webserver = ModelType(WebserverConfiguration, required=True, default=WebserverConfiguration)
-    worker = ModelType(WorkerConfig, required=True, default=WorkerConfig)
-    remote = ModelType(RemoteConfiguration, required=True, default=RemoteConfiguration)
+    rpcserver = ModelType(RPCServerConfiguration, required=True, default=RPCServerConfiguration)
+    ftpserver = ModelType(FtpServerConfiguration, required=True, default=FtpServerConfiguration)
+    remote_servers = ListType(ModelType(RemoteConfiguration), required=True,
+                                        default=[RemoteConfiguration(dict(address="repo.infinidat.com"))])
+
     base_directory = StringType(default=get_base_directory())
-    logging_level = IntType(default=logging.INFO)
+    logging_level = IntType(default=logging.DEBUG)
+    development_mode = BooleanType(default=True)
+    production_mode = BooleanType(default=False)
+    indexes = ListType(StringType(), required=True, default=['main-stable', 'main-unstable'])
 
     @classmethod
     def get_default_config_file(cls):
-        from os import path
         return path.join(get_base_directory(), 'config.json')
+
+    def to_builtins(self):
+        from json import dumps
+        method = getattr(self, "to_python") if hasattr(self, "to_python") else getattr(self, "serialize")
+        return method()
 
     def to_json(self):
         from json import dumps
         method = getattr(self, "to_python") if hasattr(self, "to_python") else getattr(self, "serialize")
-        return dumps(method())
+        return dumps(self.to_builtins(), indent=4)
 
     @classmethod
     def from_disk(cls, filepath):
-        from cjson import decode
-        from os import path
         filepath = filepath or cls.get_default_config_file()
         if not path.exists(filepath):
             self = cls()
-        with open(filepath) as fd:
-            kwargs = decode(fd.read())
-            kwargs['filepath'] = filepath
-            self = cls()
-            for key, value in kwargs.iteritems():
-                setattr(self, key, value)
+            self.filepath = filepath
+        else:
+            with fopen(filepath) as fd:
+                kwargs = decode(fd.read())
+                kwargs['filepath'] = filepath
+                self = cls()
+                for key, value in kwargs.iteritems():
+                    setattr(self, key, value)
+
+        assert self.webserver.default_index is None or self.webserver.default_index in self.indexes
         return self
 
     def to_disk(self):
-        from os import chmod, path, makedirs, getuid, getgid, chown
-        from stat import S_IRUSR, S_IWUSR
         if not path.exists(path.dirname(self.filepath)):
             makedirs(path.dirname(self.filepath))
-        with open(self.filepath, 'w') as fd:
+        with fopen(self.filepath, 'w') as fd:
             fd.write(self.to_json())
-        chmod(self.filepath, S_IWUSR | S_IRUSR)
-        chown(self.filepath, getuid(), getgid())
 
-class WebserverDevelopmentConfiguration(WebserverConfiguration):
-    address = StringType(default="127.0.0.1")
-    port = IntType(default=8080)
-    daemonize = BooleanType(default=False)
-    auto_reload = BooleanType(default=True)
+    def reset_to_development_defaults(self):
+        self.webserver = WebserverConfiguration()
+        self.rpcserver = RPCServerConfiguration()
+        self.ftpserver = FtpServerConfiguration()
+        self.production_mode = False
+        self.development_mode = True
+        self.to_disk()
 
-class DevelopmentConfiguration(Configuration):
-    webserver = ModelType(WebserverDevelopmentConfiguration, required=True, default=WebserverDevelopmentConfiguration)
-    logging_level = IntType(default=logging.DEBUG)
+    def reset_to_production_defaults(self):
+        self.webserver = WebserverConfiguration(dict(address="0.0.0.0", port=80))
+        self.rpcserver = RPCServerConfiguration(dict(address="0.0.0.0", port=90))
+        self.ftpserver = FtpServerConfiguration(dict(address="0.0.0.0", port=21))
+        self.production_mode = True
+        self.development_mode = False
+        self.to_disk()
 
-    @classmethod
-    def get_default_config_file(cls):
-        from os import path
-        return path.join(get_base_directory(), 'development.json')
+    def get_indexers(self, index_name):
+        from .indexers import get_indexers
+        return get_indexers(self, index_name)

@@ -1,5 +1,5 @@
 from infi.unittest import TestCase, parameters
-from infi.app_repo import parse_filepath
+from infi.app_repo.filename_parser import parse_filepath
 
 
 cases = [

@@ -1,224 +1,95 @@
-import cherrypy
 import os
-import mako.lookup
-import cjson
-from infi.pyutils.decorators import wraps
-
-def get_metadata(base_directory):
-    from infi.app_repo import ApplicationRepository
-    return ApplicationRepository(base_directory).get_views_metadata()
-
-def download_metadata(remote):
-    from urllib2 import urlopen
-    from cjson import decode
-    url = "ftp://{0}/metadata.json".format(remote)
-    return decode(urlopen(url).read())
-
-def check_password(real, username, password):
-    from pam import authenticate
-    return authenticate(username, password)
-
-def json_response(func):
-    @wraps(func)
-    def callable(*args, **kwargs):
-        cherrypy.response.headers['Content-Type'] = "application/json"
-        error_message = None
-        return_value = None
-        try:
-            return_value = func(*args, **kwargs)
-            success = True
-        except Exception, error:
-            error_message = str(error)
-            success = False
-        return cjson.encode(dict(success=success, return_value=return_value, error_message=error_message))
-    return callable
+import flask
+import pkg_resources
+import mimetypes
+from infi.pyutils.lazy import cached_function
+from flask.ext.autoindex import AutoIndex
+from .auth import requires_auth
+from .json_response import json_response
+from logbook import Logger
+from functools import partial
+from infi.app_repo.utils import path, read_file, decode
 
 
-class View(object):
-    def __init__(self):
-        super(View, self).__init__()
-        self.template_lookup = mako.lookup.TemplateLookup(os.path.join(os.path.dirname(__file__), 'templates'))
+logger = Logger(__name__)
+TEMPLATE_FOLDER = pkg_resources.resource_filename('infi.app_repo.webserver', 'templates')
+STATIC_FOLDER = pkg_resources.resource_filename('infi.app_repo.webserver', 'static')
 
-    def sort_by_filename(self, key):
-        return key.split('/')[-1]
 
-class Pull(View):
-    def get_packages_to_pull(self, remote):
-        from .analyser import Analyser
-        analyser = Analyser(remote, cherrypy.config['app_repo']['base_directory'])
-        available, ignored = analyser.suggest_packages_to_pull()
-        return available, ignored
+class FlaskApp(flask.Flask):
+    @classmethod
+    def from_config(cls, app_repo_config):
+        self = FlaskApp(__name__, static_folder=STATIC_FOLDER, template_folder=TEMPLATE_FOLDER)
+        self.app_repo_config = app_repo_config
+        self.config['DEBUG'] = app_repo_config.development_mode
+        self._register_blueprints()
+        self._register_counters()
+        mimetypes.add_type('application/json', '.json')
+        return self
 
-    def add_packages_to_ignorelist(self, remote, packages):
-        from .analyser import Analyser
-        Analyser(remote, cherrypy.config['app_repo']['base_directory']).set_packages_to_ignore_when_pulling(packages)
+    def _register_blueprints(self):
+        def _directory_index():
+            packages = flask.Blueprint("packages", __name__)
+            AutoIndex(packages, browse_root=self.app_repo_config.packages_directory)
+            self.register_blueprint(packages, url_prefix="/packages")
 
-    def GET(self):
-        remote = cherrypy.config['app_repo']['remote']['fqdn']
-        missing_packages, ignored_packages = self.get_packages_to_pull(remote)
-        kwargs = dict(missing_packages=sorted(missing_packages, key=self.sort_by_filename, reverse=True),
-                      ignored_packages=sorted(ignored_packages, key=self.sort_by_filename), reverse=True)
-        return self.template_lookup.get_template("packages.mako").render(**kwargs)
+        def _setup_script():
+            self.route("/setup/<index_name>")(client_setup_script)
 
-    def POST(self, *args, **kwargs):
-        from os import path
-        remote = cherrypy.config['app_repo']['remote']['fqdn']
-        missing_packages, ignored_packages = self.get_packages_to_pull(remote)
-        packages_to_download = [item for item in kwargs.keys() + list(args)
-                                if item in set(missing_packages).union(set(ignored_packages))]
-        packages_to_ignore = missing_packages.difference(set(packages_to_download))
-        self.add_packages_to_ignorelist(remote, packages_to_ignore)
-        base_directory = path.join(cherrypy.config['app_repo']['base_directory'])
-        self.queue_download_jobs(remote, base_directory, packages_to_download)
-        raise cherrypy.HTTPRedirect("/queue")
+        def _homepage():
+            self.route("/home/<index_name>")(index_home_page)
+            self.route("/")(default_homepage)
 
-    def index(self, *args, **kwargs):
-        method = cherrypy.request.method.upper()
-        return getattr(self, method)(*args, **kwargs)
+        _directory_index()
+        _setup_script()
+        _homepage()
 
-    def queue_download_jobs(self, remote, base_directory, packages):
-        from ..tasks import pull_package, process_incoming
-        result_list = []
-        for package in packages:
-            result = pull_package.delay(remote, base_directory, package)
-            result_list.append(result)
-        result = process_incoming.delay(base_directory)
-        result_list.append(result)
-        return result
+    def _register_counters(self):
+        from infi.app_repo.persistent_dict import PersistentDict
+        def _func(response):
+            if response.status_code == 200:
+                key = flask.request.path
+                self.counters[key] = self.counters.get(key, 0) + 1
+            return response
 
-    index.exposed = True
+        self.counters = PersistentDict(self.app_repo_config.webserver_counters_filepath)
+        self.counters.load()
+        self.after_request(_func)
 
-class Push(View):
-    def __init__(self):
-        super(Push, self).__init__()
-        self.template_lookup = mako.lookup.TemplateLookup(os.path.join(os.path.dirname(__file__), 'templates'))
+def client_setup_script(index_name):
+    data = dict(host=flask.request.host.split(':')[0], host_url=flask.request.host_url, index_name=index_name)
+    return flask.Response(flask.render_template("setup.html", **data), content_type='text/plain')
 
-    def get_packages_to_push(self, remote):
-        from .analyser import Analyser
-        remote = cherrypy.config['app_repo']['remote']['fqdn']
-        analyser = Analyser(remote, cherrypy.config['app_repo']['base_directory'])
-        ignored = analyser.get_packages_to_ignore_when_pushing()
-        available, ignored = analyser.suggest_packages_to_push()
-        return available, ignored
 
-    def add_packages_to_ignorelist(self, packages):
-        from .analyser import Analyser
-        remote = cherrypy.config['app_repo']['remote']['fqdn']
-        Analyser(remote, cherrypy.config['app_repo']['base_directory']).set_packages_to_ignore_when_pushing(packages)
+def index_home_page(index_name):
+    packages_json = path.join(flask.current_app.app_repo_config.packages_directory, index_name, 'index', 'packages.json')
+    data = decode(read_file(packages_json))
+    setup_url = '%s%s' % (flask.request.host_url.rstrip('/'),
+                          flask.url_for("client_setup_script", index_name=index_name))
+    return flask.Response(flask.render_template("home.html", packages=data, setup_url=setup_url))
 
-    def GET(self):
-        remote = cherrypy.config['app_repo']['remote']['fqdn']
-        missing_packages, ignored_packages = self.get_packages_to_push(remote)
-        kwargs = dict(missing_packages=sorted(missing_packages, key=self.sort_by_filename, reverse=True),
-                      ignored_packages=sorted(ignored_packages, key=self.sort_by_filename), reverse=True)
-        return self.template_lookup.get_template("packages.mako").render(**kwargs)
 
-    def POST(self, *args, **kwargs):
-        remote = cherrypy.config['app_repo']['remote']['fqdn']
-        missing_packages, ignored_packages = self.get_packages_to_push(remote)
-        packages_to_upload = [item for item in kwargs.keys()
-                                if item in missing_packages or item in ignored_packages]
-        packages_to_ignore = missing_packages.difference(set(packages_to_upload))
-        self.add_packages_to_ignorelist(packages_to_ignore)
-        base_directory = cherrypy.config['app_repo']['base_directory']
-        self.queue_upload_jobs(cherrypy.config['app_repo']['remote'], base_directory, packages_to_upload)
-        raise cherrypy.HTTPRedirect("/queue")
+def indexes_tree():
+    raise NotImplementedError()
 
-    def index(self, *args, **kwargs):
-        method = cherrypy.request.method.upper()
-        return getattr(self, method)(*args, **kwargs)
 
-    def queue_upload_jobs(self, remote_config, base_directory, packages):
-        from ..tasks import push_package
-        result_list = []
-        for package in packages:
-            result = push_package.delay(remote_config['fqdn'], remote_config['username'],
-                                        remote_config['password'], base_directory, package)
-            result_list.append(result)
-        return result_list
+def default_homepage():
+    default = flask.current_app.app_repo_config.webserver.default_index
+    if default:
+        return flask.redirect(flask.url_for("index_home_page", index_name=default))
+    return flask.redirect(flask.url_for("indexes_tree"))
 
-    index.exposed = True
-
-class Frontend(View):
-    def are_there_new_packages_available(self):
-        from os import path
-        return path.exists(path.join(cherrypy.config['app_repo'].base_directory, "updates_available"))
-
-    def index(self):
-        host = cherrypy.request.headers['HOST']
-        setup_url = 'http://{}/setup'.format(host)
-        ftp_url = 'ftp://{}/'.format(host.split(':')[0])
-        metadata = get_metadata(cherrypy.config['app_repo']['base_directory'])
-        metadata['packages'] = [package for package in metadata['packages'] if not package.get('hidden', None)]
-        updates_available = self.are_there_new_packages_available()
-        return self.template_lookup.get_template("home.mako").render(setup_url=setup_url, ftp_url=ftp_url,
-                                                                     metadata=metadata,
-                                                                     updates_available=updates_available)
-
-    def setup(self):
-        cherrypy.response.headers['Content-Type'] = 'text/plain'
-        fqdn = cherrypy.request.headers['HOST'].split(':')[0]
-        return self.template_lookup.get_template("setup.mako").render(fqdn=fqdn)
-
-    def flatten_list(self, items):
-        return [item for sublist in items for item in sublist]
-
-    def queue(self, task_id=None):
-        from ..worker import celery
-        active_by_worker, reserved_by_worker = celery.control.inspect().active(), celery.control.inspect().reserved()
-        active_tasks = self.flatten_list(active_by_worker.values() if active_by_worker else [])
-        reserved_tasks = self.flatten_list(reserved_by_worker.values() if active_by_worker else [])
-        if task_id is None:
-            active_tasks_ids = [task['id'] for task in active_tasks]
-            all_tasks = active_tasks
-            all_tasks += [task for task in reserved_tasks if task['id'] not in active_tasks_ids]
-            task_ids = [task['id'] for task in all_tasks]
-        else:
-            task_ids = list(task_id)
-        active_dict = {task['id']: task for task in active_tasks}
-        reserved_dict = {task['id']: task for task in reserved_tasks}
-        tasks = [active_dict.get(task_id, reserved_dict.get(task_id)) for task_id in task_ids]
-        kwargs = dict(tasks=tasks)
-        return self.template_lookup.get_template("queue.mako").render(**kwargs)
-
-    @json_response
-    def task(self, task_id, task_name=None):
-        from celery.result import AsyncResult
-        from ..worker import celery
-        task = AsyncResult(task_id, app=celery, task_name=task_name)
-        return dict(id=task_id, state=task.state, status=task.status, name=task.task_name, failed=task.failed(),
-                    successful=task.successful(), result=task.result, ready=task.ready())
-
-    @json_response
-    def inventory(self):
-        return get_metadata(cherrypy.config['app_repo']['base_directory'])
-
-    pull = Pull()
-    push = Push()
-    index.exposed = True
-    setup.exposed = True
-    queue.exposed = True
-    task.exposed = True
-    inventory.exposed = True
 
 def start(config):
-    cherrypy.config['server.socket_host'] = config.webserver.address
-    cherrypy.config['server.socket_port'] = config.webserver.port
-    cherrypy.config['engine.autoreload_on'] = config.webserver.auto_reload
-    cherrypy.config['app_repo'] = config
-    basic_auth = {
-                  'tools.auth_basic.on': True,
-                  'tools.auth_basic.realm': 'app_repo',
-                  'tools.auth_basic.checkpassword': check_password
-    }
-    application_config = {
-                         '/static': {'tools.staticdir.on': True,
-                                     'tools.staticdir.dir': config.webserver.static_dir},
-                         '/assets': {'tools.staticdir.on': True,
-                                     'tools.staticdir.dir': config.webserver.assets_dir},
-                         '/favicon.ico': {'tools.staticfile.on': True,
-                                          'tools.staticfile.filename': config.webserver.favicon},
-                         '/pull': basic_auth,
-                         '/push': basic_auth,
-                         }
-    cherrypy.quickstart(Frontend(), config=application_config)
+    from .wsgi import DummyWSGILogger, WSGIHandlerWithWorkarounds
+    from gevent.wsgi import WSGIServer
+    from werkzeug.contrib.fixers import ProxyFix
+    from werkzeug.debug import DebuggedApplication
+
+    app = FlaskApp.from_config(config)
+    app_wrapper = ProxyFix(DebuggedApplication(app, True))
+    args = (config.webserver.address, config.webserver.port)
+    server = WSGIServer(args, app_wrapper, log=DummyWSGILogger, handler_class=WSGIHandlerWithWorkarounds)
+    server.start()
+    return server
+
