@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 from infi.pyutils.contexts import contextmanager
-from .utils import ensure_directory_exists, path
+from .utils import ensure_directory_exists, path, write_file
 from mock import patch, MagicMock
 
 
@@ -43,6 +43,7 @@ def dpkg_scanpackages_side_effect(cmdline_arguments):
 def createrepo_side_effect(dirpath):
     assert path.exists(dirpath)
     ensure_directory_exists(path.join(dirpath, 'repodata'))
+    write_file(path.join(dirpath, 'repodata', 'repomd.xml'), '')
 
 
 def createrepo_update_side_effect(dirpath):

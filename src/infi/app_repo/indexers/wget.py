@@ -1,7 +1,6 @@
 from .base import Indexer
 from infi.gevent_utils.os import path, fopen
 from infi.gevent_utils.glob import glob
-from infi.gevent_utils.deferred import create_threadpool_executed_func
 from infi.app_repo.utils import ensure_directory_exists, hard_link_or_raise_exception, write_file
 from infi.gevent_utils.json_utils import encode
 from infi.app_repo.filename_parser import parse_filepath, FilenameParsingFailed
@@ -14,7 +13,8 @@ YUM_UPGRADE_COMMAND = 'sudo yum makecache; sudo yum update -y {0}'
 APT_INSTALL_COMMAND = 'sudo apt-get install -y {0}'
 APT_UGPRADE_COMMAND = 'sudo apt-get update; sudo apt-get install -y {0}'
 
-# TODO add support for shared libraries, executables, sources, symbol files
+ZYPPER_INSTALL_COMMAND = 'sudo zypper install -y {0}'
+ZYPPER_UGPRADE_COMMAND = 'sudo zypper refresh; sudo zypper update -y {0}'
 
 
 def ensure_packages_json_file_exists_in_directory(dirpath):
@@ -120,10 +120,17 @@ class PrettyIndexer(Indexer): # TODO implement this
                 if apt_platform in distribution['platform'] and distribution['extension'] == 'deb':
                     installation_instructions[apt_platform] = dict(upgrade=dict(command=APT_INSTALL_COMMAND.format(package['name'])),
                                                                    install=dict(command=APT_UGPRADE_COMMAND.format(package['name'])))
+
+            for zypper_platform in ('suse', ):
+                if zypper_platform in distribution['platform'] and distribution['extension'] == 'rpm':
+                    installation_instructions[zypper_platform] = dict(upgrade=dict(command=ZYPPER_INSTALL_COMMAND.format(package['name'])),
+                                                                   install=dict(command=ZYPPER_UGPRADE_COMMAND.format(package['name'])))
+
             if distribution['platform'] == 'windows' and distribution['extension'] == 'msi':
                 platform = 'windows-%s' % distribution['architecture']
                 installation_instructions[platform] = dict(upgrade=dict(download_link=distribution['filepath']),
                                                            install=dict(download_link=distribution['filepath']))
+
             elif distribution['platform'] == 'vmware-esx' and distribution['extension'] == 'ova':
                 installation_instructions['vmware'] = dict(upgrade=dict(download_link=distribution['filepath'],
                                                                         notes=["Upgrade the appliance through vCenter by using the VMware Update Manager Plug-in",
