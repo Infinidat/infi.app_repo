@@ -39,6 +39,7 @@ bypass_console_script_logging = True # we want to use the functions in this modu
 
 @contextmanager
 def exception_handling_context():
+    from docopt import DocoptExit
     logger.info("Logging started")
     try:
         yield
