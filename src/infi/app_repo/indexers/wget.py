@@ -83,8 +83,8 @@ class PrettyIndexer(Indexer): # TODO implement this
             if self._is_hidden(version_dirpath):
                 continue
             release = dict(version=path.basename(version_dirpath),
-                            abspath=version_dirpath,
-                            release_notes_url=None)
+                           abspath=version_dirpath,
+                           release_notes_url=None)
             yield release
 
     def _iter_distributions(self, package, release):
@@ -99,9 +99,9 @@ class PrettyIndexer(Indexer): # TODO implement this
                         continue
                     [filepath] = list(glob(path.join(extension_dirpath, '*')))
                     distribution = dict(platform=path.basename(distribution_dirpath),
-                                         architecture=path.basename(arch_dirpath),
-                                         extension=path.basename(extension_dirpath),
-                                         filepath=self._normalize_url(filepath))
+                                        architecture=path.basename(arch_dirpath),
+                                        extension=path.basename(extension_dirpath),
+                                        filepath=self._normalize_url(filepath))
                     yield distribution
 
     def _get_latest_release(self, releases):
