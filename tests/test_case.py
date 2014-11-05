@@ -41,7 +41,7 @@ class TestCase(unittest.TestCase):
 
     @contextmanager
     def ftp_server_context(self, config):
-        from gevent import spawn
+        from gevent import spawn, Timeout
         from infi.app_repo import ftpserver
         server = ftpserver.start(config)
         serving = spawn(server.serve_forever)
@@ -50,7 +50,11 @@ class TestCase(unittest.TestCase):
             yield server
         finally:
             server.close_all()
-            serving.join()
+            try:
+                serving.join(1)
+            except Timeout:
+                serving.kill(KeyboardInterrupt())
+                serving.join()
 
     @contextmanager
     def rpc_server_context(self, config):

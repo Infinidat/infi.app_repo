@@ -27,6 +27,7 @@ On Ubuntu, you willl need to pre-install the following packages:
 * yum
 * rng-tools
 * dpkg-sig
+* curl
 
 You will also need to install the Python package `infi.projector` by running `easy_install infi.projector`.
 After sorting all these requirements, run:
