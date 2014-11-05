@@ -49,12 +49,8 @@ class TestCase(unittest.TestCase):
         try:
             yield server
         finally:
-            server.close_all()
-            try:
-                serving.join(1)
-            except Timeout:
-                serving.kill(KeyboardInterrupt())
-                serving.join()
+            server.kill(KeyboardInterrupt)
+            serving.join()
 
     @contextmanager
     def rpc_server_context(self, config):
