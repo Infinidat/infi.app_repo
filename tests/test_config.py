@@ -6,11 +6,11 @@ from infi.gevent_utils.os import path
 class GettersTestCase(TestCase):
     def test_get_projectroot(self):
         from infi.app_repo import config
-        self.assertTrue(config.get_projectroot().endswith("app_repo"))
+        self.assertTrue(config.get_projectroot().endswith("repo"))
 
     def test_get_base_directory(self):
         from infi.app_repo import config
-        self.assertTrue(config.get_base_directory().endswith("app_repo%sdata" % path.sep))
+        self.assertTrue(config.get_base_directory().endswith("repo%sdata" % path.sep))
 
 
 class ConfigTestCase(TemporaryBaseDirectoryTestCase):

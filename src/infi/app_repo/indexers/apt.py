@@ -40,6 +40,10 @@ def dpkg_scanpackages(cmdline_arguments):
     return log_execute_assert_success(['dpkg-scanpackages'] + cmdline_arguments).get_stdout()
 
 
+def gpg(cmdline_arguments):
+    return log_execute_assert_success(['gpt-scanpackages'] + cmdline_arguments).get_stdout()
+
+
 class AptIndexer(Indexer):
     INDEX_TYPE = 'apt'
 
@@ -87,8 +91,8 @@ class AptIndexer(Indexer):
                     remove(filepath)
 
         def sign_release_file():
-            log_execute_assert_success(['gpg', '--clearsign', '-o', in_release, release])
-            log_execute_assert_success(['gpg', '-abs', '-o', '%s.gpg' % release, release])
+            gpg(['--clearsign', '-o', in_release, release])
+            gpg(['-abs', '-o', '%s.gpg' % release, release])
 
         write_release_file()
         delete_old_release_signature_files()
