@@ -49,8 +49,8 @@ class TestCase(unittest.TestCase):
         try:
             yield server
         finally:
-            server.kill(KeyboardInterrupt)
-            serving.join()
+            serving.kill(KeyboardInterrupt)
+            server.join()
 
     @contextmanager
     def rpc_server_context(self, config):
