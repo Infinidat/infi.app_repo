@@ -61,13 +61,3 @@ class FtpWithRpcTestCase(TemporaryBaseDirectoryTestCase):
                     client.storbinary("STOR testfile", fd)
                     self.test_succeded.wait(1)
         self.assertTrue(self.test_succeded.is_set())
-
-    def test_upload_2(self):
-        from infi.app_repo import service
-        with patch("infi.app_repo.service.process_filepath_by_name") as process_filepath_by_name:
-            process_filepath_by_name.side_effect = self.mark_success
-            fd = StringIO("hello world")
-            with self.rpc_server_context(self.config) as server:
-                with self.ftp_server_context(self.config), self.ftp_client_context(self.config, True) as client:
-                    client.storbinary("STOR testfile", fd)
-        self.assertTrue(self.test_succeded.is_set())
