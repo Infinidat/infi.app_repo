@@ -41,7 +41,7 @@ def dpkg_scanpackages(cmdline_arguments):
 
 
 def gpg(cmdline_arguments):
-    return log_execute_assert_success(['gpg-scanpackages'] + cmdline_arguments).get_stdout()
+    return log_execute_assert_success(['gpg'] + cmdline_arguments).get_stdout()
 
 
 class AptIndexer(Indexer):
