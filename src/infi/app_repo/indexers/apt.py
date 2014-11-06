@@ -41,7 +41,7 @@ def dpkg_scanpackages(cmdline_arguments):
 
 
 def gpg(cmdline_arguments):
-    return log_execute_assert_success(['gpt-scanpackages'] + cmdline_arguments).get_stdout()
+    return log_execute_assert_success(['gpg-scanpackages'] + cmdline_arguments).get_stdout()
 
 
 class AptIndexer(Indexer):
@@ -55,7 +55,7 @@ class AptIndexer(Indexer):
                     dirpath = self.deduce_dirname(distribution_name, version, arch)
                     ensure_directory_exists(dirpath)
                     write_to_packages_file(dirpath, '', 'w')
-                self.generate_release_file_for_specific_distribution_and_version(distribution_name, version)
+                self.generate_release_file_for_specific_distribution_and_version(distribution_name, version, False)
 
     def deduce_dirname(self, distribution_name, codename, arch): # based on how apt likes it
         return path.join(self.base_directory, distribution_name, 'dists', codename, 'main', 'binary-%s' % TRANSLATE_ARCH[arch])
@@ -69,7 +69,7 @@ class AptIndexer(Indexer):
                arch in TRANSLATE_ARCH and \
                TRANSLATE_ARCH[arch] in KNOWN_DISTRIBUTIONS[distribution_name][codename]
 
-    def generate_release_file_for_specific_distribution_and_version(self, distribution, codename):
+    def generate_release_file_for_specific_distribution_and_version(self, distribution, codename, force=True):
         dirpath = path.join(self.base_directory, distribution, 'dists', codename)
         in_release = path.join(dirpath, 'InRelease')
         release = path.join(dirpath, 'Release')
@@ -94,9 +94,10 @@ class AptIndexer(Indexer):
             gpg(['--clearsign', '-o', in_release, release])
             gpg(['-abs', '-o', '%s.gpg' % release, release])
 
-        write_release_file()
-        delete_old_release_signature_files()
-        sign_release_file()
+        if force or not path.exists(release):
+            write_release_file()
+            delete_old_release_signature_files()
+            sign_release_file()
 
     def consume_file(self, filepath, platform, arch):
         distribution_name, codename = platform.rsplit('-', 1)
