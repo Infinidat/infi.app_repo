@@ -118,9 +118,9 @@ def app_repo(argv=argv[1:]):
     elif args['service'] and args['process-rejected-file']:
         return process_rejected_file(config, args['--index'], args['<filepath>'], args['<platform>'], args['<arch>'])
     elif args['service'] and args['process-incoming']:
-        return process_incoming(config, args['--index'])
+        return process_incoming(config, args['<index>'])
     elif args['service'] and args['rebuild-index']:
-        return rebuild_index(config, args['--index'])
+        return rebuild_index(config, args['<index>'])
     elif args['index'] and args['list']:
         print ' '.join(config.indexes)
     elif args['index'] and args['add']:
