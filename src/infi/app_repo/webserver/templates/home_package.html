@@ -3,7 +3,7 @@
 <div class="row-fluid">
     <div class="span9">
         <h2>
-            {{ package.product_name|title }}
+            {{ package.product_name }}
             <span class="label ver">{{ package.latest_version }}</span>
         </h2>
         <h3>Installation instructions</h3>
@@ -21,6 +21,6 @@
     </div>
 </div>
 <br>
-<a href="#" onclick="show_versions('{{ package.product_name|title }}', '{{ package.releases_uri }}'); return false;">
+<a href="#" onclick="show_versions('{{ package.product_name }}', '{{ package.releases_uri }}'); return false;">
     Other versions and platforms &raquo;
 </a>
