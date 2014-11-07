@@ -31,7 +31,7 @@ def ensure_packages_json_file_exists_in_directory(dirpath):
         fd.write('[]')
 
 
-class PrettyIndexer(Indexer): # TODO implement this
+class PrettyIndexer(Indexer):
     INDEX_TYPE = 'index'
 
     def initialise(self):
