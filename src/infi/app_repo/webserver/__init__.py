@@ -24,6 +24,8 @@ class FlaskApp(flask.Flask):
         self.config['DEBUG'] = app_repo_config.development_mode
         self._register_blueprints()
         self._register_counters()
+        if app_repo_config.support_legacy_uris:
+            self._register_legacy()
         mimetypes.add_type('application/json', '.json')
         return self
 
@@ -56,9 +58,41 @@ class FlaskApp(flask.Flask):
         self.counters.load()
         self.after_request(_func)
 
+    def _register_legacy(self):
+        def _deb():
+            deb = flask.Blueprint("deb", __name__)
+            AutoIndex(deb, browse_root=path.join(self.app_repo_config.artifaces_directory, 'deb'))
+            self.register_blueprint(deb, url_prefix="/deb")
+
+        def _ova_updates():
+            ova = flask.Blueprint("ova", __name__)
+            AutoIndex(ova, browse_root=path.join(self.app_repo_config.artifaces_directory, 'ova', 'updates'))
+            self.register_blueprint(ova, url_prefix="/deb")
+
+        def _rpm():
+            rpm = flask.Blueprint("rpm", __name__)
+            AutoIndex(rpm, browse_root=path.join(self.app_repo_config.artifaces_directory, 'rpm'))
+            self.register_blueprint(rpm, url_prefix="/rpm")
+
+        def _setup_script():
+            self.route("/setup")(redirect_to_client_setup_script)
+
+        _deb()
+        _ova_updates()
+        _rpm()
+        _setup_script()
+
+
 def client_setup_script(index_name):
     data = dict(host=flask.request.host.split(':')[0], host_url=flask.request.host_url, index_name=index_name)
     return flask.Response(flask.render_template("setup.html", **data), content_type='text/plain')
+
+
+def redirect_to_client_setup_script():
+    default = flask.current_app.app_repo_config.webserver.default_index
+    if default:
+        return flask.redirect(flask.url_for("client_setup_script", index_name=default))
+    flask.abort(404)
 
 
 def index_home_page(index_name):
