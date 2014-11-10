@@ -3,7 +3,7 @@ from infi.app_repo.utils import ensure_directory_exists
 from infi.gevent_utils.os import path, remove, fopen
 from infi.gevent_utils.deferred import create_threadpool_executed_func
 from infi.app_repo.utils import temporary_directory_context, log_execute_assert_success, hard_link_or_raise_exception
-from infi.app_repo.utils sign_deb_package
+from infi.app_repo.utils import sign_deb_package
 
 
 KNOWN_DISTRIBUTIONS = {

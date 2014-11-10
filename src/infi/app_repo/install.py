@@ -93,13 +93,13 @@ def _override_symlink(src, dst):
 
 def _ensure_legacy_directory_structure_exists(config):
     def _deb():
-        _override_symlink(path.join(config.packages_directory, config.default_index, 'apt', 'linux-ubuntu'),
+        _override_symlink(path.join(config.packages_directory, config.web_server.default_index, 'apt', 'linux-ubuntu'),
                           path.join(config.packages_directory, 'deb'))
 
     def _rpm():
         for item in glob(path.join(config.packages_directory, 'rpm', '*')):
             remove(item)
-        for src in glob(path.join(config.packages_directory, config.default_index, 'yum', 'linux-*')):
+        for src in glob(path.join(config.packages_directory, config.web_server.default_index, 'yum', 'linux-*')):
             linux, distro, version, arch = path.basename(src).split('-')
             dst = path.join(config.packages_directory, 'rpm', distro, version, arch)
             ensure_directory_exists(path.dirname(dst))
@@ -107,7 +107,7 @@ def _ensure_legacy_directory_structure_exists(config):
 
     def _ova_updates():
         ensure_directory_exists(path.join(config.packages_directory, 'ova'))
-        _override_symlink(path.join(config.packages_directory, config.default_index, 'vmware-studio-updates'),
+        _override_symlink(path.join(config.packages_directory, config.web_server.default_index, 'vmware-studio-updates'),
                           path.join(config.packages_directory, 'ova', 'updates'))
 
     _deb()
