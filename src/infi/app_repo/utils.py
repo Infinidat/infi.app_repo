@@ -21,12 +21,12 @@ def log_execute_assert_success(args, allow_to_fail=False):
 
 def sign_rpm_package(filepath):
     from os import environ
+    from pexpect import spawn
     logger.info("Signing {!r}".format(filepath))
     command = ['rpm', '--addsign', filepath]
     logger.debug("Spawning {}".format(command))
     env = environ.copy()
     env['HOME'] = env.get('HOME', "/root")
-
     def _sign_rpm():
         # execute_assert_success(['rpm', '-vv', '--checksig', filepath])
         pid = spawn(command[0], command[1:], timeout=120, cwd=path.dirname(filepath), env=env)
