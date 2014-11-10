@@ -24,7 +24,7 @@ class FlaskApp(flask.Flask):
         self.config['DEBUG'] = app_repo_config.development_mode
         self._register_blueprints()
         self._register_counters()
-        if app_repo_config.support_legacy_uris:
+        if app_repo_config.webserver.support_legacy_uris:
             self._register_legacy()
         mimetypes.add_type('application/json', '.json')
         return self
