@@ -51,7 +51,7 @@ def _generate_gpg_key_if_does_not_exist(config):
     data_key_path = path.join(config.artifacts_directory, 'packages', 'gpg.key')
     if not path.exists(data_key_path):
         copy(home_key_path, data_key_path)
-    return already_generated
+    return not already_generated
 
 
 def _fix_entropy_generator():
