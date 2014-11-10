@@ -50,7 +50,7 @@ def createrepo_update_side_effect(dirpath):
     assert path.exists(path.join(dirpath, 'repodata'))
 
 
-def setup_gpg_side_effect(config):
+def setup_gpg_side_effect(config, force_resignature=False):
     ensure_directory_exists(config.packages_directory)
     write_file(path.join(config.packages_directory, 'gpg.key'), '')
 

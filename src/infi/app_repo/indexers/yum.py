@@ -1,6 +1,6 @@
 from .base import Indexer
 from infi.app_repo.utils import hard_link_or_raise_exception, ensure_directory_exists, log_execute_assert_success
-from infi.app_repo.utils import hard_link_and_override, sign_rpm_package
+from infi.app_repo.utils import hard_link_and_override
 from infi.gevent_utils.os import path, remove
 from infi.gevent_utils.glob import glob
 from logging import getLogger
@@ -42,6 +42,7 @@ class YumIndexer(Indexer):
                TRANSLATE_ARCH[arch] in KNOWN_PLATFORMS[platform]
 
     def consume_file(self, filepath, platform, arch):
+        from infi.app_repo.utils import sign_rpm_package
         dirpath = path.join(self.base_directory, '%s-%s' % (platform, TRANSLATE_ARCH[arch]))
         hard_link_or_raise_exception(filepath, dirpath)
         sign_rpm_package(filepath)

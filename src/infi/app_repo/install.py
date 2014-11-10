@@ -132,7 +132,7 @@ def _ensure_legacy_directory_structure_exists(config):
     _ova_updates()
 
 
-def setup_gpg(config, force_resignature):
+def setup_gpg(config, force_resignature=False):
     ensure_directory_exists(config.packages_directory)
     _fix_entropy_generator()
     if _generate_gpg_key_if_does_not_exist(config) or force_resignature:
@@ -140,7 +140,7 @@ def setup_gpg(config, force_resignature):
         _sign_all_existing_deb_and_rpm_packages(config)
 
 
-def setup_all(config, force_resignature):
+def setup_all(config, force_resignature=False):
     config.to_disk()
     _fix_dpkg_sig()
     setup_gpg(config, force_resignature)
