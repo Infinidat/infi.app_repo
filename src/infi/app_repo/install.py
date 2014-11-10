@@ -35,6 +35,18 @@ def setup_upstart_services(config):
     install()
 
 
+def _fix_dpkg_sig():
+    # https://launchpadlibrarian.net/180099595/dpkg-sig-xz.patch
+    # http://osdir.com/ml/ubuntu-bugs/2014-07/msg09103.html
+    dpkg_sig = '/usr/bin/dpkg-sig'
+    if path.exists(dpkg_sig):
+        with fopen(dpkg_sig) as fd:
+            contents = fd.read()
+        with fopen(dpkg_sig, 'w') as fd:
+            fd.write(contents.replace('$seen_files{"data.tar.gz"} &&',
+                                      '($seen_files{"data.tar.gz"} || $seen_files{"data.tar.xz"}) &&'))
+
+
 def _generate_gpg_key_if_does_not_exist(config):
     """:returns: True if the gpg key existed before"""
     gnupg_directory = path.join(path.expanduser("~"), ".gnupg")
@@ -93,13 +105,13 @@ def _override_symlink(src, dst):
 
 def _ensure_legacy_directory_structure_exists(config):
     def _deb():
-        _override_symlink(path.join(config.packages_directory, config.web_server.default_index, 'apt', 'linux-ubuntu'),
-                          path.join(config.packages_directory, 'deb'))
+        _override_symlink(path.join(config.packages_directory, config.webserver.default_index, 'apt', 'linux-ubuntu'),
+                          path.join(config.packages_directory, 'deb', 'ubuntu'))
 
     def _rpm():
         for item in glob(path.join(config.packages_directory, 'rpm', '*')):
             remove(item)
-        for src in glob(path.join(config.packages_directory, config.web_server.default_index, 'yum', 'linux-*')):
+        for src in glob(path.join(config.packages_directory, config.webserver.default_index, 'yum', 'linux-*')):
             linux, distro, version, arch = path.basename(src).split('-')
             dst = path.join(config.packages_directory, 'rpm', distro, version, arch)
             ensure_directory_exists(path.dirname(dst))
@@ -107,7 +119,7 @@ def _ensure_legacy_directory_structure_exists(config):
 
     def _ova_updates():
         ensure_directory_exists(path.join(config.packages_directory, 'ova'))
-        _override_symlink(path.join(config.packages_directory, config.web_server.default_index, 'vmware-studio-updates'),
+        _override_symlink(path.join(config.packages_directory, config.webserver.default_index, 'vmware-studio-updates'),
                           path.join(config.packages_directory, 'ova', 'updates'))
 
     _deb()
@@ -115,17 +127,18 @@ def _ensure_legacy_directory_structure_exists(config):
     _ova_updates()
 
 
-def setup_gpg(config):
+def setup_gpg(config, force_resignature):
     ensure_directory_exists(config.packages_directory)
     _fix_entropy_generator()
-    if _generate_gpg_key_if_does_not_exist(config):
+    if _generate_gpg_key_if_does_not_exist(config) or force_resignature:
         _import_gpg_key_to_rpm_database()
         _sign_all_existing_deb_and_rpm_packages(config)
 
 
-def setup_all(config):
+def setup_all(config, force_resignature):
     config.to_disk()
-    setup_gpg(config)
+    _fix_dpkg_sig()
+    setup_gpg(config, force_resignature)
     ensure_incoming_and_rejected_directories_exist_for_all_indexers(config)
     initialize_all_indexers(config)
     if config.production_mode:

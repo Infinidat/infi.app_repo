@@ -4,7 +4,7 @@ Usage:
     app_repo [options] counters show
     app_repo [options] config show
     app_repo [options] config apply (production-defaults | development-defaults)
-    app_repo [options] setup (production-defaults | development-defaults) [--with-mock] [--with-legacy]
+    app_repo [options] setup (production-defaults | development-defaults) [--with-mock] [--with-legacy] [--force-resignature]
     app_repo [options] destroy [--yes]
     app_repo [options] ftp-server [--signal-upstart] [--process-incoming-on-startup]
     app_repo [options] web-server [--signal-upstart]
@@ -104,7 +104,7 @@ def app_repo(argv=argv[1:]):
         if args['--with-legacy']:
             config.webserver.support_legacy_uris = True
             config.to_disk()
-        return setup(config, args['--with-mock'])
+        return setup(config, args['--with-mock'], args['--force-resignature'])
     elif args['destroy'] and args['--yes']:
         from .install import destroy_all
         destroy_all(config)
@@ -168,11 +168,11 @@ def show_counters(config):
 
 
 @console_script(name="app_repo_setup")
-def setup(config, apply_mock_patches):
+def setup(config, apply_mock_patches, force_resignature):
     from .install import setup_all
     from .mock import patch_all, empty_context
     with (patch_all if apply_mock_patches else empty_context)():
-        setup_all(config)
+        setup_all(config, force_resignature)
 
 
 @console_script(name="app_repo_web")
