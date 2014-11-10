@@ -1,5 +1,6 @@
 from shutil import copy, rmtree
-from infi.gevent_utils.os import path, fopen
+from infi.gevent_utils.os import path, fopen, symlink, remove
+from infi.gevent_utils.glob import glob
 from pkg_resources import resource_filename
 from .utils import log_execute_assert_success, sign_rpm_package, sign_deb_package, ensure_directory_exists, find_files
 
@@ -71,10 +72,42 @@ def _import_gpg_key_to_rpm_database():
 
 def _sign_all_existing_deb_and_rpm_packages(config):
     # this is necessary because we replaced the gpg key
-    for filepath in find_files(path.join(config.base_directory, 'packages', 'rpm'), '*.rpm'):
-        sign_rpm_package(filepath)
-    for filepath in find_files(path.join(config.base_directory, 'packages', 'deb'), '*.deb'):
-        sign_deb_package(filepath)
+    for index_name in config.indexes:
+        for filepath in find_files(path.join(config.packages_directory, index_name, 'yum'), '*.rpm'):
+            sign_rpm_package(filepath)
+        for filepath in find_files(path.join(config.packages_directory, index_name, 'apt'), '*.rpm'):
+            sign_deb_package(filepath)
+
+
+def _override_symlink(src, dst):
+    if path.exists(dst):
+        assert path.islink(dst)
+        remove(dst)
+    symlink(src, dst)
+
+
+def _ensure_legacy_directory_structure_exists(config):
+    def _deb():
+        _override_symlink(path.join(config.packages_directory, config.default_index, 'apt', 'linux-ubuntu'),
+                          path.join(config.packages_directory, 'deb'))
+
+    def _rpm():
+        for item in glob(path.join(config.packages_directory, 'rpm', '*')):
+            remove(item)
+        for src in glob(path.join(config.packages_directory, config.default_index, 'yum', 'linux-*')):
+            linux, distro, version, arch = path.basename(src).split('-')
+            dst = path.join(config.packages_directory, 'rpm', distro, version, arch)
+            ensure_directory_exists(path.dirname(dst))
+            _override_symlink(src, dst)
+
+    def _ova_updates():
+        ensure_directory_exists(path.join(config.packages_directory, 'ova'))
+        _override_symlink(path.join(config.packages_directory, config.default_index, 'vmware-studio-updates'),
+                          path.join(config.packages_directory, 'ova', 'updates'))
+
+    _deb()
+    _rpm()
+    _ova_updates()
 
 
 def setup_gpg(config):
@@ -92,7 +125,8 @@ def setup_all(config):
     initialize_all_indexers(config)
     if config.production_mode:
         setup_upstart_services(config)
-
+    if config.webserver.support_legacy_uris:
+        _ensure_legacy_directory_structure_exists(config)
 
 def destroy_all(config):
     log_execute_assert_success(['rm', '-rf', config.base_directory, '/usr/local/var/lib/rpm', '/var/lib/rpm'])

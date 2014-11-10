@@ -4,7 +4,7 @@ Usage:
     app_repo [options] counters show
     app_repo [options] config show
     app_repo [options] config apply (production-defaults | development-defaults)
-    app_repo [options] setup (production-defaults | development-defaults) [--with-mock]
+    app_repo [options] setup (production-defaults | development-defaults) [--with-mock] [--with-legacy]
     app_repo [options] destroy [--yes]
     app_repo [options] ftp-server [--signal-upstart] [--process-incoming-on-startup]
     app_repo [options] web-server [--signal-upstart]
@@ -101,6 +101,9 @@ def app_repo(argv=argv[1:]):
     elif args['setup']:
         config.reset_to_development_defaults() if args['development-defaults'] else None
         config.reset_to_production_defaults() if args['production-defaults'] else None
+        if args['--with-legacy']:
+            config.webserver.support_legacy_uris = True
+            config.to_disk()
         return setup(config, args['--with-mock'])
     elif args['destroy'] and args['--yes']:
         from .install import destroy_all

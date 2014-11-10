@@ -19,7 +19,7 @@ class WebserverConfiguration(Model):
     address = StringType(default="127.0.0.1")
     port = IntType(default=8000)
     default_index = StringType(required=False, default="main-stable")
-    support_legacy_uris = BooleanType(default=False)
+    support_legacy_uris = BooleanType(default=False, required=True)
 
 
 class RPCServerConfiguration(Model):
