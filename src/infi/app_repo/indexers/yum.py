@@ -1,6 +1,6 @@
 from .base import Indexer
 from infi.app_repo.utils import hard_link_or_raise_exception, ensure_directory_exists, log_execute_assert_success
-from infi.app_repo.utils import sign_rpm_package
+from infi.app_repo.utils import hard_link_and_override, sign_rpm_package
 from infi.gevent_utils.os import path, remove
 from infi.gevent_utils.glob import glob
 from logging import getLogger
@@ -30,8 +30,10 @@ class YumIndexer(Indexer):
                 dirpath = path.join(self.base_directory, '%s-%s' % (platform, arch))
                 ensure_directory_exists(path.join(dirpath, 'repodata'))
                 gkg_key = path.join(self.config.packages_directory, 'gpg.key')
-                hard_link_or_raise_exception(gkg_key, path.join(dirpath, 'repodata', 'repomd.xml.key'))
-        self.rebuild_index()
+                hard_link_and_override(gkg_key, path.join(dirpath, 'repodata', 'repomd.xml.key'))
+        for dirpath in glob(path.join(self.base_directory, '*')):
+            if not self._is_repodata_exists(dirpath):
+                createrepo(dirpath)
 
     def are_you_interested_in_file(self, filepath, platform, arch):
         return filepath.endswith('.rpm') and \

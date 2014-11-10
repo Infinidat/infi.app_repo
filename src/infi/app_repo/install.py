@@ -25,9 +25,10 @@ def ensure_incoming_and_rejected_directories_exist_for_all_indexers(config):
 
 
 def initialize_all_indexers(config):
+    funcs = set()
     for index_name in config.indexes:
-        for indexer in config.get_indexers(index_name):
-            indexer.initialise()
+        funcs |= {indexer.initialise for indexer in config.get_indexers(index_name)}
+    safe_joinall([safe_spawn_later(0, func) for func in funcs])
 
 
 def setup_upstart_services(config):
@@ -73,6 +74,9 @@ def _fix_entropy_generator():
     rng_tools_script = '/etc/init.d/rng-tools'
     if not path.exists(rng_tools_script) or getuid() != 0:
         return
+    with fopen("/etc/default/rng-tools") as fd:
+        if fd.read().endswith("HRNGDEVICE=/dev/urandom\n"):
+            return
     log_execute_assert_success([rng_tools_script, 'stop'], True)
     with fopen("/etc/default/rng-tools", 'a') as fd:
         fd.write("HRNGDEVICE=/dev/urandom\n")
@@ -93,7 +97,7 @@ def _sign_all_existing_deb_and_rpm_packages(config):
         debs |= set(find_files(path.join(config.packages_directory, index_name, 'apt'), '*.deb'))
     greenlets = {safe_spawn_later(0, sign_rpm_package, rpm) for rpm in rpms}
     greenlets |= {safe_spawn_later(0, sign_deb_package, deb) for deb in debs}
-    safe_joinall(greenlets)
+    safe_joinall(greenlets, raise_error=True)
 
 
 def _override_symlink(src, dst):
@@ -106,21 +110,22 @@ def _override_symlink(src, dst):
 def _ensure_legacy_directory_structure_exists(config):
     def _deb():
         _override_symlink(path.join(config.packages_directory, config.webserver.default_index, 'apt', 'linux-ubuntu'),
-                          path.join(config.packages_directory, 'deb', 'ubuntu'))
+                          path.join(config.artifacts_directory, 'deb', 'ubuntu'))
 
     def _rpm():
         for item in glob(path.join(config.packages_directory, 'rpm', '*')):
             remove(item)
         for src in glob(path.join(config.packages_directory, config.webserver.default_index, 'yum', 'linux-*')):
             linux, distro, version, arch = path.basename(src).split('-')
-            dst = path.join(config.packages_directory, 'rpm', distro, version, arch)
+            dst = path.join(config.artifacts_directory, 'rpm', distro, version, arch)
             ensure_directory_exists(path.dirname(dst))
             _override_symlink(src, dst)
 
     def _ova_updates():
-        ensure_directory_exists(path.join(config.packages_directory, 'ova'))
+        ensure_directory_exists(path.join(config.artifacts_directory, 'ova'))
+        ensure_directory_exists(path.join(config.packages_directory, config.webserver.default_index, 'vmware-studio-updates'))
         _override_symlink(path.join(config.packages_directory, config.webserver.default_index, 'vmware-studio-updates'),
-                          path.join(config.packages_directory, 'ova', 'updates'))
+                          path.join(config.artifacts_directory, 'ova', 'updates'))
 
     _deb()
     _rpm()

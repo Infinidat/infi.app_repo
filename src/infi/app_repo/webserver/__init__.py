@@ -61,17 +61,17 @@ class FlaskApp(flask.Flask):
     def _register_legacy(self):
         def _deb():
             deb = flask.Blueprint("deb", __name__)
-            AutoIndex(deb, browse_root=path.join(self.app_repo_config.artifaces_directory, 'deb'))
+            AutoIndex(deb, browse_root=path.join(self.app_repo_config.artifacts_directory, 'deb'))
             self.register_blueprint(deb, url_prefix="/deb")
 
         def _ova_updates():
             ova = flask.Blueprint("ova", __name__)
-            AutoIndex(ova, browse_root=path.join(self.app_repo_config.artifaces_directory, 'ova', 'updates'))
+            AutoIndex(ova, browse_root=path.join(self.app_repo_config.artifacts_directory, 'ova', 'updates'))
             self.register_blueprint(ova, url_prefix="/deb")
 
         def _rpm():
             rpm = flask.Blueprint("rpm", __name__)
-            AutoIndex(rpm, browse_root=path.join(self.app_repo_config.artifaces_directory, 'rpm'))
+            AutoIndex(rpm, browse_root=path.join(self.app_repo_config.artifacts_directory, 'rpm'))
             self.register_blueprint(rpm, url_prefix="/rpm")
 
         def _setup_script():
@@ -91,7 +91,7 @@ def client_setup_script(index_name):
 def redirect_to_client_setup_script():
     default = flask.current_app.app_repo_config.webserver.default_index
     if default:
-        return flask.redirect(flask.url_for("client_setup_script", index_name=default))
+        return client_setup_script(default)
     flask.abort(404)
 
 
