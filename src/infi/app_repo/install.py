@@ -3,6 +3,8 @@ from infi.gevent_utils.os import path, fopen, symlink, remove
 from infi.gevent_utils.glob import glob
 from pkg_resources import resource_filename
 from .utils import log_execute_assert_success, sign_rpm_package, sign_deb_package, ensure_directory_exists, find_files
+from infi.gevent_utils.safe_greenlets import safe_joinall, safe_spawn_later
+
 
 GPG_TEMPLATE = """
 %_signature gpg
@@ -72,11 +74,14 @@ def _import_gpg_key_to_rpm_database():
 
 def _sign_all_existing_deb_and_rpm_packages(config):
     # this is necessary because we replaced the gpg key
+    rpms = set()
+    debs = set()
     for index_name in config.indexes:
-        for filepath in find_files(path.join(config.packages_directory, index_name, 'yum'), '*.rpm'):
-            sign_rpm_package(filepath)
-        for filepath in find_files(path.join(config.packages_directory, index_name, 'apt'), '*.rpm'):
-            sign_deb_package(filepath)
+        rpms |= set(find_files(path.join(config.packages_directory, index_name, 'yum'), '*.rpm'))
+        debs |= set(find_files(path.join(config.packages_directory, index_name, 'apt'), '*.deb'))
+    greenlets = {safe_spawn_later(0, sign_rpm_package, rpm) for rpm in rpms}
+    greenlets |= {safe_spawn_later(0, sign_deb_package, deb) for deb in debs}
+    safe_joinall(greenlets)
 
 
 def _override_symlink(src, dst):
