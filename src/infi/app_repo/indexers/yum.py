@@ -6,6 +6,7 @@ from infi.gevent_utils.glob import glob
 from logging import getLogger
 logger = getLogger(__name__)
 
+CREATEREPO_ARGUMENTS = ['createrepo', '--no-database', '--simple-md-filenames', '--pretty', '--checksum=sha1']
 KNOWN_PLATFORMS = {
     "linux-redhat-5": ("i686", "x86_64"),
     "linux-redhat-6": ("i686", "x86_64"),
@@ -81,9 +82,10 @@ def sign_repomd(dirpath):
     log_execute_assert_success(['gpg', '-a', '--detach-sign', repomd])
 
 
+
 def createrepo_update(dirpath):
-    log_execute_assert_success(['createrepo', '--update', dirpath])
+    log_execute_assert_success(CREATEREPO_ARGUMENTS + ['--update', dirpath])
 
 
 def createrepo(dirpath):
-    log_execute_assert_success(['createrepo', dirpath])
+    log_execute_assert_success(CREATEREPO_ARGUMENTS + [dirpath])
