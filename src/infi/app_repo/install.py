@@ -136,6 +136,7 @@ def _ensure_legacy_directory_structure_exists(config):
     _ova_updates()
     _python()
 
+
 def setup_gpg(config, force_resignature=False):
     ensure_directory_exists(config.packages_directory)
     _fix_entropy_generator()

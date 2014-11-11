@@ -6,7 +6,7 @@ from infi.gevent_utils.glob import glob
 from logging import getLogger
 logger = getLogger(__name__)
 
-CREATEREPO_ARGUMENTS = ['createrepo', '--no-database', '--simple-md-filenames', '--pretty', '--checksum=sha1']
+CREATEREPO_ARGUMENTS = ['createrepo', '--simple-md-filenames', '--pretty', '--checksum=sha']
 KNOWN_PLATFORMS = {
     "linux-redhat-5": ("i686", "x86_64"),
     "linux-redhat-6": ("i686", "x86_64"),
