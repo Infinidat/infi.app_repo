@@ -86,10 +86,10 @@ def console_script(func=None, name=None):
 def app_repo(argv=argv[1:]):
     from docopt import docopt
     from .config import Configuration
-
+    from infi.app_repo import DATA_DIR
     global bypass_console_script_logging
     bypass_console_script_logging = False
-    args = docopt(__doc__, argv=argv, help=True)
+    args = docopt(__doc__.replace('default: data', 'default: %s' % DATA_DIR), argv=argv, help=True)
     config = get_config(args)
     if args['counters'] and args['show']:
         return show_counters(config)
