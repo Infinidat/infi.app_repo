@@ -127,10 +127,14 @@ def _ensure_legacy_directory_structure_exists(config):
         _override_symlink(path.join(config.packages_directory, config.webserver.default_index, 'vmware-studio-updates'),
                           path.join(config.artifacts_directory, 'ova', 'updates'))
 
+    def _python():
+        _override_symlink(path.join(config.packages_directory, config.webserver.default_index, 'python'),
+                          path.join(config.artifacts_directory, 'python'))
+
     _deb()
     _rpm()
     _ova_updates()
-
+    _python()
 
 def setup_gpg(config, force_resignature=False):
     ensure_directory_exists(config.packages_directory)
