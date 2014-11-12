@@ -13,7 +13,7 @@ Usage:
     app_repo [options] service upload-file <filepath>
     app_repo [options] service process-rejected-file <filepath> <platform> <arch>
     app_repo [options] service process-incoming <index>
-    app_repo [options] service rebuild-index <index>
+    app_repo [options] service rebuild-index <index> [<index-type>]
     app_repo [options] index list
     app_repo [options] index add <index>
     app_repo [options] index remove <index> [--yes]
@@ -123,7 +123,7 @@ def app_repo(argv=argv[1:]):
     elif args['service'] and args['process-incoming']:
         return process_incoming(config, args['<index>'])
     elif args['service'] and args['rebuild-index']:
-        return rebuild_index(config, args['<index>'])
+        return rebuild_index(config, args['<index>'], args['<index-type>'])
     elif args['index'] and args['list']:
         print ' '.join(config.indexes)
     elif args['index'] and args['add']:
@@ -259,9 +259,9 @@ def process_incoming(config, index):
     return get_client(config).process_incoming(index)
 
 
-def rebuild_index(config, index):
+def rebuild_index(config, index, index_type):
     from .service import get_client
-    return get_client(config).rebuild_index(index)
+    return get_client(config).rebuild_index(index, index_type)
 
 
 def add_index(config, index_name):

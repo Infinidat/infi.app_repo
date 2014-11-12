@@ -69,9 +69,10 @@ class AppRepoService(ServiceWithSynchronized):
 
     @rpc_call
     @synchronized
-    def rebuild_index(self, index):
+    def rebuild_index(self, index, index_type=None):
         for indexer in self.config.get_indexers(index):
-            indexer.rebuild_index()
+            if index_type is None or index_type == indexer.INDEX_TYPE:
+                indexer.rebuild_index()
 
 
 class Client(AutoTimeoutClient, IPython_Mixin):
