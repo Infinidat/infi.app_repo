@@ -9,10 +9,10 @@ from .errors import FileAlreadyExists
 logger = getLogger(__name__)
 
 
-def log_execute_assert_success(args, allow_to_fail=False):
-    logger.info("Executing {}".format(' '.join(args)))
+def log_execute_assert_success(args, allow_to_fail=False, **kwargs):
+    logger.info("Executing {}".format(' '.join(args) if isinstance(args, (list, tuple)) else args))
     try:
-        return execute_assert_success(args)
+        return execute_assert_success(args, **kwargs)
     except ExecutionError:
         logger.exception("Execution failed")
         if not allow_to_fail:
@@ -21,24 +21,11 @@ def log_execute_assert_success(args, allow_to_fail=False):
 
 def sign_rpm_package(filepath):
     from os import environ
-    from pexpect import spawn
     logger.info("Signing {!r}".format(filepath))
     command = ['rpm', '--addsign', filepath]
-    logger.debug("Spawning {}".format(command))
     env = environ.copy()
     env['HOME'] = env.get('HOME', "/root")
-    def _sign_rpm():
-        # execute_assert_success(['rpm', '-vv', '--checksig', filepath])
-        pid = spawn(command[0], command[1:], timeout=120, cwd=path.dirname(filepath), env=env)
-        logger.debug("Waiting for passphrase request")
-        pid.expect("Enter pass phrase:")
-        pid.sendline("\n")
-        logger.debug("Passphrase entered, waiting for rpm to exit")
-        pid.wait() if pid.isalive() else None
-        assert pid.exitstatus == 0
-
-    from infi.gevent_utils.deferred import create_threadpool_executed_func
-    create_threadpool_executed_func(_sign_rpm)()
+    log_execute_assert_success('echo | setsid rpm --addsign {}'.format(filepath), env=env, shell=True)
 
 
 def sign_deb_package(filepath):
