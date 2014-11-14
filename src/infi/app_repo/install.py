@@ -90,14 +90,16 @@ def _import_gpg_key_to_rpm_database():
 
 def _sign_all_existing_deb_and_rpm_packages(config):
     # this is necessary because we replaced the gpg key
+    from gevent.pool import Pool
+    pool = Pool(50)
     rpms = set()
     debs = set()
     for index_name in config.indexes:
         rpms |= set(find_files(path.join(config.packages_directory, index_name, 'yum'), '*.rpm'))
         debs |= set(find_files(path.join(config.packages_directory, index_name, 'apt'), '*.deb'))
-    greenlets = {safe_spawn_later(0, sign_rpm_package, rpm) for rpm in rpms}
-    greenlets |= {safe_spawn_later(0, sign_deb_package, deb) for deb in debs}
-    safe_joinall(greenlets, raise_error=True)
+    pool.map_async(sign_rpm_package, rpms)
+    pool.map_async(sign_deb_package, debs)
+    pool.join(raise_error=True)
 
 
 def _override_symlink(src, dst):
