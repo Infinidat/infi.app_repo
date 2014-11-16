@@ -74,6 +74,12 @@ class AppRepoService(ServiceWithSynchronized):
             if index_type is None or index_type == indexer.INDEX_TYPE:
                 indexer.rebuild_index()
 
+    @rpc_call
+    @synchronized
+    def resign_packages(self):
+        from .install import sign_all_existing_deb_and_rpm_packages
+        sign_all_existing_deb_and_rpm_packages(self.config)
+
 
 class Client(AutoTimeoutClient, IPython_Mixin):
     pass

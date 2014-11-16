@@ -88,10 +88,10 @@ def _import_gpg_key_to_rpm_database():
     log_execute_assert_success(['rpm', '--import', key])
 
 
-def _sign_all_existing_deb_and_rpm_packages(config):
+def sign_all_existing_deb_and_rpm_packages(config):
     # this is necessary because we replaced the gpg key
     from gevent.pool import Pool
-    pool = Pool(50)
+    pool = Pool(20)
     rpms = set()
     debs = set()
     for index_name in config.indexes:
@@ -144,7 +144,7 @@ def setup_gpg(config, force_resignature=False):
     _fix_entropy_generator()
     if _generate_gpg_key_if_does_not_exist(config) or force_resignature:
         _import_gpg_key_to_rpm_database()
-        _sign_all_existing_deb_and_rpm_packages(config)
+        sign_all_existing_deb_and_rpm_packages(config)
 
 
 def setup_all(config, force_resignature=False):

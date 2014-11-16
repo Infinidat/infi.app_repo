@@ -11,7 +11,7 @@ author "INFINIDAT, Ltd."
 description "INFINIDAT Host Powertools for VMware"
 version {version}
 chdir {chdir}
-exec su root -c 'HTTPS_PROXY=$http_proxy {exec}'
+exec {exec}
 expect stop
 respawn
 respawn limit 30 2

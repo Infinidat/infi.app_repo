@@ -14,6 +14,7 @@ Usage:
     app_repo [options] service process-rejected-file <filepath> <platform> <arch>
     app_repo [options] service process-incoming <index>
     app_repo [options] service rebuild-index <index> [<index-type>]
+    app_repo [options] service resign-packages
     app_repo [options] index list
     app_repo [options] index add <index>
     app_repo [options] index remove <index> [--yes]
@@ -124,6 +125,8 @@ def app_repo(argv=argv[1:]):
         return process_incoming(config, args['<index>'])
     elif args['service'] and args['rebuild-index']:
         return rebuild_index(config, args['<index>'], args['<index-type>'])
+    elif args['service'] and args['resign-packages']:
+        return resign_packages(config)
     elif args['index'] and args['list']:
         print ' '.join(config.indexes)
     elif args['index'] and args['add']:
@@ -262,6 +265,11 @@ def process_incoming(config, index):
 def rebuild_index(config, index, index_type):
     from .service import get_client
     return get_client(config).rebuild_index(index, index_type)
+
+
+def resign_packages(config):
+    from .service import get_client
+    return get_client(config).resign_packages()
 
 
 def add_index(config, index_name):
