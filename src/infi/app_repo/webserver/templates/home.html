@@ -8,6 +8,7 @@
         <meta name="author" content="">
         <link href="/static/css/bootstrap.css" rel="stylesheet">
         <link href="/static/css/apprepo.css" rel="stylesheet">
+        <link href="/static/css/jquery.dataTables.min.css" rel="stylesheet">
         <style>
             body {
                 padding-top: 20px;
@@ -103,6 +104,7 @@
                     <thead>
                         <tr>
                             <th>version</th>
+                            <th>last modified</th>
                             <th>platform</th>
                             <th>architecture</th>
                             <th>link</th>
@@ -125,32 +127,53 @@
         <script src="/static/js/bootstrap.js"></script>
         <script>
 
+            var PAGE_LENGTH = 7;
+
             $(function() {
                 // Initialize versions datatable
-                $.fn.dataTableExt.oStdClasses.sPagePrevEnabled = "btn btn-info";
-                $.fn.dataTableExt.oStdClasses.sPagePrevDisabled = "btn btn-info disabled";
-                $.fn.dataTableExt.oStdClasses.sPageNextEnabled = "btn btn-info";
-                $.fn.dataTableExt.oStdClasses.sPageNextDisabled = "btn btn-info disabled";
                 $(".download-links").dataTable({
-                    bPaginate: true,
-                    bSort: false,
-                    bProcessing: false,
-                    bInfo: false,
-                    bAutoWidth: true
+                    orderFixed: [ 0, 'desc' ],
+                    paging: true,
+                    pageLength: PAGE_LENGTH,
+                    lengthChange: false,
+                    ordering: false,
+                    processing: false,
+                    info: false,
+                    autoWidth: true
                 });
             });
 
             function show_versions(title, url) {
                 $.get(url, function(data) {
                     var table = $(".download-links").dataTable();
-                    table.fnClearTable();
+                    table.api().clear();
+                    var global_row_idx = 0;
                     _.each(data, function(version) {
+                        var num_rows = version.distributions.length;
+                        var row_idx = 0;
                         _.each(version.distributions, function(distro) {
                             var link = '<a href="' + distro.filepath + '">download</a>';
-                            table.fnAddData([version.version, distro.platform, distro.architecture, link], false);
+                            row = table.api().row.add([version.version, version.last_modified, distro.platform, distro.architecture, link], false).node();
+                            if (row_idx == 0 || global_row_idx%PAGE_LENGTH==0){
+                                var base = global_row_idx%PAGE_LENGTH;
+                                var row_span = 0;
+                                if (num_rows - row_idx >= (PAGE_LENGTH-base)){
+                                    row_span = (PAGE_LENGTH-base);
+                                } else {
+                                    row_span = (num_rows-row_idx)%(PAGE_LENGTH-base);
+                                }
+                                $(row.children[0]).attr("rowspan", row_span);
+                                $(row.children[1]).attr("rowspan", row_span);
+                            } else {
+                                $(row.children[0]).remove();
+                                $(row.children[0]).remove();
+                            }
+                            global_row_idx += 1;
+                            row_idx += 1;
                         });
+
                     });
-                    table.fnDraw();
+                    table.api().draw();
                     $('#versions_modal_title').text(title);
                     $('#versions_modal').modal();
                 });
@@ -166,3 +189,5 @@
         </script>
     </body>
 </html>
+
+

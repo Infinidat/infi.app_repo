@@ -66,9 +66,9 @@ class PrettyIndexer(Indexer):
     def _deduce_produce_name(self, dirpath):
         try:
             with fopen(path.join(dirpath, 'product_name')) as fd:
-                return fd.read()
+                return fd.read().strip()
         except:
-            return ' '.join(word.capitalize() for word in path.basename(dirpath).split('-'))
+            return ' '.join(word.capitalize() for word in path.basename(dirpath).split('-')).strip()
 
     def _iter_packages(self):
         for package_dirpath in glob(path.join(self.base_directory, 'packages', '*')):
@@ -80,12 +80,16 @@ class PrettyIndexer(Indexer):
                        releases_uri=self._normalize_url(path.join(package_dirpath, 'releases.json')))
 
     def _iter_releases(self, package):
+        from os import stat
+        from time import ctime
         for version_dirpath in glob(path.join(package['abspath'], 'releases', '*')):
             if self._is_hidden(version_dirpath):
                 continue
+            mod_time = stat(version_dirpath).st_mtime
             release = dict(version=path.basename(version_dirpath),
                            abspath=version_dirpath,
-                           release_notes_url=None)
+                           release_notes_url=None,
+                           last_modified=ctime(mod_time) if mod_time else '')
             yield release
 
     def _iter_distributions(self, package, release):

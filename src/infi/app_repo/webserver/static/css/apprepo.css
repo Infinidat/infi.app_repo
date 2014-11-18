@@ -17,7 +17,7 @@ h3 {
 .dataTables_length select {
     width: auto;
     margin-top: 5px;
-    padding: 3px;    
+    padding: 3px;
 }
 
 .dataTables_filter {
@@ -26,7 +26,7 @@ h3 {
 
 .dataTables_filter input {
     margin-top: 5px;
-    padding: 3px;        
+    padding: 3px;
 }
 
 .dataTables_paginate a {
@@ -36,4 +36,8 @@ h3 {
 span.ver {
     position: relative;
     top: -6px;
+}
+
+#versions_modal {
+    width: 700px;
 }
