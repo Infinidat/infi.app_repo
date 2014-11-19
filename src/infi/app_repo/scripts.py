@@ -72,7 +72,7 @@ def console_script(func=None, name=None):
                 return f(*args, **kwargs)
 
             filename = '/tmp/{}.log'.format(name if name else f.__name__)
-            with script_logging_context(logfile_path=filename), traceback_context(), exception_handling_context():
+            with script_logging_context(logfile_path=filename, logfile_max_size=20*1024*1024), traceback_context(), exception_handling_context():
                 logbook.set_datetime_format("local")
                 logger.info("Calling {}".format(f.__name__))
                 result = f(*args, **kwargs)
