@@ -19,6 +19,12 @@ class AppRepoFtpHandler(FTPHandler):
         key = filepath[filepath.index(self.server.config.artifacts_directory):].replace(self.server.config.artifacts_directory, '')
         self.server.counters[key] = self.server.counters.get(key, 0) + 1
 
+    def on_disconnect(self):
+        logger.info("client disconnected, {} connections are open".format(self.server._map_len()-1))
+
+    def on_connect(self):
+        logger.info("client connected, {} connections are now open".format(self.server._map_len()))
+
 
 @cached_function
 def make_pyftpdlib_gevent_friendly():
