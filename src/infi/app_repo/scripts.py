@@ -66,12 +66,14 @@ def console_script(func=None, name=None):
             from datetime import datetime
             from docopt import DocoptExit
             from sys import stderr
+            import logbook
 
             if bypass_console_script_logging:
                 return f(*args, **kwargs)
 
             filename = '/tmp/{}.log'.format(name if name else f.__name__)
             with script_logging_context(logfile_path=filename), traceback_context(), exception_handling_context():
+                logbook.set_datetime_format("local")
                 logger.info("Calling {}".format(f.__name__))
                 result = f(*args, **kwargs)
                 logger.info("Call to {} returned {}".format(f.__name__, result))
