@@ -147,12 +147,19 @@ def setup_gpg(config, force_resignature=False):
         sign_all_existing_deb_and_rpm_packages(config)
 
 
+def install_shell_completion():
+    from infi.docopt_completion.docopt_completion import docopt_completion
+    return docopt_completion("app_repo")
+
+
 def setup_all(config, force_resignature=False):
     config.to_disk()
     _fix_dpkg_sig()
     setup_gpg(config, force_resignature)
     ensure_incoming_and_rejected_directories_exist_for_all_indexers(config)
     initialize_all_indexers(config)
+    install_shell_completion()
+
     if config.production_mode:
         setup_upstart_services(config)
     if config.webserver.support_legacy_uris:
