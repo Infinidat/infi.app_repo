@@ -141,10 +141,12 @@ def app_repo(argv=argv[1:]):
         return show_remote_packages(config, args['<remote-server>'], args['<remote-index>'])
     elif args['package'] and args['pull']:
         from .sync import pull_packages
+        pull_packages = console_script(name="app_repo_pull")(pull_packages)
         return pull_packages(config, args['--index'], args['<remote-server>'], args['<remote-index>'],
                              args['<package>'], args['<version>'], args['<platform>'], args['<arch>'])
     elif args['package'] and args['push']:
         from .sync import push_packages
+        push_packages = console_script(name="app_repo_push")(push_packages)
         return push_packages(config, args['--index'], args['<remote-server>'], args['<remote-index>'],
                              args.get('<package>'), args.get('<version>'), args.get('<platform>'), args.get('<arch>'))
 
