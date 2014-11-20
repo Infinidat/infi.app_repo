@@ -1,0 +1,43 @@
+h3 {
+    font-size: 20px;
+}
+
+.table_wrapper {
+    display: none;
+}
+
+.show-other {
+    cursor: pointer;
+}
+
+.dataTables_length {
+    float: right;
+}
+
+.dataTables_length select {
+    width: auto;
+    margin-top: 5px;
+    padding: 3px;
+}
+
+.dataTables_filter {
+    margin-left: 8px;
+}
+
+.dataTables_filter input {
+    margin-top: 5px;
+    padding: 3px;
+}
+
+.dataTables_paginate a {
+    margin-right: 10px;
+}
+
+span.ver {
+    position: relative;
+    top: -6px;
+}
+
+#versions_modal {
+    width: 700px;
+}

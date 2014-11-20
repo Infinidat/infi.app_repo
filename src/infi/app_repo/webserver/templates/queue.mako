@@ -7,7 +7,7 @@
         <meta name="description" content="">
         <meta name="author" content="">
         <!-- Le styles -->
-        <link href="/assets/css/bootstrap.css" rel="stylesheet">
+        <link href="${url_for('static', filename='css/bootstrap.css')}" rel="stylesheet">
         <style>
             body {
                 padding-top: 60px;
@@ -17,7 +17,7 @@
                 font-size: 150%;
             }
         </style>
-        <link href="/assets/css/bootstrap-responsive.css" rel="stylesheet">
+        <link href="${url_for('static', filename='css/bootstrap-responsive.css')}" rel="stylesheet">
         <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
         <!--[if lt IE 9]>
             <script src="http://html5shim.googlecode.com/svn/trunk/html5.js">
@@ -26,10 +26,10 @@
         <![endif]-->
         <!-- Le fav and touch icons -->
         <link rel="shortcut icon" href="/favicon.ico">
-        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/assets/ico/apple-touch-icon-144-precomposed.png">
-        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/assets/ico/apple-touch-icon-114-precomposed.png">
-        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/assets/ico/apple-touch-icon-72-precomposed.png">
-        <link rel="apple-touch-icon-precomposed" href="/assets/ico/apple-touch-icon-57-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="${url_for('static', filename='ico/apple-touch-icon-144-precomposed.png')}">
+        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="${url_for('static', filename='ico/apple-touch-icon-114-precomposed.png')}">
+        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="${url_for('static', filename='ico/apple-touch-icon-72-precomposed.png')}">
+        <link rel="apple-touch-icon-precomposed" href="${url_for('static', filename='ico/apple-touch-icon-57-precomposed.png')}">
         <style>
             undefined
         </style>
@@ -39,12 +39,9 @@
             <div class="navbar-inner">
                 <div class="container-fluid">
                     <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                        <span class="icon-bar">
-                        </span>
-                        <span class="icon-bar">
-                        </span>
-                        <span class="icon-bar">
-                        </span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
                     </a>
                     <a class="brand" href="#"></a>
                 </div>
@@ -56,20 +53,16 @@
                     <div class="span2"></div>
                     <div class="span8">
                         <div class="span12">
-                            <h1>Task queue:</h1>
+                            <h1>Download queue:</h1>
                         </div>
-                        % for task in tasks:
+                        % for package in download_packages:
                         <div class="span12">
                             <div class="span3">
-                                ${task['name'].replace('_', ' ').split('.')[-1].capitalize()}
+                                ${package}
                             </div>
                             <div class="span6">
-                                % if task['name'].endswith('_package'):
-                                ${eval(task['args'])[-1].split('/')[-1].rsplit('.', 1)[0]}
-                                % endif
                             </div>
                             <div class="span3">
-                                ${'Running' if task['worker_pid'] else 'Pending'}
                             </div>
                         </div>
                         % endfor
@@ -78,9 +71,9 @@
                 </div>
             </div>
         </form>
-        <script src="/static/jquery-1.8.1.min.js"></script>
-        <script src="/static/jquery.dataTables.min.js"></script>
-        <script src="/assets/js/bootstrap.js"></script>
+        <script src="${url_for('static', filename='jquery-1.8.1.min.js')}"></script>
+        <script src="${url_for('static', filename='jquery.dataTables.min.js')}"></script>
+        <script src="${url_for('static', filename='js/bootstrap.js')}"></script>
 
     </body>
 </html>
