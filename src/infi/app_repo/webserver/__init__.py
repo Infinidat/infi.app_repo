@@ -79,6 +79,11 @@ class FlaskApp(flask.Flask):
             AutoIndex(rpm, browse_root=path.join(self.app_repo_config.artifacts_directory, 'python'))
             self.register_blueprint(rpm, url_prefix="/python")
 
+        def _archives():
+            rpm = flask.Blueprint("archives", __name__)
+            AutoIndex(rpm, browse_root=path.join(self.app_repo_config.artifacts_directory, 'archives'))
+            self.register_blueprint(rpm, url_prefix="/archives")
+
         def _setup_script():
             self.route("/setup")(redirect_to_client_setup_script)
 
@@ -86,6 +91,7 @@ class FlaskApp(flask.Flask):
         _ova_updates()
         _rpm()
         _python()
+        _archives()
         _setup_script()
 
 
