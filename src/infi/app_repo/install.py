@@ -152,14 +152,14 @@ def install_shell_completion():
     return docopt_completion("app_repo")
 
 
-def setup_all(config, force_resignature=False):
+def setup_all(config, force_resignature=False, shell_completion=False):
     config.to_disk()
     _fix_dpkg_sig()
     setup_gpg(config, force_resignature)
     ensure_incoming_and_rejected_directories_exist_for_all_indexers(config)
     initialize_all_indexers(config)
-    install_shell_completion()
-
+    if shell_completion:
+        install_shell_completion()
     if config.production_mode:
         setup_upstart_services(config)
     if config.webserver.support_legacy_uris:

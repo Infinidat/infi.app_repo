@@ -177,7 +177,7 @@ def setup(config, apply_mock_patches, force_resignature):
     from .install import setup_all
     from .mock import patch_all, empty_context
     with (patch_all if apply_mock_patches else empty_context)():
-        setup_all(config, force_resignature)
+        setup_all(config, force_resignature, shell_completion=True)
 
 
 @console_script(name="app_repo_web")
