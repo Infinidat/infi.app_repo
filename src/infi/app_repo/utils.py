@@ -12,7 +12,9 @@ logger = getLogger(__name__)
 def log_execute_assert_success(args, allow_to_fail=False, **kwargs):
     logger.info("Executing {}".format(' '.join(args) if isinstance(args, (list, tuple)) else args))
     try:
-        return execute_assert_success(args, **kwargs)
+        result = execute_assert_success(args, **kwargs)
+        logger.info("Standard output {}".format(result.get_stdout()))
+        return result
     except ExecutionError:
         logger.exception("Execution failed")
         if not allow_to_fail:
