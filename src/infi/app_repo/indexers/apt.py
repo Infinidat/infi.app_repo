@@ -27,8 +27,10 @@ def write_to_packages_file(dirpath, contents, mode):
     packages_filepath = path.join(dirpath, 'Packages')
     with fopen(packages_filepath, mode) as fd:
         fd.write(contents)
+    with fopen(packages_filepath, 'rb') as fd:
+        all_contents = fd.read()
     fd = gzip.open(packages_filepath + '.gz', 'wb')
-    fd.write(contents)
+    fd.write(all_contents)
     fd.close()
 
 
