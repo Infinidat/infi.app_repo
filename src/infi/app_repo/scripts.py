@@ -27,6 +27,7 @@ Options:
     -f --file=CONFIGFILE     Use this config file [default: data/config.json]
     --style=STYLE            Output style [default: solarized]
     --index=INDEX            Index name [default: main-stable]
+    --async                  async rpc request
 """
 
 from sys import argv
@@ -118,17 +119,18 @@ def app_repo(argv=argv[1:]):
     elif args['rpc-server']:
         return rpc_server(config, args['--signal-upstart'], args['--with-mock'])
     elif args['rpc-client']:
-        return rpc_client(config, args['<method>'], args['<arg>'], args['--style'])
+        return rpc_client(config, args['<method>'], args['<arg>'], args['--style'], args['--async'])
     elif args['service'] and args['upload-file']:
         return upload_file(config, args['--index'], args['<filepath>'])
     elif args['service'] and args['process-rejected-file']:
-        return process_rejected_file(config, args['--index'], args['<filepath>'], args['<platform>'], args['<arch>'])
+        return process_rejected_file(config, args['--index'], args['<filepath>'],
+                                     args['<platform>'], args['<arch>'], args['--async'])
     elif args['service'] and args['process-incoming']:
-        return process_incoming(config, args['<index>'])
+        return process_incoming(config, args['<index>'], args['--async'])
     elif args['service'] and args['rebuild-index']:
-        return rebuild_index(config, args['<index>'], args['<index-type>'])
+        return rebuild_index(config, args['<index>'], args['<index-type>'], args['--async'])
     elif args['service'] and args['resign-packages']:
-        return resign_packages(config)
+        return resign_packages(config, args['--async'])
     elif args['index'] and args['list']:
         print ' '.join(config.indexes)
     elif args['index'] and args['add']:
@@ -228,14 +230,14 @@ def rpc_server(config, signal_upstart, apply_mock_patches):
 
 
 @console_script(name="app_repo_rpc_client")
-def rpc_client(config, method, arguments, style):
+def rpc_client(config, method, arguments, style, async_rpc=False):
     from IPython import embed
     from .service import get_client, patched_ipython_getargspec_context
 
     client = get_client(config)
     from os import environ
     if method:
-        pretty_print(getattr(client, method)(*jsonify_arguments(*arguments)), style)
+        pretty_print(getattr(client, method)(*jsonify_arguments(*arguments), async_rpc=async_rpc), style)
     else:
         with patched_ipython_getargspec_context(client):
             embed()(config, filepath, index)
@@ -256,24 +258,24 @@ def upload_file(config, index, filepath):
         ftp.storbinary("STOR %s" % path.basename(filepath), fd)
 
 
-def process_rejected_file(config, index, filepath, platform, arch):
+def process_rejected_file(config, index, filepath, platform, arch, async_rpc=False):
     from .service import get_client
-    return get_client(config).process_filepath(index, filepath, platform, arch)
+    return get_client(config).process_filepath(index, filepath, platform, arch, async_rpc=async_rpc)
 
 
-def process_incoming(config, index):
+def process_incoming(config, index, async_rpc=False):
     from .service import get_client
-    return get_client(config).process_incoming(index)
+    return get_client(config).process_incoming(index, async_rpc=async_rpc)
 
 
-def rebuild_index(config, index, index_type):
+def rebuild_index(config, index, index_type, async_rpc=False):
     from .service import get_client
-    return get_client(config).rebuild_index(index, index_type)
+    return get_client(config).rebuild_index(index, index_type, async_rpc=async_rpc)
 
 
-def resign_packages(config):
+def resign_packages(config, async_rpc=False):
     from .service import get_client
-    return get_client(config).resign_packages()
+    return get_client(config).resign_packages(async_rpc=async_rpc)
 
 
 def add_index(config, index_name):
