@@ -10,7 +10,7 @@ GPG_TEMPLATE = """
 %_signature gpg
 %_gpg_name  app_repo
 %__gpg_sign_cmd %{__gpg} \
-    gpg --force-v3-sigs --digest-algo=sha1 --batch --no-verbose --no-armor \
+    gpg --force-v3-sigs --digest-algo=sha1 --batch --verbose --no-armor \
     --passphrase-fd 3 --no-secmem-warning -u "%{_gpg_name}" \
     -sbo %{__signature_filename} %{__plaintext_filename}
 """

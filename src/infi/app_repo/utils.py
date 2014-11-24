@@ -14,6 +14,7 @@ def log_execute_assert_success(args, allow_to_fail=False, **kwargs):
     try:
         result = execute_assert_success(args, **kwargs)
         logger.info("Standard output {}".format(result.get_stdout()))
+        logger.info("Standard error {}".format(result.get_stderr()))
         return result
     except ExecutionError:
         logger.exception("Execution failed")
@@ -27,6 +28,7 @@ def sign_rpm_package(filepath):
     command = ['rpm', '--addsign', filepath]
     env = environ.copy()
     env['HOME'] = env.get('HOME', "/root")
+    env['GNUPGHOME'] = path.join(env.get('HOME', "/root"), ".gnupg")
     log_execute_assert_success('echo | setsid rpm --addsign {}'.format(filepath), env=env, shell=True)
 
 
