@@ -45,7 +45,7 @@ class FtpWithRpcTestCase(TemporaryBaseDirectoryTestCase):
         from gevent.event import Event
         super(FtpWithRpcTestCase, self).setUp()
         self.config = Configuration.from_disk(None)
-        ensure_directory_exists(self.config.incoming_directory)
+        ensure_directory_exists(path.join(self.config.incoming_directory, 'main-stable'))
         self.test_succeded = Event()
 
     def mark_success(self, config, index, filepath):
@@ -58,6 +58,6 @@ class FtpWithRpcTestCase(TemporaryBaseDirectoryTestCase):
             fd = StringIO("hello world")
             with self.ftp_server_context(self.config), self.ftp_client_context(self.config, True) as client:
                 with self.rpc_server_context(self.config) as server:
-                    client.storbinary("STOR testfile", fd)
+                    client.storbinary("STOR main-stable/testfile", fd)
                     self.test_succeded.wait(1)
         self.assertTrue(self.test_succeded.is_set())
