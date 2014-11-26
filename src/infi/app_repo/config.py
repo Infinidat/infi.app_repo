@@ -120,9 +120,9 @@ class Configuration(Model, PropertyMixin):
             fd.write(self.to_json())
 
     def reset_to_development_defaults(self):
-        self.webserver.address, self.webserver.port = "127.0.0.1", 8000
-        self.rpcserver.address, self.rpcserver.port = "127.0.0.1", 8001
-        self.ftpserver.address, self.ftpserver.port = "127.0.0.1", 8002
+        self.webserver.address, self.webserver.port = WebserverConfiguration.address.default, WebserverConfiguration.port.default
+        self.rpcserver.address, self.rpcserver.port = RPCServerConfiguration.address.default, RPCServerConfiguration.port.default
+        self.ftpserver.address, self.ftpserver.port = FtpServerConfiguration.address.default, FtpServerConfiguration.port.default
         self.production_mode = False
         self.development_mode = True
         self.to_disk()
