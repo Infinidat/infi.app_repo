@@ -95,6 +95,9 @@ def pull_packages(config, local_index_name, remote_server, remote_index_name,
     they_have = get_remote_versions_for_package(remote, remote_index_name, package_name)
     those_missing = {key: value for key, value in they_have.iteritems() if key not in we_have}
 
+    if specific_version in ('latest', 'current'):
+        specific_version = sorted(they_have.keys(), key=lambda version: parse_version(version))[-1]
+
     those_needed = [those_missing.get(specific_version, dict(distributions=[]))] if specific_version else \
                     sorted(those_missing.values(), key=lambda item: item['version'])
     urls = [_normalize_remote_url(remote, uri) for
@@ -106,6 +109,7 @@ def pull_packages(config, local_index_name, remote_server, remote_index_name,
 
 def push_packages(config, local_index_name, remote_server, remote_index_name,
                   package_name, specific_version=None, specific_platform=None, specific_arch=None):
+    from pkg_resources import parse_version
     remote_servers = _list_to_dict(config.to_builtins()['remote_servers'], 'address')
     assert remote_server in remote_servers
     remote = remote_servers[remote_server]
@@ -113,6 +117,9 @@ def push_packages(config, local_index_name, remote_server, remote_index_name,
     we_have = get_local_versions_for_package(config, local_index_name, package_name)
     they_have = get_remote_versions_for_package(remote, remote_index_name, package_name)
     those_missing = {key: value for key, value in we_have.iteritems() if key not in they_have}
+
+    if specific_version in ('latest', 'current'):
+        specific_version = sorted(we_have.keys(), key=lambda version: parse_version(version))[-1]
 
     those_needed = [those_missing.get(specific_version, dict(distributions=[]))] if specific_version else \
                         sorted(those_missing.values(), key=lambda item: item['version'])
