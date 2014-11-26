@@ -28,6 +28,8 @@ Options:
     --style=STYLE            Output style [default: solarized]
     --index=INDEX            Index name [default: main-stable]
     --async                  async rpc request
+    -h --help                show this screen.
+    -v --version             show version.
 """
 
 from sys import argv
@@ -90,10 +92,11 @@ def console_script(func=None, name=None):
 def app_repo(argv=argv[1:]):
     from docopt import docopt
     from .config import Configuration
+    from .__version__ import __version__
     from infi.app_repo import DATA_DIR
     global bypass_console_script_logging
     bypass_console_script_logging = False
-    args = docopt(__doc__.replace('default: data', 'default: %s' % DATA_DIR), argv=argv, help=True)
+    args = docopt(__doc__.replace('default: data', 'default: %s' % DATA_DIR), argv=argv, help=True, version=__version__)
     config = get_config(args)
     if args['counters'] and args['show']:
         return show_counters(config)
