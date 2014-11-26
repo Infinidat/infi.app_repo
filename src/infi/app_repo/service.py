@@ -19,7 +19,7 @@ def process_filepath(config, index, filepath, platform, arch):
     indexers = [indexer for indexer in config.get_indexers(index) if
                 indexer.are_you_interested_in_file(filepath, platform, arch)]
     if not indexers:
-        raise errors.FileNeglectedByIndexers("all indexers are not interested in file".format(filepath))
+        raise errors.FileNeglectedByIndexers("all indexers are not interested in file {!r}".format(filepath))
     for indexer in indexers:
         try:
             indexer.consume_file(filepath, platform, arch)
@@ -42,11 +42,13 @@ class AppRepoService(ServiceWithSynchronized):
     @rpc_call
     @synchronized
     def process_filepath(self, index, filepath, platform, arch):
+        assert index in self.config.indexes
         self._try_except_finally_on_filepath(process_filepath, index, filepath, platform, arch)
 
     @rpc_call
     @synchronized
     def process_filepath_by_name(self, index, filepath):
+        assert index in self.config.indexes
         return self._try_except_finally_on_filepath(process_filepath_by_name, index, filepath)
 
     def _try_except_finally_on_filepath(self, func, index, filepath, *args, **kwargs): # TODO rejection needs a test
@@ -64,12 +66,14 @@ class AppRepoService(ServiceWithSynchronized):
     @rpc_call
     @synchronized
     def process_incoming(self, index):
+        assert index in self.config.indexes
         for filepath in glob(path.join(self.config.incoming_directory, index, '*')):
-            return self._try_except_finally_on_filepath(process_filepath_by_name, index, filepath)
+            self._try_except_finally_on_filepath(process_filepath_by_name, index, filepath)
 
     @rpc_call
     @synchronized
     def rebuild_index(self, index, index_type=None):
+        assert index in self.config.indexes
         for indexer in self.config.get_indexers(index):
             if index_type is None or index_type == indexer.INDEX_TYPE:
                 indexer.rebuild_index()

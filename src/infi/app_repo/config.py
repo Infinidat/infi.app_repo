@@ -120,17 +120,17 @@ class Configuration(Model, PropertyMixin):
             fd.write(self.to_json())
 
     def reset_to_development_defaults(self):
-        self.webserver = WebserverConfiguration()
-        self.rpcserver = RPCServerConfiguration()
-        self.ftpserver = FtpServerConfiguration()
+        self.webserver.address, self.webserver.port = WebserverConfiguration.address.default, WebserverConfiguration.port.default
+        self.rpcserver.address, self.rpcserver.port = RPCServerConfiguration.address.default, RPCServerConfiguration.port.default
+        self.ftpserver.address, self.ftpserver.port = FtpServerConfiguration.address.default, FtpServerConfiguration.port.default
         self.production_mode = False
         self.development_mode = True
         self.to_disk()
 
     def reset_to_production_defaults(self):
-        self.webserver = WebserverConfiguration(dict(address="0.0.0.0", port=80))
-        self.rpcserver = RPCServerConfiguration(dict(address="0.0.0.0", port=90))
-        self.ftpserver = FtpServerConfiguration(dict(address="0.0.0.0", port=21))
+        self.webserver.address, self.webserver.port = "0.0.0.0", 80
+        self.rpcserver.address, self.rpcserver.port = "127.0.0.1", 90
+        self.ftpserver.address, self.ftpserver.port = "0.0.0.0", 21
         self.production_mode = True
         self.development_mode = False
         self.to_disk()
