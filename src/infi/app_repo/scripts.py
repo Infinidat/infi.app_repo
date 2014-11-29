@@ -235,7 +235,9 @@ def rpc_server(config, signal_upstart, apply_mock_patches):
 @console_script(name="app_repo_rpc_client")
 def rpc_client(config, method, arguments, style, async_rpc=False):
     from IPython import embed
-    from .service import get_client, patched_ipython_getargspec_context
+    from infi.rpc import patched_ipython_getargspec_context
+    from .service import get_client
+    from .utils import pretty_print, jsonify_arguments
 
     client = get_client(config)
     from os import environ
@@ -283,9 +285,12 @@ def resign_packages(config, async_rpc=False):
 
 def add_index(config, index_name):
     from .indexers import get_indexers
+    from .install import ensure_directory_exists, path
     assert index_name not in config.indexes
     for indexer in get_indexers(config, index_name):
-        index_name.initialse()
+        indexer.initialise()
+    ensure_directory_exists(path.join(config.incoming_directory, index_name))
+    ensure_directory_exists(path.join(config.rejected_directory, index_name))
     config.indexes.append(index_name)
     config.to_disk()
 
