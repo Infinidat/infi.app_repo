@@ -84,6 +84,11 @@ class AppRepoService(ServiceWithSynchronized):
         from .install import sign_all_existing_deb_and_rpm_packages
         sign_all_existing_deb_and_rpm_packages(self.config)
 
+    @rpc_call
+    def sign_rpm_package(self, rpm_filepath):
+        from .utils import sign_rpm_package
+        return sign_rpm_package(rpm_filepath)
+
 
 class Client(AutoTimeoutClient, IPython_Mixin):
     pass
