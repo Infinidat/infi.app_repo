@@ -2,6 +2,7 @@ from logging import getLogger
 from infi.gevent_utils.os import path, walk, link, makedirs, remove, fopen
 from infi.gevent_utils.json_utils import encode, decode, DecodeError
 from infi.gevent_utils.deferred import create_threadpool_executed_func
+from infi.gevent_utils.shutil import copyfile, copyfileobj
 from infi.execute import execute_assert_success, ExecutionError
 from infi.pyutils.contexts import contextmanager
 from fnmatch import fnmatch
@@ -23,13 +24,25 @@ def log_execute_assert_success(args, allow_to_fail=False, **kwargs):
 
 
 def sign_rpm_package(filepath):
-    from os import environ
-    logger.info("Signing {!r}".format(filepath))
-    command = ['rpm', '--addsign', filepath]
-    env = environ.copy()
-    env['HOME'] = env.get('HOME', "/root")
-    env['GNUPGHOME'] = path.join(env.get('HOME', "/root"), ".gnupg")
-    log_execute_assert_success('echo | setsid rpm --addsign {}'.format(filepath), env=env, shell=True)
+
+    def _rpm_addsign_rewrites_the_file(filepath):
+        from os import environ
+        logger.info("Signing {!r}".format(filepath))
+        command = ['rpm', '--addsign', filepath]
+        env = environ.copy()
+        env['HOME'] = env.get('HOME', "/root")
+        env['GNUPGHOME'] = path.join(env.get('HOME', "/root"), ".gnupg")
+        log_execute_assert_success('echo | setsid rpm --addsign {}'.format(filepath), env=env, shell=True)
+
+    temp_filepath = filepath + '.signed'
+    copyfile(filepath, temp_filepath)
+    try:
+        _rpm_addsign_rewrites_the_file(temp_filepath)
+        with open(temp_filepath, 'rb') as src:
+            with open(filepath, 'wb') as dst:
+                copyfileobj(src, dst)
+    finally:
+        remove(temp_filepath)
 
 
 def sign_deb_package(filepath):
