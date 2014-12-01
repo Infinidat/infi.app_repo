@@ -6,7 +6,8 @@ from infi.app_repo.utils import ensure_directory_exists, hard_link_or_raise_exce
 from infi.gevent_utils.json_utils import decode, encode
 from infi.app_repo.filename_parser import parse_filepath, FilenameParsingFailed
 from pkg_resources import parse_version
-
+from logbook import Logger
+logger = Logger(__name__)
 
 YUM_INSTALL_COMMAND = 'sudo yum install -y {0}'
 YUM_UPGRADE_COMMAND = 'sudo yum makecache; sudo yum update -y {0}'
@@ -102,7 +103,11 @@ class PrettyIndexer(Indexer):
                 for extension_dirpath in glob(path.join(arch_dirpath, 'extensions', '*')):
                     if self._is_hidden(extension_dirpath):
                         continue
-                    [filepath] = list(glob(path.join(extension_dirpath, '*')))
+                    try:
+                        [filepath] = list(glob(path.join(extension_dirpath, '*')))
+                    except ValueError:
+                        logger.warn("expected only one file under {}, but it is not the case".format(extension_dirpath))
+                        continue
                     distribution = dict(platform=path.basename(distribution_dirpath),
                                         architecture=path.basename(arch_dirpath),
                                         extension=path.basename(extension_dirpath),
