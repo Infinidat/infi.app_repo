@@ -5,7 +5,6 @@ import mimetypes
 from infi.pyutils.lazy import cached_function
 from flask.ext.autoindex import AutoIndex
 from .auth import requires_auth
-from .json_response import json_response
 from logbook import Logger
 from functools import partial
 from infi.app_repo.utils import path, read_file, decode
