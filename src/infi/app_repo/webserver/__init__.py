@@ -66,7 +66,7 @@ class FlaskApp(flask.Flask):
         def _ova_updates():
             ova = flask.Blueprint("ova", __name__)
             AutoIndex(ova, browse_root=path.join(self.app_repo_config.artifacts_directory, 'ova', 'updates'))
-            self.register_blueprint(ova, url_prefix="/deb")
+            self.register_blueprint(ova, url_prefix="/ova")
 
         def _rpm():
             rpm = flask.Blueprint("rpm", __name__)
