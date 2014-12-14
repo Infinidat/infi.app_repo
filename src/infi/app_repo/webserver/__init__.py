@@ -5,7 +5,6 @@ import mimetypes
 from infi.pyutils.lazy import cached_function
 from flask.ext.autoindex import AutoIndex
 from .auth import requires_auth
-from .json_response import json_response
 from logbook import Logger
 from functools import partial
 from infi.app_repo.utils import path, read_file, decode
@@ -67,7 +66,7 @@ class FlaskApp(flask.Flask):
         def _ova_updates():
             ova = flask.Blueprint("ova", __name__)
             AutoIndex(ova, browse_root=path.join(self.app_repo_config.artifacts_directory, 'ova', 'updates'))
-            self.register_blueprint(ova, url_prefix="/deb")
+            self.register_blueprint(ova, url_prefix="/ova")
 
         def _rpm():
             rpm = flask.Blueprint("rpm", __name__)
@@ -87,12 +86,16 @@ class FlaskApp(flask.Flask):
         def _setup_script():
             self.route("/setup")(redirect_to_client_setup_script)
 
+        def _gpg_key():
+            self.route("/gpg.key")(gpg_key)
+
         _deb()
         _ova_updates()
         _rpm()
         _python()
         _archives()
         _setup_script()
+        _gpg_key()
 
 
 def client_setup_script(index_name):
@@ -105,6 +108,13 @@ def redirect_to_client_setup_script():
     if default:
         return client_setup_script(default)
     flask.abort(404)
+
+
+@cached_function
+def gpg_key():
+    from infi.gevent_utils.os import fopen
+    with fopen(path.join(flask.current_app.app_repo_config.packages_directory, 'gpg.key')) as fd:
+        return flask.Response(fd.read(), content_type='application/octet-stream')
 
 
 def index_home_page(index_name):
