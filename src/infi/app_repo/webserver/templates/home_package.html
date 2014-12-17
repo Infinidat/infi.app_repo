@@ -21,6 +21,10 @@
     </div>
 </div>
 <br>
+{% if package.release_notes_url %}
+<a href="{{ package.release_notes_url }}" target="_blank">Change log</a>
+<br>
+{% endif %}
 <a href="#" onclick="show_versions('{{ package.product_name }}', '{{ package.releases_uri }}'); return false;">
     Other versions and platforms &raquo;
 </a>

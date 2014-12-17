@@ -71,6 +71,13 @@ class PrettyIndexer(Indexer):
         except:
             return ' '.join(word.capitalize() for word in path.basename(dirpath).split('-')).strip()
 
+    def _deduce_release_notes_url(self, dirpath):
+        try:
+            with fopen(path.join(dirpath, 'release_notes_url')) as fd:
+                return fd.read().strip()
+        except:
+            return None
+
     def _iter_packages(self):
         for package_dirpath in glob(path.join(self.base_directory, 'packages', '*')):
             if self._is_hidden(package_dirpath):
@@ -78,7 +85,8 @@ class PrettyIndexer(Indexer):
             yield dict(abspath=package_dirpath,
                        product_name=self._deduce_produce_name(package_dirpath),
                        name=path.basename(package_dirpath),
-                       releases_uri=self._normalize_url(path.join(package_dirpath, 'releases.json')))
+                       release_notes_url=self._deduce_release_notes_url(package_dirpath),
+                       releases_uri=self._normalize_url(path.join(package_dirpath, 'releases.json',)))
 
     def _iter_releases(self, package):
         from os import stat
