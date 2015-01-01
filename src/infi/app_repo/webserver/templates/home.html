@@ -147,29 +147,10 @@
                 $.get(url, function(data) {
                     var table = $(".download-links").dataTable();
                     table.api().clear();
-                    var global_row_idx = 0;
                     _.each(data, function(version) {
-                        var num_rows = version.distributions.length;
-                        var row_idx = 0;
                         _.each(version.distributions, function(distro) {
                             var link = '<a href="' + distro.filepath + '">download</a>';
                             row = table.api().row.add([version.version, version.last_modified, distro.platform, distro.architecture, link], false).node();
-                            if (row_idx == 0 || global_row_idx%PAGE_LENGTH==0){
-                                var base = global_row_idx%PAGE_LENGTH;
-                                var row_span = 0;
-                                if (num_rows - row_idx >= (PAGE_LENGTH-base)){
-                                    row_span = (PAGE_LENGTH-base);
-                                } else {
-                                    row_span = (num_rows-row_idx)%(PAGE_LENGTH-base);
-                                }
-                                $(row.children[0]).attr("rowspan", row_span);
-                                $(row.children[1]).attr("rowspan", row_span);
-                            } else {
-                                $(row.children[0]).remove();
-                                $(row.children[0]).remove();
-                            }
-                            global_row_idx += 1;
-                            row_idx += 1;
                         });
 
                     });
