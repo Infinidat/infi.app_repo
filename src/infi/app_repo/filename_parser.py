@@ -6,7 +6,7 @@ logger = getLogger(__name__)
 
 
 NAME = r"""(?P<package_name>[a-zA-Z]*[a-zA-Z\-_]+[0-9_]?[a-zA-Z\-_]+[a-zA-Z][0-9]?)"""
-VERSION = r"""v?(?P<package_version>(?:[\d+\.]+)(?:-develop|-[0-9\.]+(?:_g[0-9a-f]{7})?|(?:(?:\.post\d+\.|\.post\d+\+|\.\d+\.|-\d+-|-develop-\d+-)g[a-z0-9]{7}))?)"""
+VERSION = r"""v?(?P<package_version>(?:[\d+\.]+)(?:-develop|-[0-9\.]+(?:_g[0-9a-f]{7})?|(?:(?:\.post\d+|\.post\d+\.|\.post\d+\+|\.\d+\.|-\d+-|-develop-\d+-)(?:g[a-z0-9]{7})?))?)"""
 PLATFORM = r"""(?P<platform_string>vmware-esx|windows|solaris-\d+|linux-ubuntu-[a-z]+|linux-suse-\d+|linux-redhat-\d|linux-centos-\d|osx-\d+\.\d+|centos.el6|centos.el7|redhat.el6|redhat.el7)"""
 ARCHITECTURE = r"""(?P<architecture>x86|x64|x86_OVF10|x86_OVF10_UPDATE_ISO|x86_OVF10_UPDATE_ZIP|x64_OVF_10|x64_OVF_10_UPDATE_ISO|x64_OVF_10_UPDATE_ZIP|x64_dd|i686|x86_64)"""
 EXTENSION = r"""(?P<extension>rpm|deb|msi|tar\.gz|ova|iso|zip|img|exe||so|dll|pdb|cpp|exp)"""
@@ -37,13 +37,3 @@ def parse_filepath(filepath):
     return translate_filepath((group['package_name'], group['package_version'],
                                PLATFORM_STRING.get(group['extension'], group['platform_string']),
                                group['architecture'], group['extension']))
-
-
-
-# copied from zc.buildout.easy_install
-def is_final_version(parsed_version):
-    _final_parts = '*final-', '*final'
-    for part in parsed_version:
-        if (part[:1] == '*') and (part not in _final_parts):
-            return False
-    return True
