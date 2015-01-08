@@ -97,7 +97,6 @@ class PrettyIndexer(Indexer):
             mod_time = stat(version_dirpath).st_mtime
             release = dict(version=path.basename(version_dirpath),
                            abspath=version_dirpath,
-                           release_notes_url=None,
                            last_modified=ctime(mod_time) if mod_time else '')
             yield release
 

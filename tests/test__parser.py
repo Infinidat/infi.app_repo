@@ -9,6 +9,12 @@ cases = [
     dict(expected=('host-power-tools', '0.19.post6.gb4c0e6d', 'linux-redhat-5', 'x86', 'rpm'),
          basename="host-power-tools-0.19.post6.gb4c0e6d-linux-redhat-5-x86.rpm"),
 
+    dict(expected=('host-power-tools', '0.19.post6+gb4c0e6d', 'linux-redhat-5', 'x86', 'rpm'),
+         basename="host-power-tools-0.19.post6+gb4c0e6d-linux-redhat-5-x86.rpm"),
+
+    dict(expected=('host-power-tools', '0.19.post6', 'linux-redhat-5', 'x86', 'rpm'),
+         basename="host-power-tools-0.19.post6-linux-redhat-5-x86.rpm"),
+
     dict(expected=('infinio-git', '0.9.9.1-6-g41dbd93', 'linux-ubuntu-precise', 'x64', 'deb'),
          basename="infinio-git-0.9.9.1-6-g41dbd93-linux-ubuntu-precise-x64.deb"),
 
