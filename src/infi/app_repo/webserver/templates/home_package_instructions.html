@@ -23,7 +23,9 @@
     <div class="span9">
         {% if platform == 'vmware' %}
             {% if instructions.notes %}
-                {{ instructions.notes }}
+                {% for note in instructions.notes %}
+                    {{ note }}<br>
+                {% endfor %}
             {% else %}
                 <a href="{{ instructions.download_link }}" class="btn btn-mini">Download</a> the OVF and deploy it via VMware vSphere.
             {% endif %}
