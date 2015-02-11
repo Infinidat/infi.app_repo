@@ -21,11 +21,21 @@
         {% endif %}
     </div>
     <div class="span9">
-        {% if instructions.command %}
-            <code>{{ instructions.command }}</code>
-        {% endif %}
-        {% if instructions.download_link %}
-            <a href="{{ instructions.download_link }}" class="btn btn-mini">Download</a> the installer and run it.
+        {% if platform == 'vmware' %}
+            {% if instructions.notes %}
+                {% for note in instructions.notes %}
+                    {{ note }}<br>
+                {% endfor %}
+            {% else %}
+                <a href="{{ instructions.download_link }}" class="btn btn-mini">Download</a> the OVF and deploy it via VMware vSphere.
+            {% endif %}
+        {% else %}
+            {% if instructions.command %}
+                <code>{{ instructions.command }}</code>
+            {% endif %}
+            {% if instructions.download_link %}
+                <a href="{{ instructions.download_link }}" class="btn btn-mini">Download</a> the installer and run it.
+            {% endif %}
         {% endif %}
     </div>
 </div>
