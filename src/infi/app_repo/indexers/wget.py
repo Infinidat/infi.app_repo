@@ -135,13 +135,13 @@ class PrettyIndexer(Indexer):
                                                                    install=dict(command=YUM_INSTALL_COMMAND.format(package['name'])))
             for apt_platform in ('ubuntu', ):
                 if apt_platform in distribution['platform'] and distribution['extension'] == 'deb':
-                    installation_instructions[apt_platform] = dict(upgrade=dict(command=APT_INSTALL_COMMAND.format(package['name'])),
-                                                                   install=dict(command=APT_UGPRADE_COMMAND.format(package['name'])))
+                    installation_instructions[apt_platform] = dict(upgrade=dict(command=APT_UGPRADE_COMMAND.format(package['name'])),
+                                                                   install=dict(command=APT_INSTALL_COMMAND.format(package['name'])))
 
             for zypper_platform in ('suse', ):
                 if zypper_platform in distribution['platform'] and distribution['extension'] == 'rpm':
-                    installation_instructions[zypper_platform] = dict(upgrade=dict(command=ZYPPER_INSTALL_COMMAND.format(package['name'])),
-                                                                   install=dict(command=ZYPPER_UGPRADE_COMMAND.format(package['name'])))
+                    installation_instructions[zypper_platform] = dict(upgrade=dict(command=ZYPPER_UGPRADE_COMMAND.format(package['name'])),
+                                                                   install=dict(command=ZYPPER_INSTALL_COMMAND.format(package['name'])))
 
             if distribution['platform'] == 'windows' and distribution['extension'] == 'msi':
                 platform = 'windows-%s' % distribution['architecture']
