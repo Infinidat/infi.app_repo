@@ -1,1 +1,1 @@
-recursive-include src *.css vsftpd.conf *.mako gpg_batch_file *.png *.ico nginx.conf *.js
+recursive-include src *.css *.html *.ico *.js *.mako *.png *.sh gpg_batch_file nginx.conf vsftpd.conf

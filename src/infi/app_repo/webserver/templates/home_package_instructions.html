@@ -10,6 +10,9 @@
         {% if platform == 'ubuntu' %}
             <span class="label label-warning">ubuntu</span>
         {% endif %}
+        {% if platform == 'solaris' %}
+            <span class="label label-primary">solaris</span>
+        {% endif %}
         {% if platform == 'suse' %}
             <span class="label label-success">suse</span>
         {% endif %}
@@ -31,7 +34,7 @@
             {% endif %}
         {% else %}
             {% if instructions.command %}
-                <code>{{ instructions.command }}</code>
+                <code>{{ instructions.command.replace("//", host_url) }}</code>
             {% endif %}
             {% if instructions.download_link %}
                 <a href="{{ instructions.download_link }}" class="btn btn-mini">Download</a> the installer and run it.
