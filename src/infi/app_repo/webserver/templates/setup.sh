@@ -17,10 +17,10 @@ _yum() {
     arch=`uname -m`
     echo "[{{ host }}.{{ index_name }}]
 name={{ host }}.{{ index_name }}
-baseurl={{ host_url }}packages/{{ index_name }}/yum/linux-$distribution-$version-$arch/
+baseurl={{ host_url }}/packages/{{ index_name }}/yum/linux-$distribution-$version-$arch/
 enabled=1
 gpgcheck=1
-gpgkey={{ host_url }}packages/gpg.key" > /etc/yum.repos.d/{{ host }}.{{ index_name }}.repo
+gpgkey={{ host_url }}/packages/gpg.key" > /etc/yum.repos.d/{{ host }}.{{ index_name }}.repo
     echo Fetching package metadata...
     yum makecache > /dev/null 2>&1
 }
@@ -29,10 +29,10 @@ _zypper() {
     name={{ host }}.{{ index_name }}
     version=`cat /etc/SuSE-release | grep -Eo "[0-9]+" | head -n 1`
     arch=`uname -m`
-    url={{ host_url }}packages/{{ index_name }}/yum/linux-suse-$version-$arch/
+    url={{ host_url }}/packages/{{ index_name }}/yum/linux-suse-$version-$arch/
 
     echo Installing GPG key...
-    curl -s {{ host_url }}packages/gpg.key > /tmp/$name.gpg.key
+    curl -s {{ host_url }}/packages/gpg.key > /tmp/$name.gpg.key
     rpm --import /tmp/$name.gpg.key  > /dev/null 2>&1
 
     echo Setting up...
