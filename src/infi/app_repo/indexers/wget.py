@@ -178,7 +178,7 @@ class PrettyIndexer(Indexer):
                 package['installation_instructions'] = self._get_installation_instructions(package, latest_release)
                 packages.append(package)
                 write_file(latest_release_txt, latest_release['version'])
-            else:
+            elif path.exists(latest_release_txt):
                 remove(latest_release_txt)
         sorted_packages = sorted(packages, key=lambda package: package['product_name'])
         write_file(path.join(self.base_directory, 'packages.json'), encode(sorted_packages, indent=4, large_object=True))
