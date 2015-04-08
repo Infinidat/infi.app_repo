@@ -10,6 +10,10 @@ _release() {
     echo `uname -r`
 }
 
+_osversion() {
+    echo `uname -v`
+}
+
 _solaris_download() {
     # input:  <package> <version>
     # output: <filename>
@@ -52,6 +56,49 @@ _solaris_download() {
     echo $fname
 }
 
+_aix_download() {
+    # input:  <package> <version>
+    # output: <filename>
+    name="$1"
+    version="$2"
+    processor="$(_processor)"
+    case "$processor" in
+        "powerpc") arch="powerpc"
+            ;;
+        *) echo "unsupported aix architecture" 1>&2;
+            exit 1
+            ;;
+    esac
+
+    release="$(_osversion).$(_release)"
+    case "$release" in
+        "7.1") release="7.1"
+            ;;
+        *) echo "unsupported aix release" 1>&2;
+            exit 1
+            ;;
+    esac
+
+    packages_base_url="{{ host_url }}/packages/{{ index_name }}/index/packages"
+    os="aix-$release"
+    uri="$name/releases/$version/distributions/$os/architectures/$arch/extensions/rpm"
+    fname="$name-$version-$os-$arch.rpm"
+    url="$packages_base_url/$uri/$fname"
+    _curl $url > $fname
+
+    if [ "$?" != "0" ]; then
+        echo "file not found: $url" 1>&2;
+        exit 1
+    fi
+
+    echo $fname
+}
+
+_sh() {
+    echo "executing shell... this can take a while..." 1>&2;
+    sh "$1" >&2;
+}
+
 _gunzip() {
     echo "extracting... this can take a while..." 1>&2;
     gunzip -f "$1" 1>&2;
@@ -61,6 +108,14 @@ _pkgadd() {
     pkgadd $* 1>&2;
     if [ "$?" != "0" ]; then
         echo "installation failed; command-line was pkgadd $*" 1>&2;
+        exit 1
+    fi
+}
+
+_rpm() {
+    rpm -U $* 1>&2;
+    if [ "$?" != "0" ]; then
+        echo "installation failed; command-line was rpm $*" 1>&2;
         exit 1
     fi
 }
@@ -116,6 +171,14 @@ _solaris_install() {
     fi
 }
 
+_aix_install() {
+    # input:  <name> <version> <file>
+    _rpm -Uvh "$3"
+    if [ "$?" != "0" ]; then
+        exit 1
+    fi
+}
+
 parse_commandline() {
     # input:  <script-name> <package> [<version>]
     argc=$#
@@ -159,6 +222,12 @@ download() {
         exit 1
         fi
         echo $fname
+    elif [ $uname = "AIX" ]; then
+        fname=$(_aix_download $name $version)
+        if [ "$?" != "0" ]; then
+        exit 1
+        fi
+        echo $fname
     else
         echo "operating system not supported" 1>&2;
         exit 1
@@ -172,6 +241,8 @@ install() {
 
     if [ $uname = "SunOS" ]; then
         _solaris_install "$1" "$2" "$3"
+    elif [ $uname = "AIX" ]; then
+        _aix_install "$1" "$2" "$3"
     else
         echo "operating system not supported"
         exit 1

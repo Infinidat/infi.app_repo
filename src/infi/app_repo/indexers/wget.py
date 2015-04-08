@@ -159,6 +159,9 @@ class PrettyIndexer(Indexer):
             elif 'solaris' in distribution['platform'] and distribution['extension'] == 'pkg.gz':
                 command = MANUAL_COMMAND.format(self.index_name, package['name'])
                 installation_instructions['solaris'] = dict(upgrade=dict(command=command), install=dict(command=command))
+            elif 'aix' in distribution['platform'] and distribution['extension'] == 'rpm':
+                command = MANUAL_COMMAND.format(self.index_name, package['name'])
+                installation_instructions['aix'] = dict(upgrade=dict(command=command), install=dict(command=command))
 
         return installation_instructions
 

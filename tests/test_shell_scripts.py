@@ -153,3 +153,22 @@ class ShellTestCase(TestCase):
             _patch(install_sh)
             self.log_script(install_sh)
             _assert(install_sh, ["sh", install_sh, "some-package", "1.0"])
+
+    def test_install_script__aix(self):
+        def _assert(install_sh, cmdline):
+            pid = execute_assert_success(cmdline)
+            self.assertEquals(pid.get_stdout(), "rpm\n")
+
+        def _patch(install_sh):
+            self.inject_patch_to_script(install_sh, '_system() {\n    echo AIX\n}')
+            self.inject_patch_to_script(install_sh, '_processor() {\n    echo powerpc\n}')
+            self.inject_patch_to_script(install_sh, '_release() {\n    echo 1\n}')
+            self.inject_patch_to_script(install_sh, '_osversion() {\n    echo 7\n}')
+            self.inject_patch_to_script(install_sh, '_curl() {\n    echo "$1"\n}')
+            self.inject_patch_to_script(install_sh, '_rpm() {\n    echo "rpm"\n}')
+
+        with patch_all(), self.server_context() as config:
+            install_sh = self.get_install_script(config)
+            _patch(install_sh)
+            self.log_script(install_sh)
+            _assert(install_sh, ["sh", install_sh, "some-package", "1.0"])
