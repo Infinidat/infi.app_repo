@@ -137,9 +137,9 @@ def app_repo(argv=argv[1:]):
     elif args['index'] and args['list']:
         print ' '.join(config.indexes)
     elif args['index'] and args['add']:
-        return add_index(config, args['<index>'])
+        return add_index(config, args['<index>'], args['--async'])
     elif args['index'] and args['remove'] and args['--yes']:
-        return remove_index(config, args['<index>'])
+        return remove_index(config, args['<index>'], args['--async'])
     elif args['package'] and args['list']:
         return show_packages(config, args['--index'])
     elif args['package'] and args['remote-list']:
@@ -283,9 +283,10 @@ def resign_packages(config, async_rpc=False):
     return get_client(config).resign_packages(async_rpc=async_rpc)
 
 
-def add_index(config, index_name):
+def add_index(config, index_name, async_rpc=False):
     from .indexers import get_indexers
     from .install import ensure_directory_exists, path
+    from .service import get_client
     assert index_name not in config.indexes
     for indexer in get_indexers(config, index_name):
         indexer.initialise()
@@ -293,16 +294,20 @@ def add_index(config, index_name):
     ensure_directory_exists(path.join(config.rejected_directory, index_name))
     config.indexes.append(index_name)
     config.to_disk()
+    get_client(config).reload_configuration_from_disk(async_rpc=async_rpc)
 
 
-def remove_index(config, index_name):
+
+def remove_index(config, index_name, async_rpc=False):
     from .indexers import get_indexers
     from .utils import log_execute_assert_success
+    from .service import get_client
     assert index_name in config.indexes
     config.indexes = [name for name in config.indexes if name != index_name]
     config.to_disk()
     for indexer in get_indexers(config, index_name):
         log_execute_assert_success(["rm", "-rf", indexer.base_directory])
+    get_client(config).reload_configuration_from_disk(async_rpc=async_rpc)
 
 
 def show_packages(config, index_name):
