@@ -8,6 +8,7 @@ class Indexer(object):
         super(Indexer, self).__init__()
         self.config = config
         self.base_directory = path.join(self.config.packages_directory, index_name, self.INDEX_TYPE)
+        self.index_name = index_name
 
     def are_you_interested_in_file(self, filepath, platform, arch):
         raise NotImplementedError()

@@ -37,12 +37,24 @@ class FlaskApp(flask.Flask):
         def _setup_script():
             self.route("/setup/<index_name>")(client_setup_script)
 
+        def _download_script():
+            self.route("/download/<index_name>")(client_download_script)
+            self.route("/download/<index_name>/<package>")(client_download_script)
+            self.route("/download/<index_name>/<package>/<version>")(client_download_script)
+
+        def _install_script():
+            self.route("/install/<index_name>")(client_install_script)
+            self.route("/install/<index_name>/<package>")(client_install_script)
+            self.route("/install/<index_name>/<package>/<version>")(client_install_script)
+
         def _homepage():
             self.route("/home/<index_name>")(index_home_page)
             self.route("/")(default_homepage)
 
         _directory_index()
         _setup_script()
+        _download_script()
+        _install_script()
         _homepage()
 
     def _register_counters(self):
@@ -84,7 +96,7 @@ class FlaskApp(flask.Flask):
             self.register_blueprint(rpm, url_prefix="/archives")
 
         def _setup_script():
-            self.route("/setup")(redirect_to_client_setup_script)
+            self.route("/setup")(redirect_to_script(client_setup_script))
 
         def _gpg_key():
             self.route("/gpg.key")(gpg_key)
@@ -99,15 +111,33 @@ class FlaskApp(flask.Flask):
 
 
 def client_setup_script(index_name):
-    data = dict(host=flask.request.host.split(':')[0], host_url=flask.request.host_url, index_name=index_name)
-    return flask.Response(flask.render_template("setup.html", **data), content_type='text/plain')
+    host_url = flask.request.host_url.rstrip('/')
+    data = dict(host=flask.request.host.split(':')[0], host_url=host_url, index_name=index_name)
+    return flask.Response(flask.render_template("setup.sh", **data), content_type='text/plain')
 
 
-def redirect_to_client_setup_script():
-    default = flask.current_app.app_repo_config.webserver.default_index
-    if default:
-        return client_setup_script(default)
-    flask.abort(404)
+def client_download_script(index_name, package=None, version=None):
+    host_url = flask.request.host_url.rstrip('/')
+    data = dict(host=flask.request.host.split(':')[0], host_url=host_url, index_name=index_name,
+                package=package, version=version)
+    return flask.Response(flask.render_template("download.sh", **data), content_type='text/plain')
+
+
+def client_install_script(index_name, package=None, version=None):
+    host_url = flask.request.host_url.rstrip('/')
+    data = dict(host=flask.request.host.split(':')[0], host_url=host_url, index_name=index_name,
+                package=package, version=version)
+    return flask.Response(flask.render_template("install.sh", **data), content_type='text/plain')
+
+
+def redirect_to_script(func):
+    def innerfunc():
+        default = flask.current_app.app_repo_config.webserver.default_index
+        if default:
+            return func(default)
+        flask.abort(404)
+    innerfunc.__name__ = '{0}__{1}'.format(redirect_to_script, func.__name__)
+    return innerfunc
 
 
 @cached_function
@@ -120,9 +150,10 @@ def gpg_key():
 def index_home_page(index_name):
     packages_json = path.join(flask.current_app.app_repo_config.packages_directory, index_name, 'index', 'packages.json')
     data = decode(read_file(packages_json))
-    setup_url = '%s%s' % (flask.request.host_url.rstrip('/'),
+    host_url = flask.request.host_url.rstrip('/')
+    setup_url = '%s%s' % (host_url,
                           flask.url_for("client_setup_script", index_name=index_name))
-    return flask.Response(flask.render_template("home.html", packages=data, setup_url=setup_url))
+    return flask.Response(flask.render_template("home.html", packages=data, setup_url=setup_url, host_url=host_url))
 
 
 def indexes_tree():

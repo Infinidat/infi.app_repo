@@ -96,6 +96,13 @@ class Configuration(Model, PropertyMixin):
         method = getattr(self, "to_python") if hasattr(self, "to_python") else getattr(self, "serialize")
         return dumps(self.to_builtins(), indent=4)
 
+    def reload_configuration_from_disk(self):
+        with fopen(self.filepath) as fd:
+            kwargs = decode(fd.read())
+        kwargs['filepath'] = filepath
+        for key, value in kwargs.iteritems():
+            setattr(self, key, value)
+
     @classmethod
     def from_disk(cls, filepath):
         filepath = filepath or cls.get_default_config_file()

@@ -41,6 +41,11 @@ class AppRepoService(ServiceWithSynchronized):
 
     @rpc_call
     @synchronized
+    def reload_configuration_from_disk(self):
+        self.config = self.config.reload_configuration_from_disk()
+
+    @rpc_call
+    @synchronized
     def process_filepath(self, index, filepath, platform, arch):
         assert index in self.config.indexes
         self._try_except_finally_on_filepath(process_filepath, index, filepath, platform, arch)

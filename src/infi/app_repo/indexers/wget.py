@@ -1,6 +1,6 @@
 
 from .base import Indexer
-from infi.gevent_utils.os import path, fopen
+from infi.gevent_utils.os import path, fopen, remove
 from infi.gevent_utils.glob import glob
 from infi.app_repo.utils import ensure_directory_exists, hard_link_or_raise_exception, write_file
 from infi.gevent_utils.json_utils import decode, encode
@@ -17,6 +17,8 @@ APT_UGPRADE_COMMAND = 'sudo apt-get update; sudo apt-get install -y {0}'
 
 ZYPPER_INSTALL_COMMAND = 'sudo zypper install -y {0}'
 ZYPPER_UGPRADE_COMMAND = 'sudo zypper refresh; sudo zypper update -y {0}'
+
+MANUAL_COMMAND = "curl -s ///install/{0}/{1} | sh -"
 
 
 def ensure_packages_json_file_exists_in_directory(dirpath):
@@ -151,8 +153,16 @@ class PrettyIndexer(Indexer):
             elif distribution['platform'] == 'vmware-esx' and distribution['extension'] == 'ova':
                 installation_instructions['vmware'] = dict(upgrade=dict(download_link=distribution['filepath'],
                                                                         notes=["Upgrade the appliance through vCenter by using the VMware Update Manager Plug-in",
-                                                                               "If vCenter does not have internet connectivity to this repository, you can download a ZIP/ISO update file from the list below and upload it to the VMware Update Manager"]),
+                                                                               "Or by the management interface on HTTPS port 5480. Consult with the User Guide for more information."]),
                                                            install=dict(download_link=distribution['filepath']))
+
+            elif 'solaris' in distribution['platform'] and distribution['extension'] == 'pkg.gz':
+                command = MANUAL_COMMAND.format(self.index_name, package['name'])
+                installation_instructions['solaris'] = dict(upgrade=dict(command=command), install=dict(command=command))
+            elif 'aix' in distribution['platform'] and distribution['extension'] == 'rpm':
+                command = MANUAL_COMMAND.format(self.index_name, package['name'])
+                installation_instructions['aix'] = dict(upgrade=dict(command=command), install=dict(command=command))
+
         return installation_instructions
 
     def rebuild_index(self):
@@ -165,9 +175,13 @@ class PrettyIndexer(Indexer):
             write_file(path.join(package['abspath'], 'releases.json'), encode(releases, indent=4, large_object=True))
 
             latest_release = self._get_latest_release(releases)
+            latest_release_txt = path.join(package['abspath'], 'latest_release.txt')
             if latest_release:
                 package['latest_version'] = latest_release['version']
                 package['installation_instructions'] = self._get_installation_instructions(package, latest_release)
                 packages.append(package)
+                write_file(latest_release_txt, latest_release['version'])
+            elif path.exists(latest_release_txt):
+                remove(latest_release_txt)
         sorted_packages = sorted(packages, key=lambda package: package['product_name'])
         write_file(path.join(self.base_directory, 'packages.json'), encode(sorted_packages, indent=4, large_object=True))
