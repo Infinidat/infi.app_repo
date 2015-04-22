@@ -113,7 +113,7 @@ _pkgadd() {
 }
 
 _rpm() {
-    rpm -U $* 1>&2;
+    rpm $* 1>&2;
     if [ "$?" != "0" ]; then
         echo "installation failed; command-line was rpm $*" 1>&2;
         exit 1
