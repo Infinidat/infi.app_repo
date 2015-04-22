@@ -116,8 +116,8 @@ _cygwin_download() {
 
     packages_base_url="{{ host_url }}/packages/{{ index_name }}/index/packages"
     os="windows"
-    uri="$name/releases/$version/distributions/$os/architectures/$arch/extensions/rpm"
-    fname="$name-$version-$os-$arch.rpm"
+    uri="$name/releases/$version/distributions/$os/architectures/$arch/extensions/msi"
+    fname="$name-$version-$os-$arch.msi"
     url="$packages_base_url/$uri/$fname"
     _curl $url > $fname
 
