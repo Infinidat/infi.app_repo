@@ -56,7 +56,8 @@ class AptIndexer(Indexer):
                 for arch in architectures:
                     dirpath = self.deduce_dirname(distribution_name, version, arch)
                     ensure_directory_exists(dirpath)
-                    write_to_packages_file(dirpath, '', 'w')
+                    if not path.exists(path.join(dirpath, 'Packages')):
+                        write_to_packages_file(dirpath, '', 'w')
                 self.generate_release_file_for_specific_distribution_and_version(distribution_name, version, False)
 
     def deduce_dirname(self, distribution_name, codename, arch): # based on how apt likes it
