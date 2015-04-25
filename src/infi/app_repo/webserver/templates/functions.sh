@@ -156,9 +156,9 @@ _rpm() {
 }
 
 _msiexec() {
-    msiexec /i $* 1>&2;
+    msiexec $* 1>&2;
     if [ "$?" != "0" ]; then
-        echo "installation failed; command-line was msiexec /i $*" 1>&2;
+        echo "installation failed; command-line was msiexec $*" 1>&2;
         exit 1
     fi
 }
@@ -224,7 +224,7 @@ _aix_install() {
 
 _cygwin_install() {
     # input:  <name> <version> <file>
-    _msiexec "$3"
+    _msiexec /i "$3" /passive /norestart
     if [ "$?" != "0" ]; then
         exit 1
     fi
