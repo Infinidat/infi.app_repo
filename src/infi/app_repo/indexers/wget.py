@@ -165,6 +165,12 @@ class PrettyIndexer(Indexer):
 
         return installation_instructions
 
+    def iter_files(self):
+        for package in self._iter_packages():
+            for release in self._iter_releases(package):
+                for distribution in self._iter_distributions(package, release):
+                    yield distribution['filepath']
+
     def rebuild_index(self):
         packages = []
         for package in self._iter_packages():

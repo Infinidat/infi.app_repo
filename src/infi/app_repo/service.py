@@ -85,6 +85,20 @@ class AppRepoService(ServiceWithSynchronized):
 
     @rpc_call
     @synchronized
+    def delete_packages(self, regex_pattern, index, index_type=None, dry_run=True):
+        import re
+        should_delete = re.compile(regex_pattern).match
+        assert index in self.config.indexes
+        for indexer in self.config.get_indexers(index):
+            if index_type is None or index_type == indexer.INDEX_TYPE:
+                files_to_remove = [filepath for filepath in index.iter_files() if should_delete(path.basename(filepath))]
+                for filepath in files_to_remove:
+                    logger.debug("{} {}".format("[dry-run] deleting" if dry_run else "deleting", filepath))
+                    if not dry_run:
+                        remove(filepath)
+
+    @rpc_call
+    @synchronized
     def resign_packages(self):
         from .install import sign_all_existing_deb_and_rpm_packages
         sign_all_existing_deb_and_rpm_packages(self.config)

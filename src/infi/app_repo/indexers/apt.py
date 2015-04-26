@@ -116,6 +116,15 @@ class AptIndexer(Indexer):
             write_to_packages_file(dirpath, fixed_contents, 'a')
         self.generate_release_file_for_specific_distribution_and_version(distribution_name, codename)
 
+    def iter_files(self):
+        ensure_directory_exists(self.base_directory)
+        for distribution_name, distribution_dict in KNOWN_DISTRIBUTIONS.items():
+            for version, architectures in distribution_dict.items():
+                for arch in architectures:
+                    dirpath = self.deduce_dirname(distribution_name, version, arch)
+                    for filepath in glob(path.join(dirpath, '*.deb')):
+                        yield filepath
+
     def rebuild_index(self):
         for distribution_name, distribution_dict in KNOWN_DISTRIBUTIONS.items():
             for version, architectures in distribution_dict.items():

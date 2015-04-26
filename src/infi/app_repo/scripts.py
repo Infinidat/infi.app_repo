@@ -22,6 +22,7 @@ Usage:
     app_repo [options] package remote-list <remote-server> <remote-index>
     app_repo [options] package pull <remote-server> <remote-index> <package> [<version> [<platform> [<arch>]]]
     app_repo [options] package push <remote-server> <remote-index> <package> [<version> [<platform> [<arch>]]]
+    app_repo [options] package cleanup <regex> <index> [<index-type>] [--no-dry-run]
 
 Options:
     -f --file=CONFIGFILE     Use this config file [default: data/config.json]
@@ -154,6 +155,9 @@ def app_repo(argv=argv[1:]):
         push_packages = console_script(name="app_repo_push")(push_packages)
         return push_packages(config, args['--index'], args['<remote-server>'], args['<remote-index>'],
                              args.get('<package>'), args.get('<version>'), args.get('<platform>'), args.get('<arch>'))
+    elif args['package'] and args['cleanup']:
+        return delete_packages(config, args['<regex>'], args['<index>'], args['<index-type>'],
+                               args['--no-dry-run'], args['--async'])
 
 
 def get_config(args):
@@ -276,6 +280,11 @@ def process_incoming(config, index, async_rpc=False):
 def rebuild_index(config, index, index_type, async_rpc=False):
     from .service import get_client
     return get_client(config).rebuild_index(index, index_type, async_rpc=async_rpc)
+
+
+def delete_packages(config, regex, index, index_type, dry_run, async_rpc=False):
+    from .service import get_client
+    return get_client(config).delete_packages(regex, index, index_type, dry_run, async_rpc=async_rpc)
 
 
 def resign_packages(config, async_rpc=False):

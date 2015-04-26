@@ -21,3 +21,6 @@ class Indexer(object):
 
     def initialise(self):
         raise NotImplementedError()
+
+    def iter_files(self):
+        raise NotImplementedError()

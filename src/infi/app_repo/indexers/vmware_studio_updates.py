@@ -53,6 +53,10 @@ class VmwareStudioUpdatesIndexer(Indexer):
         if self._get_latest_update_file_in_directory(package_dir) == final_filepath:
             self._extract_update(package_dir, final_filepath)
 
+    def iter_files(self):
+        for filepath in glob(path.join(self.base_directory, '*', '*.zip')):
+            yield filepath
+
     def rebuild_index(self):
         for package_dir in glob(path.join(self.base_directory, '*')):
             if not path.isdir(package_dir):
@@ -60,4 +64,3 @@ class VmwareStudioUpdatesIndexer(Indexer):
             latest_zip = self._get_latest_update_file_in_directory(package_dir)
             if latest_zip:
                 self._extract_update(package_dir, latest_zip)
-
