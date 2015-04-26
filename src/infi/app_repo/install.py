@@ -125,8 +125,8 @@ def _ensure_legacy_directory_structure_exists(config):
 
     def _ova_updates():
         ensure_directory_exists(path.join(config.artifacts_directory, 'ova'))
-        ensure_directory_exists(path.join(config.packages_directory, config.webserver.default_index, 'vmware-studio-updates'))
-        _override_symlink(path.join(config.packages_directory, config.webserver.default_index, 'vmware-studio-updates'),
+        ensure_directory_exists(path.join(config.packages_directory, config.webserver.default_index, 'ova'))
+        _override_symlink(path.join(config.packages_directory, config.webserver.default_index, 'ova'),
                           path.join(config.artifacts_directory, 'ova', 'updates'))
 
     def _python():

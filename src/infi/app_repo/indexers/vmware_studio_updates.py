@@ -1,17 +1,25 @@
 from .base import Indexer
-from infi.gevent_utils.os import path
+from infi.gevent_utils.os import path, symlink, remove
 from infi.gevent_utils.glob import glob
 from infi.app_repo.filename_parser import parse_filepath, FilenameParsingFailed
 from infi.app_repo.utils import ensure_directory_exists, hard_link_or_raise_exception, log_execute_assert_success
+from infi.app_repo.utils import ensure_directory_exists
 
 ARCH = "UPDATE_ZIP"
 
 
 class VmwareStudioUpdatesIndexer(Indexer):
-    INDEX_TYPE = "vmware-studio-updates"
+    INDEX_TYPE = "ova"
+
+    def _override_updates_symlink(self, src, dst):
+        if path.exists(dst):
+            assert path.islink(dst)
+            remove(dst)
+        symlink(src, dst)
 
     def initialise(self):
         ensure_directory_exists(self.base_directory)
+        self._override_updates_symlink(self.base_directory, path.join(self.base_directory, 'updates')) # legacy
 
     def are_you_interested_in_file(self, filepath, platform, arch):
         try:
@@ -35,7 +43,7 @@ class VmwareStudioUpdatesIndexer(Indexer):
         return latest_update_file
 
     def _extract_update(self, dirpath, filepath):
-        log_execute_assert_success(["unzip", "-qq", "-f", filepath, "-d", dirpath])
+        log_execute_assert_success(["unzip", "-qq", "-u", filepath, "-d", dirpath])
 
     def consume_file(self, filepath, platform, arch):
         package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
@@ -46,4 +54,10 @@ class VmwareStudioUpdatesIndexer(Indexer):
             self._extract_update(package_dir, final_filepath)
 
     def rebuild_index(self):
-        pass
+        for package_dir in glob(path.join(self.base_directory, '*')):
+            if not path.isdir(package_dir):
+                continue
+            latest_zip = self._get_latest_update_file_in_directory(package_dir)
+            if latest_zip:
+                self._extract_update(package_dir, latest_zip)
+
