@@ -169,7 +169,7 @@ class PrettyIndexer(Indexer):
         for package in self._iter_packages():
             for release in self._iter_releases(package):
                 for distribution in self._iter_distributions(package, release):
-                    yield distribution['filepath']
+                    yield path.join(self.config.artifacts_directory, distribution['filepath'].strip(path.sep))
 
     def rebuild_index(self):
         packages = []
