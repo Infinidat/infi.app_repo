@@ -156,10 +156,8 @@ def app_repo(argv=argv[1:]):
         return push_packages(config, args['--index'], args['<remote-server>'], args['<remote-index>'],
                              args.get('<package>'), args.get('<version>'), args.get('<platform>'), args.get('<arch>'))
     elif args['package'] and args['cleanup']:
-        from infi.logging.wrappers import script_logging_context
-        with script_logging_context(syslog=False, logfile=False, stderr=True):
-            return delete_packages(config, args['<regex>'], args['<index>'], args['<index-type>'],
-                                   args['--dry-run'], args['--yes'], args['--async'])
+        return delete_packages(config, args['<regex>'], args['<index>'], args['<index-type>'],
+                               args['--dry-run'], args['--yes'])
 
 
 def get_config(args):
@@ -284,25 +282,23 @@ def rebuild_index(config, index, index_type, async_rpc=False):
     return get_client(config).rebuild_index(index, index_type, async_rpc=async_rpc)
 
 
-def delete_packages(config, regex, index, index_type, dry_run, quiet, async_rpc):
+def delete_packages(config, regex, index, index_type, dry_run, quiet):
     import re
+    from infi.logging.wrappers import script_logging_context
     from infi.gevent_utils.os import path
     from .service import get_client
     should_delete = re.compile(regex).match
-    artifacts = get_client(config).get_artifacts(index, index_type)
+    with script_logging_context(syslog=False, logfile=False, stderr=True):
+        artifacts = get_client(config).get_artifacts(index, index_type)
     files_to_remove = [filepath for filepath in artifacts if should_delete(path.basename(filepath))]
-    rebuild_needed = False
     for filepath in files_to_remove:
         filepath_relative = path.relpath(filepath, config.base_directory)
         if not quiet:
             if not raw_input('delete {} [y/N]? '.format(filepath_relative)).lower() in ('y', 'yes'):
                 continue
-            logger.debug("{} {}".format("[dry-run] deleting" if dry_run else "deleting", filepath_relative))
-            if not dry_run:
-                get_client(config).delete_artifact(filepath)
-                rebuild_needed = True
-    if rebuild_needed:
-        return get_client(config).rebuild_index(index, index_type, async_rpc=async_rpc)
+        logger.debug("{} {}".format("[dry-run] deleting" if dry_run else "deleting", filepath_relative))
+        if not dry_run:
+            get_client(config).delete_artifact(filepath)
 
 
 def resign_packages(config, async_rpc=False):
