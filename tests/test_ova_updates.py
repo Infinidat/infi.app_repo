@@ -34,13 +34,13 @@ class TestCase(unittest.TestCase):
         with mock.patch.object(vmware_studio_updates, 'log_execute_assert_success') as log_execute_assert_success:
             indexer.consume_file(src, '', '')
         self.assertTrue(path.exists(path.join(indexer.base_directory, 'host-power-tools-for-vmware', src)))
-        log_execute_assert_success.assert_called_with(['unzip', '-qq', '-u', path.join(dst, src), '-d', dst])
+        log_execute_assert_success.assert_called_with(['unzip', '-qq', '-o', path.join(dst, src), '-d', dst])
 
         src = 'host-power-tools-for-vmware-1.7.4-vmware-esx-x86_OVF10_UPDATE_ZIP.zip'
         utils.write_file(src, '')
         with mock.patch.object(vmware_studio_updates, 'log_execute_assert_success') as log_execute_assert_success:
             indexer.consume_file(src, '', '')
-        log_execute_assert_success.assert_called_with(['unzip', '-qq', '-u', path.join(dst, src), '-d', dst])
+        log_execute_assert_success.assert_called_with(['unzip', '-qq', '-o', path.join(dst, src), '-d', dst])
 
         src = 'host-power-tools-for-vmware-1.7.3-vmware-esx-x86_OVF10_UPDATE_ZIP.zip'
         utils.write_file(src, '')

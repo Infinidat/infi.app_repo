@@ -43,7 +43,7 @@ class VmwareStudioUpdatesIndexer(Indexer):
         return latest_update_file
 
     def _extract_update(self, dirpath, filepath):
-        log_execute_assert_success(["unzip", "-qq", "-u", filepath, "-d", dirpath])
+        log_execute_assert_success(["unzip", "-qq", "-o", filepath, "-d", dirpath])
 
     def consume_file(self, filepath, platform, arch):
         package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
