@@ -59,7 +59,7 @@ class VmwareStudioUpdatesIndexer(Indexer):
 
     def rebuild_index(self):
         for package_dir in glob(path.join(self.base_directory, '*')):
-            if not path.isdir(package_dir):
+            if not path.isdir(package_dir) or package_dir.endswith('updates'):
                 continue
             latest_zip = self._get_latest_update_file_in_directory(package_dir)
             if latest_zip:
