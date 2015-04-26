@@ -299,7 +299,7 @@ def delete_packages(config, regex, index, index_type, dry_run, quiet, async_rpc)
                 continue
             logger.debug("{} {}".format("[dry-run] deleting" if dry_run else "deleting", filepath_relative))
             if not dry_run:
-                # get_client(config).delete_artifact(filepath)
+                get_client(config).delete_artifact(filepath)
                 rebuild_needed = True
     if rebuild_needed:
         return get_client(config).rebuild_index(index, index_type, async_rpc=async_rpc)
