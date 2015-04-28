@@ -22,7 +22,7 @@ Usage:
     eapp_repo [options] package remote-list <remote-server> <remote-index>
     eapp_repo [options] package pull <remote-server> <remote-index> <package> [<version> [<platform> [<arch>]]]
     eapp_repo [options] package push <remote-server> <remote-index> <package> [<version> [<platform> [<arch>]]]
-    eapp_repo [options] package cleanup <regex> <index> [<index-type>] [(--dry-run | --yes)]
+    eapp_repo [options] package delete <regex> <index> [<index-type>] [(--dry-run | --yes)]
 
 Options:
     -f --file=CONFIGFILE     Use this config file [default: data/config.json]
@@ -163,7 +163,7 @@ def eapp_repo(argv=argv[1:]):
         push_packages = console_script(name="app_repo_push")(push_packages)
         return push_packages(config, args['--index'], args['<remote-server>'], args['<remote-index>'],
                              args.get('<package>'), args.get('<version>'), args.get('<platform>'), args.get('<arch>'))
-    elif args['package'] and args['cleanup']:
+    elif args['package'] and args['delete']:
         return delete_packages(config, args['<regex>'], args['<index>'], args['<index-type>'],
                                args['--dry-run'], args['--yes'])
 
@@ -307,6 +307,7 @@ def delete_packages(config, regex, index, index_type, dry_run, quiet):
         logger.debug("{} {}".format("[dry-run] deleting" if dry_run else "deleting", filepath_relative))
         if not dry_run:
             get_client(config).delete_artifact(filepath)
+    logger.warn("do not forget to rebuild the index(es) after deleting all the packages that you wanted to delete"))
 
 
 def resign_packages(config, async_rpc=False):
