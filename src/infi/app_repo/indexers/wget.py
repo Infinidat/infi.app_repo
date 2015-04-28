@@ -177,6 +177,8 @@ class PrettyIndexer(Indexer):
             releases = []
             for release in sorted(self._iter_releases(package), reverse=True, key=lambda release: parse_version(release['version'])):
                 release['distributions'] = list(self._iter_distributions(package, release))
+                if not release['distributions']:
+                    continue
                 releases.append(release)
             write_file(path.join(package['abspath'], 'releases.json'), encode(releases, indent=4, large_object=True))
 
