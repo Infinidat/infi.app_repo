@@ -23,6 +23,7 @@ Usage:
     eapp_repo [options] package pull <remote-server> <remote-index> <package> [<version> [<platform> [<arch>]]]
     eapp_repo [options] package push <remote-server> <remote-index> <package> [<version> [<platform> [<arch>]]]
     eapp_repo [options] package delete <regex> <index> [<index-type>] [(--dry-run | --yes)]
+    eapp_repo [options] package cleanup <index> [(--dry-run | --yes)]
 
 Options:
     -f --file=CONFIGFILE     Use this config file [default: data/config.json]
@@ -164,9 +165,10 @@ def eapp_repo(argv=argv[1:]):
         return push_packages(config, args['--index'], args['<remote-server>'], args['<remote-index>'],
                              args.get('<package>'), args.get('<version>'), args.get('<platform>'), args.get('<arch>'))
     elif args['package'] and args['delete']:
-        return delete_packages(config, args['<regex>'], args['<index>'], args['<index-type>'],
+        return delete_packages(config, build_regex_predicate(args['<regex>']), args['<index>'], args['<index-type>'],
                                args['--dry-run'], args['--yes'])
-
+    elif args['package'] and args['cleanup']:
+        return delete_old_packages(config, args['<index>'], args['--dry-run'], args['--yes'])
 
 def get_config(args):
     from infi.app_repo.config import Configuration
@@ -290,13 +292,36 @@ def rebuild_index(config, index, index_type, async_rpc=False):
     return get_client(config).rebuild_index(index, index_type, async_rpc=async_rpc)
 
 
-def delete_packages(config, regex, index, index_type, dry_run, quiet):
+def delete_old_packages(config, index, dry_run, quiet):
+    from infi.app_repo.utils import pretty_print, decode, read_file, path
+    packages_json = path.join(config.packages_directory, index, 'index', 'packages.json')
+    data = decode(read_file(packages_json))
+    for package in data:
+        latest_version = package.get('latest_version', None)
+        if not latest_version:
+            continue
+
+        def should_delete(filepath):
+            """returns True on old releases of the package"""
+            basename = path.basename(filepath)
+            if not basename.startswith(package['name']):
+                return False
+            prefix = '{}-{}-'.format(package['name'], latest_version)
+            return not basename.startswith(prefix)
+
+        delete_packages(config, should_delete, index, None, dry_run, quiet)
+
+
+def build_regex_predicate(pattern):
     import re
+    return re.compile(regex).match
+
+
+def delete_packages(config, should_delete, index, index_type, dry_run, quiet):
     from infi.logging.wrappers import script_logging_context
     from infi.gevent_utils.os import path
     from infi.app_repo.service import get_client
     client = get_client(config)
-    should_delete = re.compile(regex).match
     show_warning = False
     with script_logging_context(syslog=False, logfile=False, stderr=True):
         artifacts = client.get_artifacts(index, index_type)
