@@ -301,12 +301,14 @@ def delete_packages(config, regex, index, index_type, dry_run, quiet):
     files_to_remove = [filepath for filepath in artifacts if should_delete(path.basename(filepath))]
     for filepath in files_to_remove:
         filepath_relative = path.relpath(filepath, config.base_directory)
+        if dry_run:
+            logger.debug("[dry-run] deleting {}".format(filepath_relative))
+            continue
         if not quiet:
             if not raw_input('delete {} [y/N]? '.format(filepath_relative)).lower() in ('y', 'yes'):
                 continue
-        logger.debug("{} {}".format("[dry-run] deleting" if dry_run else "deleting", filepath_relative))
-        if not dry_run:
-            get_client(config).delete_artifact(filepath)
+        logger.debug("deleting {} ".format(filepath_relative))
+        get_client(config).delete_artifact(filepath)
     logger.warn("do not forget to rebuild the index(es) after deleting all the packages that you wanted to delete")
 
 
