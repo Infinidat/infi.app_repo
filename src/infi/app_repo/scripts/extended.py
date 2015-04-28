@@ -295,9 +295,11 @@ def delete_packages(config, regex, index, index_type, dry_run, quiet):
     from infi.logging.wrappers import script_logging_context
     from infi.gevent_utils.os import path
     from infi.app_repo.service import get_client
+    client = get_client(config)
     should_delete = re.compile(regex).match
+    show_warning = False
     with script_logging_context(syslog=False, logfile=False, stderr=True):
-        artifacts = get_client(config).get_artifacts(index, index_type)
+        artifacts = client.get_artifacts(index, index_type)
     files_to_remove = [filepath for filepath in artifacts if should_delete(path.basename(filepath))]
     for filepath in files_to_remove:
         filepath_relative = path.relpath(filepath, config.base_directory)
@@ -308,8 +310,10 @@ def delete_packages(config, regex, index, index_type, dry_run, quiet):
             if not raw_input('delete {} [y/N]? '.format(filepath_relative)).lower() in ('y', 'yes'):
                 continue
         logger.debug("deleting {} ".format(filepath_relative))
-        get_client(config).delete_artifact(filepath)
-    logger.warn("do not forget to rebuild the index(es) after deleting all the packages that you wanted to delete")
+        show_warning = True
+        client.delete_artifact(filepath)
+    if show_warning:
+        logger.warn("do not forget to rebuild the index(es) after deleting all the packages that you wanted to delete")
 
 
 def resign_packages(config, async_rpc=False):
