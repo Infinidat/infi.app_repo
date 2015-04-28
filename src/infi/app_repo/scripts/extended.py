@@ -307,7 +307,7 @@ def delete_packages(config, regex, index, index_type, dry_run, quiet):
         logger.debug("{} {}".format("[dry-run] deleting" if dry_run else "deleting", filepath_relative))
         if not dry_run:
             get_client(config).delete_artifact(filepath)
-    logger.warn("do not forget to rebuild the index(es) after deleting all the packages that you wanted to delete"))
+    logger.warn("do not forget to rebuild the index(es) after deleting all the packages that you wanted to delete")
 
 
 def resign_packages(config, async_rpc=False):
