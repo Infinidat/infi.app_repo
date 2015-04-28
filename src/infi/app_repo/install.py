@@ -149,7 +149,7 @@ def setup_gpg(config, force_resignature=False):
 
 def install_shell_completion():
     from infi.docopt_completion.docopt_completion import docopt_completion
-    return docopt_completion("app_repo")
+    return docopt_completion("app_repo") and docopt_completion("eapp_repo")
 
 
 def setup_all(config, force_resignature=False, shell_completion=False):
