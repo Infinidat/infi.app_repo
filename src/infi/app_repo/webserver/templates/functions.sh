@@ -1,5 +1,5 @@
 _system() {
-    echo `uname -s`
+    echo `uname -o || uname -s`
 }
 
 _processor() {
@@ -8,6 +8,10 @@ _processor() {
 
 _release() {
     echo `uname -r`
+}
+
+_machine() {
+    echo `uname -m`
 }
 
 _osversion() {
@@ -94,6 +98,37 @@ _aix_download() {
     echo $fname
 }
 
+_cygwin_download() {
+    # input:  <package> <version>
+    # output: <filename>
+    name="$1"
+    version="$2"
+    processor="$(_machine)"
+    case "$processor" in
+        "i686") arch="x86"
+            ;;
+        "x86_64") arch="x64"
+            ;;
+        *) echo "unsupported cygwin architecture" 1>&2;
+            exit 1
+            ;;
+    esac
+
+    packages_base_url="{{ host_url }}/packages/{{ index_name }}/index/packages"
+    os="windows"
+    uri="$name/releases/$version/distributions/$os/architectures/$arch/extensions/msi"
+    fname="$name-$version-$os-$arch.msi"
+    url="$packages_base_url/$uri/$fname"
+    _curl $url > $fname
+
+    if [ "$?" != "0" ]; then
+        echo "file not found: $url" 1>&2;
+        exit 1
+    fi
+
+    echo $fname
+}
+
 _sh() {
     echo "executing shell... this can take a while..." 1>&2;
     sh "$1" >&2;
@@ -113,9 +148,17 @@ _pkgadd() {
 }
 
 _rpm() {
-    rpm -U $* 1>&2;
+    rpm $* 1>&2;
     if [ "$?" != "0" ]; then
         echo "installation failed; command-line was rpm $*" 1>&2;
+        exit 1
+    fi
+}
+
+_msiexec() {
+    msiexec $* 1>&2;
+    if [ "$?" != "0" ]; then
+        echo "installation failed; command-line was msiexec $*" 1>&2;
         exit 1
     fi
 }
@@ -179,6 +222,14 @@ _aix_install() {
     fi
 }
 
+_cygwin_install() {
+    # input:  <name> <version> <file>
+    _msiexec /i "$3" /passive /norestart
+    if [ "$?" != "0" ]; then
+        exit 1
+    fi
+}
+
 parse_commandline() {
     # input:  <script-name> <package> [<version>]
     argc=$#
@@ -222,6 +273,12 @@ download() {
         exit 1
         fi
         echo $fname
+    elif [ $uname = "Cygwin" ]; then
+        fname=$(_cygwin_download $name $version)
+        if [ "$?" != "0" ]; then
+        exit 1
+        fi
+        echo $fname
     elif [ $uname = "AIX" ]; then
         fname=$(_aix_download $name $version)
         if [ "$?" != "0" ]; then
@@ -241,6 +298,8 @@ install() {
 
     if [ $uname = "SunOS" ]; then
         _solaris_install "$1" "$2" "$3"
+    elif [ $uname = "Cygwin" ]; then
+        _cygwin_install "$1" "$2" "$3"
     elif [ $uname = "AIX" ]; then
         _aix_install "$1" "$2" "$3"
     else

@@ -1,27 +1,29 @@
 """Application Repository Management Tool
 
 Usage:
-    app_repo [options] counters show
-    app_repo [options] config show
-    app_repo [options] config apply (production-defaults | development-defaults)
-    app_repo [options] setup (production-defaults | development-defaults) [--with-mock] [--with-legacy] [--force-resignature]
-    app_repo [options] destroy [--yes]
-    app_repo [options] ftp-server [--signal-upstart] [--process-incoming-on-startup]
-    app_repo [options] web-server [--signal-upstart]
-    app_repo [options] rpc-server [--signal-upstart] [--with-mock]
-    app_repo [options] rpc-client [--style=<style>] [<method> [<arg>...]]
-    app_repo [options] service upload-file <filepath>
-    app_repo [options] service process-rejected-file <filepath> <platform> <arch>
-    app_repo [options] service process-incoming <index>
-    app_repo [options] service rebuild-index <index> [<index-type>]
-    app_repo [options] service resign-packages
-    app_repo [options] index list
-    app_repo [options] index add <index>
-    app_repo [options] index remove <index> [--yes]
-    app_repo [options] package list
-    app_repo [options] package remote-list <remote-server> <remote-index>
-    app_repo [options] package pull <remote-server> <remote-index> <package> [<version> [<platform> [<arch>]]]
-    app_repo [options] package push <remote-server> <remote-index> <package> [<version> [<platform> [<arch>]]]
+    eapp_repo [options] counters show
+    eapp_repo [options] config show
+    eapp_repo [options] config apply (production-defaults | development-defaults)
+    eapp_repo [options] setup (production-defaults | development-defaults) [--with-mock] [--with-legacy] [--force-resignature]
+    eapp_repo [options] destroy [--yes]
+    eapp_repo [options] ftp-server [--signal-upstart] [--process-incoming-on-startup]
+    eapp_repo [options] web-server [--signal-upstart]
+    eapp_repo [options] rpc-server [--signal-upstart] [--with-mock]
+    eapp_repo [options] rpc-client [--style=<style>] [<method> [<arg>...]]
+    eapp_repo [options] service upload-file <filepath>
+    eapp_repo [options] service process-rejected-file <filepath> <platform> <arch>
+    eapp_repo [options] service process-incoming <index>
+    eapp_repo [options] service rebuild-index <index> [<index-type>]
+    eapp_repo [options] service resign-packages
+    eapp_repo [options] index list
+    eapp_repo [options] index add <index>
+    eapp_repo [options] index remove <index> [--yes]
+    eapp_repo [options] package list
+    eapp_repo [options] package remote-list <remote-server> <remote-index>
+    eapp_repo [options] package pull <remote-server> <remote-index> <package> [<version> [<platform> [<arch>]]]
+    eapp_repo [options] package push <remote-server> <remote-index> <package> [<version> [<platform> [<arch>]]]
+    eapp_repo [options] package delete <regex> <index> [<index-type>] [(--dry-run | --yes)]
+    eapp_repo [options] package cleanup <index> [(--dry-run | --yes)]
 
 Options:
     -f --file=CONFIGFILE     Use this config file [default: data/config.json]
@@ -38,7 +40,7 @@ from infi.pyutils.decorators import wraps
 from logging import getLogger
 
 logger = getLogger(__name__)
-bypass_console_script_logging = True # we want to use the functions in this module in the tests but without the logging stuff
+_bypass_console_script_logging = True # we want to use the functions in this module in the tests but without the logging stuff
 
 
 @contextmanager
@@ -89,15 +91,23 @@ def console_script(func=None, name=None):
         return decorate(func)
 
 
-def app_repo(argv=argv[1:]):
-    from docopt import docopt
-    from .config import Configuration
-    from .__version__ import __version__
+def docopt(doc, argv=None):
+    from docopt import docopt as _docopt
     from infi.app_repo import DATA_DIR
-    global bypass_console_script_logging
+    from infi.app_repo.__version__ import __version__
+    return _docopt(doc.replace('default: data', 'default: %s' % DATA_DIR), argv=argv, help=True, version=__version__)
+
+
+def bypass_console_script_logging():
+    global _bypass_console_script_logging
     bypass_console_script_logging = False
-    args = docopt(__doc__.replace('default: data', 'default: %s' % DATA_DIR), argv=argv, help=True, version=__version__)
+
+
+def eapp_repo(argv=argv[1:]):
+    bypass_console_script_logging()
+    args = docopt(__doc__, argv)
     config = get_config(args)
+
     if args['counters'] and args['show']:
         return show_counters(config)
     elif args['config'] and args['show']:
@@ -113,7 +123,7 @@ def app_repo(argv=argv[1:]):
             config.to_disk()
         return setup(config, args['--with-mock'], args['--force-resignature'])
     elif args['destroy'] and args['--yes']:
-        from .install import destroy_all
+        from infi.app_repo.install import destroy_all
         destroy_all(config)
     elif args['web-server']:
         return web_server(config, args['--signal-upstart'])
@@ -145,24 +155,28 @@ def app_repo(argv=argv[1:]):
     elif args['package'] and args['remote-list']:
         return show_remote_packages(config, args['<remote-server>'], args['<remote-index>'])
     elif args['package'] and args['pull']:
-        from .sync import pull_packages
+        from infi.app_repo.sync import pull_packages
         pull_packages = console_script(name="app_repo_pull")(pull_packages)
         return pull_packages(config, args['--index'], args['<remote-server>'], args['<remote-index>'],
                              args['<package>'], args['<version>'], args['<platform>'], args['<arch>'])
     elif args['package'] and args['push']:
-        from .sync import push_packages
+        from infi.app_repo.sync import push_packages
         push_packages = console_script(name="app_repo_push")(push_packages)
         return push_packages(config, args['--index'], args['<remote-server>'], args['<remote-index>'],
                              args.get('<package>'), args.get('<version>'), args.get('<platform>'), args.get('<arch>'))
-
+    elif args['package'] and args['delete']:
+        return delete_packages(config, build_regex_predicate(args['<regex>']), args['<index>'], args['<index-type>'],
+                               args['--dry-run'], args['--yes'])
+    elif args['package'] and args['cleanup']:
+        return delete_old_packages(config, args['<index>'], args['--dry-run'], args['--yes'])
 
 def get_config(args):
-    from .config import Configuration
+    from infi.app_repo.config import Configuration
     return Configuration.from_disk(args.get("--file", Configuration.get_default_config_file()))
 
 
 def get_counters(config):
-    from .persistent_dict import PersistentDict
+    from infi.app_repo.persistent_dict import PersistentDict
     ftp_counters = PersistentDict(config.ftpserver_counters_filepath)
     ftp_counters.load()
     web_counters = PersistentDict(config.webserver_counters_filepath)
@@ -181,8 +195,8 @@ def show_counters(config):
 
 @console_script(name="app_repo_setup")
 def setup(config, apply_mock_patches, force_resignature):
-    from .install import setup_all
-    from .mock import patch_all, empty_context
+    from infi.app_repo.install import setup_all
+    from infi.app_repo.mock import patch_all, empty_context
     with (patch_all if apply_mock_patches else empty_context)():
         setup_all(config, force_resignature, shell_completion=True)
 
@@ -190,7 +204,7 @@ def setup(config, apply_mock_patches, force_resignature):
 @console_script(name="app_repo_web")
 def web_server(config, signal_upstart):
     from gevent import monkey; monkey.patch_thread()
-    from .webserver import start
+    from infi.app_repo.webserver import start
     webserver = start(config)
     if signal_upstart:
         from infi.app_repo.upstart import signal_init_that_i_am_ready
@@ -201,7 +215,7 @@ def web_server(config, signal_upstart):
 
 @console_script(name="app_repo_ftp")
 def ftp_server(config, signal_upstart):
-    from .ftpserver import start
+    from infi.app_repo.ftpserver import start
     ftpserver = start(config)
     if signal_upstart:
         from infi.app_repo.upstart import signal_init_that_i_am_ready
@@ -213,9 +227,9 @@ def ftp_server(config, signal_upstart):
 @console_script(name="app_repo_rpc")
 def rpc_server(config, signal_upstart, apply_mock_patches):
     from infi.rpc import Server, ZeroRPCServerTransport
-    from .service import AppRepoService
-    from .mock import patch_all, empty_context
-    from .utils import pretty_print, jsonify_arguments
+    from infi.app_repo.service import AppRepoService
+    from infi.app_repo.mock import patch_all, empty_context
+    from infi.app_repo.utils import pretty_print, jsonify_arguments
     with (patch_all if apply_mock_patches else empty_context)():
         transport = ZeroRPCServerTransport.create_tcp(config.rpcserver.port, config.rpcserver.address)
         service = AppRepoService(config)
@@ -236,8 +250,8 @@ def rpc_server(config, signal_upstart, apply_mock_patches):
 def rpc_client(config, method, arguments, style, async_rpc=False):
     from IPython import embed
     from infi.rpc import patched_ipython_getargspec_context
-    from .service import get_client
-    from .utils import pretty_print, jsonify_arguments
+    from infi.app_repo.service import get_client
+    from infi.app_repo.utils import pretty_print, jsonify_arguments
 
     client = get_client(config)
     from os import environ
@@ -264,29 +278,78 @@ def upload_file(config, index, filepath):
 
 
 def process_rejected_file(config, index, filepath, platform, arch, async_rpc=False):
-    from .service import get_client
+    from infi.app_repo.service import get_client
     return get_client(config).process_filepath(index, filepath, platform, arch, async_rpc=async_rpc)
 
 
 def process_incoming(config, index, async_rpc=False):
-    from .service import get_client
+    from infi.app_repo.service import get_client
     return get_client(config).process_incoming(index, async_rpc=async_rpc)
 
 
 def rebuild_index(config, index, index_type, async_rpc=False):
-    from .service import get_client
+    from infi.app_repo.service import get_client
     return get_client(config).rebuild_index(index, index_type, async_rpc=async_rpc)
 
 
+def delete_old_packages(config, index, dry_run, quiet):
+    from infi.app_repo.utils import pretty_print, decode, read_file, path
+    packages_json = path.join(config.packages_directory, index, 'index', 'packages.json')
+    data = decode(read_file(packages_json))
+    for package in data:
+        latest_version = package.get('latest_version', None)
+        if not latest_version:
+            continue
+
+        def should_delete(filepath):
+            """returns True on old releases of the package"""
+            basename = path.basename(filepath)
+            if not basename.startswith(package['name']):
+                return False
+            prefix = '{}-{}-'.format(package['name'], latest_version)
+            return not basename.startswith(prefix)
+
+        delete_packages(config, should_delete, index, None, dry_run, quiet)
+
+
+def build_regex_predicate(pattern):
+    import re
+    return re.compile(regex).match
+
+
+def delete_packages(config, should_delete, index, index_type, dry_run, quiet):
+    from infi.logging.wrappers import script_logging_context
+    from infi.gevent_utils.os import path
+    from infi.app_repo.service import get_client
+    client = get_client(config)
+    show_warning = False
+    with script_logging_context(syslog=False, logfile=False, stderr=True):
+        artifacts = client.get_artifacts(index, index_type)
+    files_to_remove = [filepath for filepath in artifacts if should_delete(path.basename(filepath))]
+    for filepath in files_to_remove:
+        filepath_relative = path.relpath(filepath, config.base_directory)
+        if dry_run:
+            logger.debug("[dry-run] deleting {}".format(filepath_relative))
+            continue
+        if not quiet:
+            if not raw_input('delete {} [y/N]? '.format(filepath_relative)).lower() in ('y', 'yes'):
+                continue
+        logger.debug("deleting {} ".format(filepath_relative))
+        show_warning = True
+        client.delete_artifact(filepath)
+    if show_warning:
+        logger.warn("do not forget to rebuild the index(es) after deleting all the packages that you wanted to delete")
+
+
 def resign_packages(config, async_rpc=False):
-    from .service import get_client
+    from infi.app_repo.service import get_client
     return get_client(config).resign_packages(async_rpc=async_rpc)
 
 
 def add_index(config, index_name, async_rpc=False):
-    from .indexers import get_indexers
-    from .install import ensure_directory_exists, path
-    from .service import get_client
+    from infi.app_repo.indexers import get_indexers
+    from infi.app_repo.install import ensure_directory_exists, path
+    from infi.app_repo.service import get_client
     assert index_name not in config.indexes
     for indexer in get_indexers(config, index_name):
         indexer.initialise()
@@ -299,9 +362,9 @@ def add_index(config, index_name, async_rpc=False):
 
 
 def remove_index(config, index_name, async_rpc=False):
-    from .indexers import get_indexers
-    from .utils import log_execute_assert_success
-    from .service import get_client
+    from infi.app_repo.indexers import get_indexers
+    from infi.app_repo.utils import log_execute_assert_success
+    from infi.app_repo.service import get_client
     assert index_name in config.indexes
     config.indexes = [name for name in config.indexes if name != index_name]
     config.to_disk()
@@ -311,7 +374,7 @@ def remove_index(config, index_name, async_rpc=False):
 
 
 def show_packages(config, index_name):
-    from .utils import pretty_print, decode, read_file, path
+    from infi.app_repo.utils import pretty_print, decode, read_file, path
     packages_json = path.join(config.packages_directory, index_name, 'index', 'packages.json')
     data = decode(read_file(packages_json))
     pretty_print(data)
@@ -319,5 +382,5 @@ def show_packages(config, index_name):
 
 def show_remote_packages(config, remote_host, remote_index):
     from requests import get
-    from .utils import pretty_print
+    from infi.app_repo.utils import pretty_print
     pretty_print(get("http://{}/packages/{}/index/packages.json".format(remote_host, remote_index)).get_json())

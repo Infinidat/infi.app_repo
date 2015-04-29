@@ -50,6 +50,13 @@ class YumIndexer(Indexer):
         sign_rpm_package(filepath)
         self._update_index(dirpath)
 
+    def iter_files(self):
+        for platform, architectures in KNOWN_PLATFORMS.items():
+            for arch in architectures:
+                dirpath = path.join(self.base_directory, '%s-%s' % (platform, arch))
+                for filepath in glob(path.join(dirpath, '*.rpm')):
+                    yield filepath
+
     def rebuild_index(self):
         for dirpath in glob(path.join(self.base_directory, '*')):
             self._delete_repo_metadata(dirpath)

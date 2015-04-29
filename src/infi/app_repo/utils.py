@@ -92,6 +92,7 @@ def temporary_directory_context():
 def hard_link_or_raise_exception(src, dst):
     if not path.exists(dst):
         link(src, dst)
+        return dst
     elif path.isfile(dst):
         raise FileAlreadyExists(dst)
     elif path.isdir(dst):
@@ -99,6 +100,7 @@ def hard_link_or_raise_exception(src, dst):
         if path.exists(dst_abspath):
             raise FileAlreadyExists(dst_abspath)
         link(src, dst_abspath)
+        return dst_abspath
 
 
 def hard_link_and_override(src, dst):

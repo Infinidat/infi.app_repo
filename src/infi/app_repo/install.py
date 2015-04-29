@@ -125,8 +125,8 @@ def _ensure_legacy_directory_structure_exists(config):
 
     def _ova_updates():
         ensure_directory_exists(path.join(config.artifacts_directory, 'ova'))
-        ensure_directory_exists(path.join(config.packages_directory, config.webserver.default_index, 'vmware-studio-updates'))
-        _override_symlink(path.join(config.packages_directory, config.webserver.default_index, 'vmware-studio-updates'),
+        ensure_directory_exists(path.join(config.packages_directory, config.webserver.default_index, 'ova'))
+        _override_symlink(path.join(config.packages_directory, config.webserver.default_index, 'ova'),
                           path.join(config.artifacts_directory, 'ova', 'updates'))
 
     def _python():
@@ -149,7 +149,7 @@ def setup_gpg(config, force_resignature=False):
 
 def install_shell_completion():
     from infi.docopt_completion.docopt_completion import docopt_completion
-    return docopt_completion("app_repo")
+    return docopt_completion("app_repo") and docopt_completion("eapp_repo")
 
 
 def setup_all(config, force_resignature=False, shell_completion=False):

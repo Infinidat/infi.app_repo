@@ -2,7 +2,7 @@ from .test_case import TestCase
 from infi.app_repo.config import Configuration
 from infi.app_repo.install import setup_all
 from infi.app_repo.mock import patch_all
-from infi.app_repo.scripts import get_counters
+from infi.app_repo.scripts.extended import get_counters
 from infi.app_repo.utils import log_execute_assert_success
 from gevent import sleep
 

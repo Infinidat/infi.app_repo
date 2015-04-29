@@ -85,6 +85,22 @@ class AppRepoService(ServiceWithSynchronized):
 
     @rpc_call
     @synchronized
+    def get_artifacts(self, index, index_type=None):
+        assert index in self.config.indexes
+        all_files = []
+        for indexer in self.config.get_indexers(index):
+            if index_type is None or index_type == indexer.INDEX_TYPE:
+                all_files.extend(list(indexer.iter_files()))
+        return all_files
+
+    @rpc_call
+    @synchronized
+    def delete_artifact(self, filepath):
+        if path.exists(filepath):
+            remove(filepath)
+
+    @rpc_call
+    @synchronized
     def resign_packages(self):
         from .install import sign_all_existing_deb_and_rpm_packages
         sign_all_existing_deb_and_rpm_packages(self.config)

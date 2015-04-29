@@ -165,12 +165,20 @@ class PrettyIndexer(Indexer):
 
         return installation_instructions
 
+    def iter_files(self):
+        for package in self._iter_packages():
+            for release in self._iter_releases(package):
+                for distribution in self._iter_distributions(package, release):
+                    yield path.join(self.config.artifacts_directory, distribution['filepath'].strip(path.sep))
+
     def rebuild_index(self):
         packages = []
         for package in self._iter_packages():
             releases = []
             for release in sorted(self._iter_releases(package), reverse=True, key=lambda release: parse_version(release['version'])):
                 release['distributions'] = list(self._iter_distributions(package, release))
+                if not release['distributions']:
+                    continue
                 releases.append(release)
             write_file(path.join(package['abspath'], 'releases.json'), encode(releases, indent=4, large_object=True))
 

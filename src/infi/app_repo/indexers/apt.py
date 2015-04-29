@@ -1,6 +1,7 @@
 from .base import Indexer
 from infi.app_repo.utils import ensure_directory_exists
 from infi.gevent_utils.os import path, remove, fopen
+from infi.gevent_utils.glob import glob
 from infi.gevent_utils.deferred import create_threadpool_executed_func
 from infi.app_repo.utils import temporary_directory_context, log_execute_assert_success, hard_link_or_raise_exception
 
@@ -56,7 +57,8 @@ class AptIndexer(Indexer):
                 for arch in architectures:
                     dirpath = self.deduce_dirname(distribution_name, version, arch)
                     ensure_directory_exists(dirpath)
-                    write_to_packages_file(dirpath, '', 'w')
+                    if not path.exists(path.join(dirpath, 'Packages')):
+                        write_to_packages_file(dirpath, '', 'w')
                 self.generate_release_file_for_specific_distribution_and_version(distribution_name, version, False)
 
     def deduce_dirname(self, distribution_name, codename, arch): # based on how apt likes it
@@ -114,6 +116,15 @@ class AptIndexer(Indexer):
             fixed_contents = contents.replace(tempdir, relapath)
             write_to_packages_file(dirpath, fixed_contents, 'a')
         self.generate_release_file_for_specific_distribution_and_version(distribution_name, codename)
+
+    def iter_files(self):
+        ensure_directory_exists(self.base_directory)
+        for distribution_name, distribution_dict in KNOWN_DISTRIBUTIONS.items():
+            for version, architectures in distribution_dict.items():
+                for arch in architectures:
+                    dirpath = self.deduce_dirname(distribution_name, version, arch)
+                    for filepath in glob(path.join(dirpath, '*.deb')):
+                        yield filepath
 
     def rebuild_index(self):
         for distribution_name, distribution_dict in KNOWN_DISTRIBUTIONS.items():
