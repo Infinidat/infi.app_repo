@@ -313,7 +313,7 @@ def delete_old_packages(config, index, dry_run, quiet):
 
 def build_regex_predicate(pattern):
     import re
-    return re.compile(regex).match
+    return re.compile(pattern).match
 
 
 def delete_packages(config, should_delete, index, index_type, dry_run, quiet):
