@@ -121,7 +121,14 @@ def ensure_directory_exists(dirpath):
 def pretty_print(builtin_datatype, style="solarized"):
     from pygments import highlight
     from pygments.lexers import JsonLexer
-    from httpie.solarized import Solarized256Style
+    try:
+        from httpie.solarized import Solarized256Style
+    except ImportError:
+        try:
+            from httpie.output.formatters import Solarized256Style
+        except ImportError:
+            from httpie.plugins import FormatterPlugin
+            from httpie.output.formatters.colors import Solarized256Style
     from pygments.formatters import Terminal256Formatter
     style = Solarized256Style if style == "solarized" else style
     print highlight(encode(builtin_datatype, indent=4, large_object=True), JsonLexer(), Terminal256Formatter(style=style))
