@@ -72,8 +72,7 @@ def console_script(func=None, name=None):
             from docopt import DocoptExit
             from sys import stderr
             import logbook
-
-            if bypass_console_script_logging:
+            if _bypass_console_script_logging:
                 return f(*args, **kwargs)
 
             filename = '/tmp/{}.log'.format(name if name else f.__name__)
@@ -100,7 +99,7 @@ def docopt(doc, argv=None):
 
 def bypass_console_script_logging():
     global _bypass_console_script_logging
-    bypass_console_script_logging = False
+    _bypass_console_script_logging = False
 
 
 def eapp_repo(argv=argv[1:]):
