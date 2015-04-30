@@ -72,8 +72,7 @@ def console_script(func=None, name=None):
             from docopt import DocoptExit
             from sys import stderr
             import logbook
-
-            if bypass_console_script_logging:
+            if _bypass_console_script_logging:
                 return f(*args, **kwargs)
 
             filename = '/tmp/{}.log'.format(name if name else f.__name__)
@@ -100,7 +99,7 @@ def docopt(doc, argv=None):
 
 def bypass_console_script_logging():
     global _bypass_console_script_logging
-    bypass_console_script_logging = False
+    _bypass_console_script_logging = False
 
 
 def eapp_repo(argv=argv[1:]):
@@ -259,7 +258,7 @@ def rpc_client(config, method, arguments, style, async_rpc=False):
         pretty_print(getattr(client, method)(*jsonify_arguments(*arguments), async_rpc=async_rpc), style)
     else:
         with patched_ipython_getargspec_context(client):
-            embed()(config, filepath, index)
+            embed()
 
 
 def upload_file(config, index, filepath):
@@ -314,7 +313,7 @@ def delete_old_packages(config, index, dry_run, quiet):
 
 def build_regex_predicate(pattern):
     import re
-    return re.compile(regex).match
+    return re.compile(pattern).match
 
 
 def delete_packages(config, should_delete, index, index_type, dry_run, quiet):
