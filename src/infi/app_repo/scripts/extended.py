@@ -258,7 +258,7 @@ def rpc_client(config, method, arguments, style, async_rpc=False):
         pretty_print(getattr(client, method)(*jsonify_arguments(*arguments), async_rpc=async_rpc), style)
     else:
         with patched_ipython_getargspec_context(client):
-            embed()(config, filepath, index)
+            embed()
 
 
 def upload_file(config, index, filepath):
