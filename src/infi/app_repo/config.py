@@ -99,7 +99,6 @@ class Configuration(Model, PropertyMixin):
     def reload_configuration_from_disk(self):
         with fopen(self.filepath) as fd:
             kwargs = decode(fd.read())
-        kwargs['filepath'] = filepath
         for key, value in kwargs.iteritems():
             setattr(self, key, value)
 
