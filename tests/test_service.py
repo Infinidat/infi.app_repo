@@ -27,3 +27,14 @@ class ServiceTestCase(TestCase):
             config.get_indexers = lambda name: [indexer]
             service.process_filepath_by_name(config, 'main-stable', filepath)
             self.assertTrue(indexer.consumed)
+
+
+class RpcTestCase(TestCase):
+    def test_reload_configuration_from_disk(self):
+        with self.temporary_base_directory_context():
+            config = Configuration.from_disk(None)
+            config.to_disk()
+            with self.rpc_server_context(config):
+                client = service.get_client(config)
+                client.reload_configuration_from_disk()
+                client.reload_configuration_from_disk()
