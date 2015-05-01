@@ -350,12 +350,11 @@ def add_index(config, index_name, async_rpc=False):
     from infi.app_repo.install import ensure_directory_exists, path
     from infi.app_repo.service import get_client
     assert index_name not in config.indexes
-    for indexer in get_indexers(config, index_name):
-        indexer.initialise()
     ensure_directory_exists(path.join(config.incoming_directory, index_name))
     ensure_directory_exists(path.join(config.rejected_directory, index_name))
     config.indexes.append(index_name)
     config.to_disk()
+    get_indexers(config, index_name).initialise()
     get_client(config).reload_configuration_from_disk(async_rpc=async_rpc)
 
 
