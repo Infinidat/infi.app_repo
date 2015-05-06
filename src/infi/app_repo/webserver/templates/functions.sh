@@ -1,5 +1,5 @@
 _system() {
-    echo `uname -o || uname -s`
+    echo `uname -o 2>/dev/null || uname -s`
 }
 
 _processor() {
