@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 
 from logging import getLogger
-from infi.gevent_utils.safe_greenlets import safe_spawn
 from infi.gevent_utils.os import remove, path
 from infi.gevent_utils.glob import glob
 from infi.rpc import ServiceWithSynchronized, rpc_call, synchronized
