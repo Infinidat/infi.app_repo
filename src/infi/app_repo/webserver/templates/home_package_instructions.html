@@ -25,6 +25,9 @@
         {% if 'windows' in platform %}
             <span class="label label-info">{{ platform }}</span>
         {% endif %}
+        {% if platform == 'python' %}
+            <span class="label label-default">python</span>
+        {% endif %}
     </div>
     <div class="span9">
         {% if platform == 'vmware' %}
