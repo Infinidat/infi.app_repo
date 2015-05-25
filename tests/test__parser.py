@@ -89,6 +89,12 @@ cases = [
 
     dict(expected=('kernel', '3.10.0-123.4.4', 'linux-redhat-7', 'x64', 'rpm'),
          basename="kernel-3.10.0-123.4.4.redhat.el7.x86_64.rpm"),
+
+    dict(expected=('infinisdk', '42', 'python', 'sdist', 'tar.gz'),
+         basename="infinisdk-42-python-sdist.tar.gz"),
+
+    dict(expected=('infinisdk', '42', 'python', 'docs', 'tar.gz'),
+         basename="infinisdk-42-python-docs.tar.gz"),
     ]
 
 class ParserTestCase(TestCase):

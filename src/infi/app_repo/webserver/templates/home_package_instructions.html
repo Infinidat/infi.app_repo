@@ -25,6 +25,9 @@
         {% if 'windows' in platform %}
             <span class="label label-info">{{ platform }}</span>
         {% endif %}
+        {% if platform == 'python' %}
+            <span class="label label-default">python</span>
+        {% endif %}
     </div>
     <div class="span9">
         {% if platform == 'vmware' %}
@@ -37,7 +40,7 @@
             {% endif %}
         {% else %}
             {% if instructions.command %}
-                <code>{{ instructions.command.replace("//", host_url) }}</code>
+                <input class="cmd" value="{{ instructions.command.replace("//", host_url) }}">
             {% endif %}
             {% if instructions.download_link %}
                 <a href="{{ instructions.download_link }}" class="btn btn-mini">Download</a> the installer and run it.
