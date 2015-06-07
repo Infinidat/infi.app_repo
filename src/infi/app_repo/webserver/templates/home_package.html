@@ -6,18 +6,34 @@
             {{ package.product_name }}
             <span class="label ver">{{ package.latest_version }}</span>
         </h2>
-        <h3>Installation instructions</h3>
+        {% if package.installation_instructions %}
         {% for platform, value in package.installation_instructions|dictsort %}
+        {% if value.install %}
+        <h3>Installation instructions</h3>
+        {% break %}
+        {% endif %}
+        {% endfor %}
+        {% for platform, value in package.installation_instructions|dictsort %}
+            {% if value.install %}
             {% with instructions = value.install %}
                 {% include "home_package_instructions.html" %}
             {% endwith %}
+            {% endif %}
         {% endfor %}
-        <h3>Upgrade instructions</h3>
         {% for platform, value in package.installation_instructions|dictsort %}
+        {% if value.upgrade %}
+        <h3>Upgrade instructions</h3>
+        {% break %}
+        {% endif %}
+        {% endfor %}
+        {% for platform, value in package.installation_instructions|dictsort %}
+            {% if value.upgrade %}
             {% with instructions = value.upgrade %}
                 {% include "home_package_instructions.html" %}
             {% endwith %}
+            {% endif %}
         {% endfor %}
+        {% endif %}
     </div>
 </div>
 <br>

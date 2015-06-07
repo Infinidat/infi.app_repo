@@ -178,6 +178,7 @@ def start(config):
     from flask.ext.cors import CORS
 
     app = FlaskApp.from_config(config)
+    app.jinja_options['extensions'].append("jinja2.ext.loopcontrols")
     cors = CORS(app)
     app_wrapper = ProxyFix(DebuggedApplication(app, True))
     args = (config.webserver.address, config.webserver.port)
