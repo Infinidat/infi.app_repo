@@ -3,7 +3,6 @@ import flask
 import pkg_resources
 import mimetypes
 from infi.pyutils.lazy import cached_function
-from flask.ext.autoindex import AutoIndex
 from .auth import requires_auth
 from logbook import Logger
 from functools import partial
@@ -29,6 +28,8 @@ class FlaskApp(flask.Flask):
         return self
 
     def _register_blueprints(self):
+        from flask.ext.autoindex import AutoIndex
+
         def _directory_index():
             packages = flask.Blueprint("packages", __name__)
             AutoIndex(packages, browse_root=self.app_repo_config.packages_directory)
@@ -70,6 +71,8 @@ class FlaskApp(flask.Flask):
         self.after_request(_func)
 
     def _register_legacy(self):
+        from flask.ext.autoindex import AutoIndex
+
         def _deb():
             deb = flask.Blueprint("deb", __name__)
             AutoIndex(deb, browse_root=path.join(self.app_repo_config.artifacts_directory, 'deb'))
@@ -172,8 +175,10 @@ def start(config):
     from gevent.wsgi import WSGIServer
     from werkzeug.contrib.fixers import ProxyFix
     from werkzeug.debug import DebuggedApplication
+    from flask.ext.cors import CORS
 
     app = FlaskApp.from_config(config)
+    cors = CORS(app)
     app_wrapper = ProxyFix(DebuggedApplication(app, True))
     args = (config.webserver.address, config.webserver.port)
     server = WSGIServer(args, app_wrapper, log=DummyWSGILogger, handler_class=WSGIHandlerWithWorkarounds)
