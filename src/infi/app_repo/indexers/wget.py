@@ -21,7 +21,7 @@ ZYPPER_UGPRADE_COMMAND = 'sudo zypper refresh; sudo zypper update -y {0}'
 PIP_INSTALL_COMMAND = 'sudo pip install --extra-index-url ///packages/{0}/pypi {1}'
 PIP_UGPRADE_COMMAND = 'sudo pip install --upgrade --extra-index-url ///packages/{0}/pypi {1}'
 
-MANUAL_COMMAND = "curl -s ///install/{0}/{1} | sh -"
+MANUAL_COMMAND = "curl -s ///install/{0}/{1} | sudo sh -"
 
 
 def ensure_packages_json_file_exists_in_directory(dirpath):
