@@ -21,7 +21,7 @@ ZYPPER_UGPRADE_COMMAND = 'sudo zypper refresh; sudo zypper update -y {0}'
 PIP_INSTALL_COMMAND = 'sudo pip install --extra-index-url ///packages/{0}/pypi {1}'
 PIP_UGPRADE_COMMAND = 'sudo pip install --upgrade --extra-index-url ///packages/{0}/pypi {1}'
 
-MANUAL_COMMAND = "curl -s ///install/{0}/{1} | sh -"
+MANUAL_COMMAND = "curl -s ///install/{0}/{1} | sudo sh -"
 
 
 def ensure_packages_json_file_exists_in_directory(dirpath):
@@ -129,6 +129,18 @@ class PrettyIndexer(Indexer):
     def _get_latest_release(self, releases):
         return sorted(releases, key=lambda release: parse_version(release['version']))[-1] if releases else None
 
+    def _get_custom_installation_instructions(self, package):
+        filepath = path.join(package['abspath'], 'installation_instructions.json')
+        try:
+            if not path.exists(filepath):
+                return dict()
+            with fopen(filepath) as fd:
+                result = decode(fd.read())
+                return result if isinstance(result, dict) else dict()
+        except:
+            logger.exception("failed to read custom installation instructions from {0}".format(filepath))
+            return dict()
+
     def _get_installation_instructions(self, package, release):
         installation_instructions = {}
         platforms = {distribution['platform'] for distribution in release['distributions']}
@@ -170,6 +182,12 @@ class PrettyIndexer(Indexer):
                 upgrade = PIP_UGPRADE_COMMAND.format(self.index_name, package['name'])
                 installation_instructions['python'] = dict(upgrade=dict(command=upgrade), install=dict(command=install))
 
+        custom_instructions = self._get_custom_installation_instructions(package)
+        for platform in platforms:
+            for instruction in ('install', 'upgrade'):
+                new_instruction = custom_instructions.get(platform, dict()).get(instruction)
+                if isinstance(new_instruction, basestring):
+                    installation_instructions.setdefault(platform, dict())[instruction] = new_instruction
         return installation_instructions
 
     def iter_files(self):

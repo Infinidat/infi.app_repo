@@ -95,6 +95,12 @@ cases = [
 
     dict(expected=('infinisdk', '42', 'python', 'docs', 'tar.gz'),
          basename="infinisdk-42-python-docs.tar.gz"),
+
+    dict(expected=('infinibox-gui', '2.0.0.22', 'custom', 'generic', 'bin'),
+         basename="infinibox-gui-2.0.0.22-custom-generic.bin"),
+
+    dict(expected=('infinisdk', '2.0.0.b1', 'python', 'docs', 'tar.gz'),
+         basename="infinisdk-2.0.0.b1-python-docs.tar.gz"),
     ]
 
 class ParserTestCase(TestCase):
