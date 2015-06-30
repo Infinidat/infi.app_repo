@@ -101,6 +101,9 @@ cases = [
 
     dict(expected=('infinisdk', '2.0.0.b1', 'python', 'docs', 'tar.gz'),
          basename="infinisdk-2.0.0.b1-python-docs.tar.gz"),
+
+    dict(expected=('infinibox-demo', '2.0.0', 'vmware-esx', 'x64_OVF_10', 'ova'),
+         basename="infinibox-demo-2.0.0-vmware-esx-x64_OVF_10.ova")
     ]
 
 class ParserTestCase(TestCase):
