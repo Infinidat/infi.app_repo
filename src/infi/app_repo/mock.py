@@ -58,6 +58,16 @@ def setup_gpg_side_effect(config, force_resignature=False):
 def apt_ftparchive_side_effect(cmdline_arguments):
     return ''
 
+
+@contextmanager
+def patch_is_really_functions(is_really_deb=True, is_really_rpm=True):
+    with patch("infi.app_repo.indexers.apt.is_really_deb", new=lambda filepath: is_really_deb):
+        with patch("infi.app_repo.indexers.yum.is_really_rpm", new=lambda filepath: is_really_rpm):
+            with patch("infi.app_repo.indexers.wget.is_really_deb", new=lambda filepath: is_really_deb):
+                with patch("infi.app_repo.indexers.wget.is_really_rpm", new=lambda filepath: is_really_rpm):
+                    yield
+
+
 @contextmanager
 def patch_all():
     with patch("infi.app_repo.indexers.yum.createrepo") as createrepo:
@@ -71,13 +81,14 @@ def patch_all():
                                         with patch("infi.app_repo.indexers.apt.apt_ftparchive") as apt_ftparchive:
                                             with patch("infi.app_repo.indexers.apt.gpg"):
                                                 with patch("infi.app_repo.indexers.yum.sign_repomd"):
-                                                    apt_ftparchive.side_effect = apt_ftparchive_side_effect
-                                                    createrepo.side_effect = createrepo_side_effect
-                                                    createrepo_update.side_effect = createrepo_update_side_effect
-                                                    dpkg_scanpackages.side_effect = dpkg_scanpackages_side_effect
-                                                    apt_ftparchive.return_value = APT_FTPARCHIVE_RETURN_VALUE
-                                                    setup_gpg.side_effect = setup_gpg_side_effect
-                                                    yield
+                                                    with patch_is_really_functions():
+                                                        apt_ftparchive.side_effect = apt_ftparchive_side_effect
+                                                        createrepo.side_effect = createrepo_side_effect
+                                                        createrepo_update.side_effect = createrepo_update_side_effect
+                                                        dpkg_scanpackages.side_effect = dpkg_scanpackages_side_effect
+                                                        apt_ftparchive.return_value = APT_FTPARCHIVE_RETURN_VALUE
+                                                        setup_gpg.side_effect = setup_gpg_side_effect
+                                                        yield
 
 
 @contextmanager
