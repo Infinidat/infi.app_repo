@@ -160,11 +160,14 @@
                 $.get(url, function(data) {
                     var table = $(".download-links").dataTable();
                     table.api().clear();
-                    _.filter(data, function(version) { return !version.hidden; }).each(data, function(version) {
-                        _.filter(data, function(distribution) { return !distribution.hidden; }).each(version.distributions, function(distro) {
-                            var link = '<a href="' + distro.filepath + '">download</a>';
-                            row = table.api().row.add([version.version, version.last_modified, distro.platform, distro.architecture, link], false).node();
-                        });
+                    _.each(data, function(version) {
+                        if (!version.hidden)
+                            _.each(version.distributions, function(distro) {
+                                if (!distro.hidden) {
+                                    var link = '<a href="' + distro.filepath + '">download</a>';
+                                    row = table.api().row.add([version.version, version.last_modified, distro.platform, distro.architecture, link], false).node();
+                                }
+                            });
 
                     });
                     table.api().draw();
