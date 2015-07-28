@@ -90,9 +90,8 @@ class PrettyIndexer(Indexer):
 
     def _iter_packages(self):
         for package_dirpath in glob(path.join(self.base_directory, 'packages', '*')):
-            if self._is_hidden(package_dirpath):
-                continue
             yield dict(abspath=package_dirpath,
+                       hidden=self._is_hidden(package_dirpath),
                        product_name=self._deduce_produce_name(package_dirpath),
                        name=path.basename(package_dirpath),
                        release_notes_url=self._deduce_release_notes_url(package_dirpath),
@@ -102,30 +101,26 @@ class PrettyIndexer(Indexer):
         from os import stat
         from time import ctime
         for version_dirpath in glob(path.join(package['abspath'], 'releases', '*')):
-            if self._is_hidden(version_dirpath):
-                continue
             mod_time = stat(version_dirpath).st_mtime
             release = dict(version=path.basename(version_dirpath),
+                           hidden=self._is_hidden(version_dirpath),
                            abspath=version_dirpath,
                            last_modified=ctime(mod_time) if mod_time else '')
             yield release
 
     def _iter_distributions(self, package, release):
         for distribution_dirpath in glob(path.join(release['abspath'], 'distributions', '*')):
-            if self._is_hidden(distribution_dirpath):
-                continue
             for arch_dirpath in glob(path.join(distribution_dirpath, 'architectures', '*')):
-                if self._is_hidden(arch_dirpath):
-                    continue
                 for extension_dirpath in glob(path.join(arch_dirpath, 'extensions', '*')):
-                    if self._is_hidden(extension_dirpath):
-                        continue
                     try:
                         [filepath] = list(glob(path.join(extension_dirpath, '*')))
                     except ValueError:
                         logger.warn("expected only one file under {}, but it is not the case".format(extension_dirpath))
                         continue
                     distribution = dict(platform=path.basename(distribution_dirpath),
+                                        hidden=self._is_hidden(distribution_dirpath) or \
+                                               self._is_hidden(arch_dirpath) or \
+                                               self._is_hidden(extension_dirpath),
                                         architecture=path.basename(arch_dirpath),
                                         extension=path.basename(extension_dirpath),
                                         filepath=self._normalize_url(filepath))

@@ -39,7 +39,9 @@
                                 Available packages
                             </li>
                             {% for package in packages %}
+                                {% if not package.hidden %}
                                 <li><a href="#{{ package.name }}">{{ package.product_name }}</a></li>
+                                {% endif %}
                             {% endfor %}
                     </div>
                 </div>
@@ -95,7 +97,9 @@
                     </div>
                     <h1>Available packages</h1>
                     {% for package in packages %}
-                        {% include "home_package.html" %}
+                        {% if not package.hidden %}
+                            {% include "home_package.html" %}
+                        {% endif %}
                     {% endfor %}
                 </div>
             </div>
@@ -156,8 +160,8 @@
                 $.get(url, function(data) {
                     var table = $(".download-links").dataTable();
                     table.api().clear();
-                    _.each(data, function(version) {
-                        _.each(version.distributions, function(distro) {
+                    _.filter(data, function(version) { return !version.hidden; }).each(data, function(version) {
+                        _.filter(data, function(distribution) { return !distribution.hidden; }).each(version.distributions, function(distro) {
                             var link = '<a href="' + distro.filepath + '">download</a>';
                             row = table.api().row.add([version.version, version.last_modified, distro.platform, distro.architecture, link], false).node();
                         });
