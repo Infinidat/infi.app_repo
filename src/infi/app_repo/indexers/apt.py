@@ -4,6 +4,7 @@ from infi.gevent_utils.os import path, remove, fopen
 from infi.gevent_utils.glob import glob
 from infi.gevent_utils.deferred import create_threadpool_executed_func
 from infi.app_repo.utils import temporary_directory_context, log_execute_assert_success, hard_link_or_raise_exception
+from infi.app_repo.utils import is_really_deb
 
 
 KNOWN_DISTRIBUTIONS = {
@@ -67,11 +68,14 @@ class AptIndexer(Indexer):
     def are_you_interested_in_file(self, filepath, platform, arch):
         if not filepath.endswith('deb'):
             return False
+        if not is_really_deb(filepath):
+            return False
         distribution_name, codename = platform.rsplit('-', 1)
         return distribution_name in KNOWN_DISTRIBUTIONS and \
                codename in KNOWN_DISTRIBUTIONS[distribution_name] and \
                arch in TRANSLATE_ARCH and \
-               TRANSLATE_ARCH[arch] in KNOWN_DISTRIBUTIONS[distribution_name][codename]
+               TRANSLATE_ARCH[arch] in KNOWN_DISTRIBUTIONS[distribution_name][codename] and \
+               is_really_deb(filepath)
 
     def generate_release_file_for_specific_distribution_and_version(self, distribution, codename, force=True):
         dirpath = path.join(self.base_directory, distribution, 'dists', codename)

@@ -53,6 +53,12 @@ class TestCase(unittest.TestCase):
             serving.join()
 
     @contextmanager
+    def patch_is_really_functions(self):
+        from infi.app_repo.mock import patch_is_really_functions
+        with patch_is_really_functions():
+            yield
+
+    @contextmanager
     def rpc_server_context(self, config):
         from infi.rpc import Server, ZeroRPCServerTransport
         from infi.app_repo.service import AppRepoService
@@ -64,7 +70,8 @@ class TestCase(unittest.TestCase):
         server.bind()
 
         try:
-            yield server
+            with self.patch_is_really_functions():
+                yield server
         finally:
             server.request_shutdown()
             server._shutdown_event.wait()

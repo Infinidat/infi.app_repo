@@ -1,6 +1,6 @@
 from .base import Indexer
 from infi.app_repo.utils import hard_link_or_raise_exception, ensure_directory_exists, log_execute_assert_success
-from infi.app_repo.utils import hard_link_and_override
+from infi.app_repo.utils import hard_link_and_override, is_really_rpm
 from infi.gevent_utils.os import path, remove
 from infi.gevent_utils.glob import glob
 from logging import getLogger
@@ -41,7 +41,8 @@ class YumIndexer(Indexer):
         return filepath.endswith('.rpm') and \
                platform in KNOWN_PLATFORMS and \
                arch in TRANSLATE_ARCH and \
-               TRANSLATE_ARCH[arch] in KNOWN_PLATFORMS[platform]
+               TRANSLATE_ARCH[arch] in KNOWN_PLATFORMS[platform] and \
+               is_really_rpm(filepath)
 
     def consume_file(self, filepath, platform, arch):
         from infi.app_repo.utils import sign_rpm_package

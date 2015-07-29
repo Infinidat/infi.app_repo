@@ -154,3 +154,18 @@ def read_file(filepath):
 def write_file(filepath, contents):
     with fopen(filepath, 'w') as fd:
         fd.write(contents)
+
+
+def file_type_contains(filepath, output):
+    try:
+        return output in execute_assert_success(['file', filepath]).get_stdout()
+    except ExecutionError:
+        logger.exception('failed to determine file type: {0}'.format(filepath))
+        return False
+
+def is_really_rpm(filepath):
+    return file_type_contains(filepath, ": RPM")
+
+
+def is_really_deb(filepath):
+    return file_type_contains(filepath, 'Debian binary package')
