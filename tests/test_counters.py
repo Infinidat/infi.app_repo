@@ -20,7 +20,7 @@ class CountersTestCase(TestCase):
             self.assertEquals(counters, {"/packages/main-stable/index/packages.json": 2})
 
     def _get_from_ftp(self, config, uri):
-        log_execute_assert_success(["curl", "ftp://localhost:{}/{}".format(config.ftpserver.port, uri)])
+        log_execute_assert_success(["curl", "ftp://127.0.0.1:{}/{}".format(config.ftpserver.port, uri)])
 
     def _get_from_http(self, config, uri):
-        log_execute_assert_success(["curl", "http://localhost:{}/{}".format(config.webserver.port, uri)])
+        log_execute_assert_success(["curl", "http://127.0.0.1:{}/{}".format(config.webserver.port, uri)])

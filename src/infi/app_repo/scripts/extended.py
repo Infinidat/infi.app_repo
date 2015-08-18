@@ -66,6 +66,7 @@ def console_script(func=None, name=None):
         @wraps(f)
         def decorator(*args, **kwargs):
             from infi.logging.wrappers import script_logging_context
+            from logbook.concurrency import enable_gevent
             from infi.traceback import traceback_context
             from os import getpid, getuid
             from datetime import datetime
@@ -75,6 +76,7 @@ def console_script(func=None, name=None):
             if _bypass_console_script_logging:
                 return f(*args, **kwargs)
 
+            enable_gevent()
             filename = '/tmp/{}.log'.format(name if name else f.__name__)
             with script_logging_context(logfile_path=filename, logfile_max_size=20*1024*1024), traceback_context(), exception_handling_context():
                 logbook.set_datetime_format("local")
