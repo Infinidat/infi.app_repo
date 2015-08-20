@@ -175,7 +175,7 @@ class PrettyIndexer(Indexer):
                 command = MANUAL_COMMAND.format(self.index_name, package['name'])
                 installation_instructions['solaris'] = dict(upgrade=dict(command=command), install=dict(command=command))
             elif 'aix' in distribution['platform'] and distribution['extension'] == 'rpm':
-                command = MANUAL_COMMAND.format(self.index_name, package['name'])
+                command = MANUAL_COMMAND.format(self.index_name, package['name']).replace("sudo", "su root -c")
                 installation_instructions['aix'] = dict(upgrade=dict(command=command), install=dict(command=command))
             elif distribution['platform'] == 'python' and distribution['architecture'] == 'sdist':
                 install = PIP_INSTALL_COMMAND.format(self.index_name, package['name'])
