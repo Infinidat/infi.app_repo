@@ -3,7 +3,9 @@ from infi.pyutils.contexts import contextmanager
 from infi.app_repo.utils import path, fopen
 from mock import patch
 from logging import getLogger
+from logbook.concurrency import enable_gevent
 logger = getLogger(__name__)
+enable_gevent()
 
 
 class TestCase(unittest.TestCase):

@@ -176,6 +176,7 @@ def start(config):
     from werkzeug.contrib.fixers import ProxyFix
     from werkzeug.debug import DebuggedApplication
     from flask.ext.cors import CORS
+    from os import getpid
 
     app = FlaskApp.from_config(config)
     app.jinja_options['extensions'].append("jinja2.ext.loopcontrols")
@@ -184,5 +185,6 @@ def start(config):
     args = (config.webserver.address, config.webserver.port)
     server = WSGIServer(args, app_wrapper, log=DummyWSGILogger, handler_class=WSGIHandlerWithWorkarounds)
     server.start()
+    logger.info(">>> starting HTTP server on {1}:{2}, pid={0} <<<".format(getpid(), *args))
     return server
 
