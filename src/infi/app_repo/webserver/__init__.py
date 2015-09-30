@@ -156,7 +156,7 @@ def index_home_page(index_name):
     host_url = flask.request.host_url.rstrip('/')
     setup_url = '%s%s' % (host_url,
                           flask.url_for("client_setup_script", index_name=index_name))
-    return flask.Response(flask.render_template("home.html", packages=data, setup_url=setup_url, host_url=host_url))
+    return flask.Response(flask.render_template("home.html", packages=data, setup_url=setup_url, host_url=host_url, index_name=index_name))
 
 
 def indexes_tree():

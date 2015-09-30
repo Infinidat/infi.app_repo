@@ -4,7 +4,7 @@
     <div class="col-xs-9">
         <h2>
             {{ package.product_name }}
-            <span class="label ver">{{ package.latest_version }}</span>
+            <span class="ver">{{ package.latest_version }}</span>
         </h2>
         {% if package.installation_instructions %}
         {% for platform, value in package.installation_instructions|dictsort %}
