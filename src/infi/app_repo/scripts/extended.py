@@ -330,12 +330,12 @@ def delete_packages(config, should_delete, index, index_type, dry_run, quiet):
     for filepath in files_to_remove:
         filepath_relative = path.relpath(filepath, config.base_directory)
         if dry_run:
-            logger.debug("[dry-run] deleting {}".format(filepath_relative))
+            logger.info("[dry-run] deleting {}".format(filepath_relative))
             continue
         if not quiet:
             if not raw_input('delete {} [y/N]? '.format(filepath_relative)).lower() in ('y', 'yes'):
                 continue
-        logger.debug("deleting {} ".format(filepath_relative))
+        logger.info("deleting {} ".format(filepath_relative))
         show_warning = True
         client.delete_artifact(filepath)
     if show_warning:
