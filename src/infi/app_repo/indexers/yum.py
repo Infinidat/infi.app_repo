@@ -17,6 +17,7 @@ KNOWN_PLATFORMS = {
     "linux-centos-7": ("x86_64", ),
     "linux-suse-10": ("i686", "x86_64"),
     "linux-suse-11": ("i686", "x86_64"),
+    "linux-suse-12": ("x86_64", ),
 }
 
 TRANSLATE_ARCH = {'x86': 'i686', 'x64': 'x86_64', 'i686': 'i686', 'x86_64': 'x86_64'}
