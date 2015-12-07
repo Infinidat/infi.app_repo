@@ -3,6 +3,8 @@
 # so we stick with executing curl and wget here :\
 
 from .utils import temporary_directory_context, path, log_execute_assert_success, read_file, decode
+from logging import getLogger
+logger = getLogger(__name__)
 
 
 def get_local_packages_json(config, index):
@@ -121,8 +123,13 @@ def push_packages(config, local_index_name, remote_server, remote_index_name,
     if specific_version in ('latest', 'current'):
         specific_version = sorted(we_have.keys(), key=lambda version: parse_version(version))[-1]
 
-    those_needed = [those_missing.get(specific_version, dict(distributions=[]))] if specific_version else \
-                        sorted(those_missing.values(), key=lambda item: item['version'])
+    if specific_version:
+        missing_distributions = [item for item in we_have.get(specific_version).get('distributions', []) if
+                                 item not in they_have.get(specific_version).get('distributions', [])]
+        those_needed = [dict(distributions=missing_distributions)]
+    else:
+        those_needed = sorted(those_missing.values(), key=lambda item: item['version'])
+
     urls = [_normlize_local_path(config, uri) for
             uri in get_files_from_versions(those_needed, specific_platform, specific_arch)]
 
