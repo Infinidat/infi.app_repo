@@ -23,6 +23,7 @@ PIP_INSTALL_COMMAND = 'sudo pip install --extra-index-url ///packages/{0}/pypi {
 PIP_UGPRADE_COMMAND = 'sudo pip install --upgrade --extra-index-url ///packages/{0}/pypi {1}'
 
 MANUAL_COMMAND = "curl -s ///install/{0}/{1} | sudo sh -"
+SOLARIS_MANUAL_COMMAND = "curl -s ///install/{0}/{1} | su root -c bash -"
 
 
 def ensure_packages_json_file_exists_in_directory(dirpath):
@@ -172,7 +173,7 @@ class PrettyIndexer(Indexer):
                                                            install=dict(download_link=distribution['filepath']))
 
             elif 'solaris' in distribution['platform'] and distribution['extension'] == 'pkg.gz':
-                command = MANUAL_COMMAND.format(self.index_name, package['name'])
+                command = SOLARIS_MANUAL_COMMAND.format(self.index_name, package['name'])
                 installation_instructions['solaris'] = dict(upgrade=dict(command=command), install=dict(command=command))
             elif 'aix' in distribution['platform'] and distribution['extension'] == 'rpm':
                 command = MANUAL_COMMAND.format(self.index_name, package['name']).replace("sudo", "su root -c")
