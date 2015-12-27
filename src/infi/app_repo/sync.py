@@ -49,12 +49,14 @@ def _upload_file(address, port, username, password, index, filepath):
     make_ftplib_gevent_friendly()
     ftp = FTP()
     ftp.connect(address, port)
-    ftp.login(username, password)
-    ftp.cwd(index)
+    try:
+        ftp.login(username, password)
+        ftp.cwd(index)
 
-    with fopen(filepath) as fd:
-        ftp.storbinary("STOR %s" % path.basename(filepath), fd)
-
+        with fopen(filepath) as fd:
+            ftp.storbinary("STOR %s" % path.basename(filepath), fd)
+    finally:
+        ftp.close()
 
 def get_local_versions_for_package(config, local_index_name, package_name):
     packages = _list_to_dict(get_local_packages_json(config, local_index_name))
