@@ -124,8 +124,8 @@ def push_packages(config, local_index_name, remote_server, remote_index_name,
         specific_version = sorted(we_have.keys(), key=lambda version: parse_version(version))[-1]
 
     if specific_version:
-        missing_distributions = [item for item in we_have.get(specific_version).get('distributions', []) if
-                                 item not in they_have.get(specific_version).get('distributions', [])]
+        missing_distributions = [item for item in we_have.get(specific_version, dict(distributions=[])).get('distributions', []) if
+                                 item not in they_have.get(specific_version, dict(distributions=[])).get('distributions', [])]
         those_needed = [dict(distributions=missing_distributions)]
     else:
         those_needed = sorted(those_missing.values(), key=lambda item: item['version'])
