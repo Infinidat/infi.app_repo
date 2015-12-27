@@ -38,7 +38,7 @@ def _normlize_local_path(config, uri):
 
 
 def _download_file(url):
-    log_execute_assert_success(['wget', url]) # i am lazy
+    log_execute_assert_success(['wget', '-q', '-O', url.split('/')[-1], url]) # i am lazy
     return path.basename(url)
 
 
