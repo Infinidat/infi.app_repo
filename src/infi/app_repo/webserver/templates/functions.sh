@@ -296,7 +296,7 @@ install() {
     # input: <package> <version> <file>
     uname="$(_system)"
 
-    if [ $uname = "SunOS" ]; then
+    if [ $uname = "SunOS" -o $uname = "Solaris" ]; then
         _solaris_install "$1" "$2" "$3"
     elif [ $uname = "Cygwin" ]; then
         _cygwin_install "$1" "$2" "$3"
