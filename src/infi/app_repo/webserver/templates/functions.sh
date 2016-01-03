@@ -267,7 +267,7 @@ download() {
     version="$2"
     uname="$(_system)"
 
-    if [ $uname = "SunOS" ]; then
+    if [ $uname = "SunOS" -o $uname = "Solaris" ]; then
         fname=$(_solaris_download $name $version)
         if [ "$?" != "0" ]; then
         exit 1
