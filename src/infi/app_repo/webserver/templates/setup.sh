@@ -13,6 +13,8 @@ _apt() {
 
 _yum() {
     echo Setting up...
+    distfile=`ls /etc | grep -E "(centos|redhat)-release$" | head -n 1`
+    distribution=`cat /etc/$distfile | grep -Eio "centos|red hat|" | head -n 1 | sed -e 's/ //' | awk '{print tolower($1)}'`
     version=`cat /etc/$distfile | grep -Eo "[0-9]+" | head -n 1`
     arch=`uname -m`
     echo "[{{ host }}.{{ index_name }}]
@@ -58,9 +60,7 @@ then
 fi
 
 # redhat-based
-distfile=`ls /etc | grep -E "(centos|redhat)-release$" | head -n 1`
-distribution=`cat /etc/$distfile | grep -Eio "centos|red hat|" | head -n 1 | sed -e 's/ //' | awk '{print tolower($1)}'`
-if [ $distribution = "centos" -o $distribution = "redhat" ]
+if [ -f /etc/redhat-release -o -f /etc/centos-release ]
 then
     _yum
     exit 0
