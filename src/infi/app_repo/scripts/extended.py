@@ -204,7 +204,6 @@ def setup(config, apply_mock_patches, force_resignature):
 
 @console_script(name="app_repo_web")
 def web_server(config, signal_upstart):
-    from gevent import monkey; monkey.patch_thread()
     from infi.app_repo.webserver import start
     webserver = start(config)
     if signal_upstart:
