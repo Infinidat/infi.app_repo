@@ -108,8 +108,8 @@ cases = [
     dict(expected=('python-functools32', '3.2.3-2-1', 'linux-ubuntu-trusty', 'x64', 'deb'),
          basename="python-functools32_3.2.3-2-1-linux-ubuntu-trusty-x64.deb"),
 
-    dict(expected=('python-infi.pyutils', '1.1.0-1', 'linux-ubuntu-trusty', 'x86', 'deb'),
-         basename="python-infi.pyutils_1.1.0-1-linux-ubuntu-trusty-x86.deb")
+    dict(expected=('python-infinidat-openstack', '2.2.post24-1', 'linux-ubuntu-trusty', 'x64', 'deb'),
+         basename="python-infinidat-openstack_2.2.post24-1-linux-ubuntu-trusty-x64.deb")
 
     ]
 
