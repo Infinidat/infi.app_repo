@@ -2,7 +2,7 @@
 # json_rest and requests are not, at the moment, and we don't want to do patch_all
 # so we stick with executing curl and wget here :\
 
-from .utils import temporary_directory_context, path, execute_assert_success, read_file, decode
+from .utils import temporary_directory_context, path, log_execute_assert_success, execute_assert_success, read_file, decode
 from logging import getLogger
 logger = getLogger(__name__)
 
@@ -38,7 +38,7 @@ def _normlize_local_path(config, uri):
 
 
 def _download_file(url):
-    execute_assert_success(['wget', '-q', '-O', url.split('/')[-1], url]) # i am lazy
+    log_execute_assert_success(['wget', '-q', '-O', url.split('/')[-1], url]) # i am lazy
     return path.basename(url)
 
 
