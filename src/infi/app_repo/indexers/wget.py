@@ -182,6 +182,9 @@ class PrettyIndexer(Indexer):
                 install = PIP_INSTALL_COMMAND.format(self.index_name, package['name'])
                 upgrade = PIP_UGPRADE_COMMAND.format(self.index_name, package['name'])
                 installation_instructions['python'] = dict(upgrade=dict(command=upgrade), install=dict(command=install))
+            elif distribution['platform'] == 'python' and distribution['architecture'] == 'docs':
+                installation_instructions['python-docs'] = dict(upgrade=dict(download_link=distribution['filepath']),
+                                                                install=dict(download_link=distribution['filepath']))
 
         custom_instructions = self._get_custom_installation_instructions(package)
         for platform in platforms:
