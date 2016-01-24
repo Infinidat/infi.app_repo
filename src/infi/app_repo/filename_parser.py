@@ -16,14 +16,14 @@ PLATFORM_STRING = dict(ova='vmware-esx', img='other', zip='other')
 TRANSLATED_ARCHITECTURE = {"x86_64": "x64", "i686": "x86"}
 TRANSLATED_PLATFORM = {"centos.el6": "linux-centos-6", "centos.el7": "linux-centos-7",
                        "redhat.el6": "linux-redhat-6", "redhat.el7": "linux-redhat-7"}
-
+TRANSLATED_EXTENSION = {'': 'exe'}
 
 def translate_filepath(result_tuple):
     package_name, package_version, platform_string, architecture, extension = result_tuple
     return (package_name, package_version,
             TRANSLATED_PLATFORM.get(platform_string, platform_string),
             TRANSLATED_ARCHITECTURE.get(architecture, architecture),
-            extension)
+            TRANSLATED_EXTENSION.get(extension, extension))
 
 
 def parse_filepath(filepath):
