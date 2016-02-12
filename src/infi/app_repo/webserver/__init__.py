@@ -1,4 +1,5 @@
 import os
+import json
 import flask
 import pkg_resources
 import mimetypes
@@ -50,6 +51,7 @@ class FlaskApp(flask.Flask):
 
         def _homepage():
             self.route("/home/<index_name>")(index_home_page)
+            self.route("/indexes")(indexes_tree)
             self.route("/")(default_homepage)
 
         _directory_index()
@@ -160,7 +162,8 @@ def index_home_page(index_name):
 
 
 def indexes_tree():
-    raise NotImplementedError()
+    indexes = [dict(name=index) for index in flask.current_app.app_repo_config.indexes]
+    return flask.Response(json.dumps(indexes), content_type='application/json')
 
 
 def default_homepage():
