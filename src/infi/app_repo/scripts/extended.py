@@ -204,7 +204,6 @@ def setup(config, apply_mock_patches, force_resignature):
 
 @console_script(name="app_repo_web")
 def web_server(config, signal_upstart):
-    from gevent import monkey; monkey.patch_thread()
     from infi.app_repo.webserver import start
     webserver = start(config)
     if signal_upstart:
@@ -271,11 +270,14 @@ def upload_file(config, index, filepath):
     make_ftplib_gevent_friendly()
     ftp = FTP()
     ftp.connect('127.0.0.1', config.ftpserver.port)
-    ftp.login(config.ftpserver.username, config.ftpserver.password)
-    ftp.cwd(index)
+    try:
+        ftp.login(config.ftpserver.username, config.ftpserver.password)
+        ftp.cwd(index)
 
-    with fopen(filepath) as fd:
-        ftp.storbinary("STOR %s" % path.basename(filepath), fd)
+        with fopen(filepath) as fd:
+            ftp.storbinary("STOR %s" % path.basename(filepath), fd)
+    finally:
+        ftp.close()
 
 
 def process_rejected_file(config, index, filepath, platform, arch, async_rpc=False):

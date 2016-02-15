@@ -2,7 +2,7 @@
 # json_rest and requests are not, at the moment, and we don't want to do patch_all
 # so we stick with executing curl and wget here :\
 
-from .utils import temporary_directory_context, path, log_execute_assert_success, read_file, decode
+from .utils import temporary_directory_context, path, log_execute_assert_success, execute_assert_success, read_file, decode
 from logging import getLogger
 logger = getLogger(__name__)
 
@@ -13,7 +13,7 @@ def get_local_packages_json(config, index):
 
 def get_remote_packages_json(remote, index):
     url = "http://{}:{}/packages/{}/index/packages.json".format(remote['address'], remote['http_port'], index)
-    return decode(log_execute_assert_success(["curl", url]).get_stdout())
+    return decode(execute_assert_success(["curl", url]).get_stdout())
 
 
 def get_local_releases_for_package(config, package):
@@ -22,7 +22,7 @@ def get_local_releases_for_package(config, package):
 
 def get_remote_releases_for_package(remote, package):
     url = "http://{}:{}/{}".format(remote['address'], remote['http_port'], package['releases_uri'])
-    return decode(log_execute_assert_success(["curl", url]).get_stdout())
+    return decode(execute_assert_success(["curl", url]).get_stdout())
 
 
 def _list_to_dict(lst, key='name'):
@@ -38,7 +38,7 @@ def _normlize_local_path(config, uri):
 
 
 def _download_file(url):
-    log_execute_assert_success(['wget', url]) # i am lazy
+    log_execute_assert_success(['wget', '-q', '-O', url.split('/')[-1], url]) # i am lazy
     return path.basename(url)
 
 
@@ -49,12 +49,14 @@ def _upload_file(address, port, username, password, index, filepath):
     make_ftplib_gevent_friendly()
     ftp = FTP()
     ftp.connect(address, port)
-    ftp.login(username, password)
-    ftp.cwd(index)
+    try:
+        ftp.login(username, password)
+        ftp.cwd(index)
 
-    with fopen(filepath) as fd:
-        ftp.storbinary("STOR %s" % path.basename(filepath), fd)
-
+        with fopen(filepath) as fd:
+            ftp.storbinary("STOR %s" % path.basename(filepath), fd)
+    finally:
+        ftp.close()
 
 def get_local_versions_for_package(config, local_index_name, package_name):
     packages = _list_to_dict(get_local_packages_json(config, local_index_name))
@@ -124,8 +126,8 @@ def push_packages(config, local_index_name, remote_server, remote_index_name,
         specific_version = sorted(we_have.keys(), key=lambda version: parse_version(version))[-1]
 
     if specific_version:
-        missing_distributions = [item for item in we_have.get(specific_version).get('distributions', []) if
-                                 item not in they_have.get(specific_version).get('distributions', [])]
+        missing_distributions = [item for item in we_have.get(specific_version, dict(distributions=[])).get('distributions', []) if
+                                 item not in they_have.get(specific_version, dict(distributions=[])).get('distributions', [])]
         those_needed = [dict(distributions=missing_distributions)]
     else:
         those_needed = sorted(those_missing.values(), key=lambda item: item['version'])

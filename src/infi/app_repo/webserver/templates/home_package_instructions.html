@@ -38,6 +38,8 @@
             {% else %}
                 <a href="{{ instructions.download_link }}" class="btn btn-mini">Download</a> the OVF and deploy it via VMware vSphere.
             {% endif %}
+        {% elif platform == 'python-docs' %}
+                <a href="{{ instructions.download_link }}" class="btn btn-mini">Download</a> and extact the documentation archive.
         {% else %}
             {% if instructions.command %}
                 <input class="cmd" value="{{ instructions.command.replace("//", host_url) }}">
