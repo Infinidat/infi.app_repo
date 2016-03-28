@@ -91,6 +91,7 @@ def download_and_upload_files(urls, address, port, username, password, index_nam
 
 def pull_packages(config, local_index_name, remote_server, remote_index_name,
                   package_name, specific_version=None, specific_platform=None, specific_arch=None):
+    from pkg_resources import parse_version
     remote_servers = _list_to_dict(config.to_builtins()['remote_servers'], 'address')
     assert remote_server in remote_servers
     remote = remote_servers[remote_server]
