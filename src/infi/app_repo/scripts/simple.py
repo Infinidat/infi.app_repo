@@ -38,8 +38,6 @@ def app_repo(argv=argv[1:]):
         return extended.show_remote_packages(config, args['--remote-server'], args['--remote-index'])
     elif args['package'] and args['pull']:
         from infi.app_repo.sync import pull_packages
-        pull_packages = extended.console_script(name="app_repo_pull")(pull_packages)
-        print args
         return pull_packages(config, args['--index'], args['--remote-server'], args['--remote-index'],
                              args['<package>'], args['<version>'] or 'latest', args['<platform>'], args['<arch>'])
 

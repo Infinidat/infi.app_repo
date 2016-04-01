@@ -102,9 +102,16 @@ def pull_packages(config, local_index_name, remote_server, remote_index_name,
 
     if specific_version in ('latest', 'current'):
         specific_version = sorted(they_have.keys(), key=lambda version: parse_version(version))[-1]
+    if specific_version in ('all', '*'):
+        specific_version = None
 
-    those_needed = [those_missing.get(specific_version, dict(distributions=[]))] if specific_version else \
-                    sorted(those_missing.values(), key=lambda item: item['version'])
+    if specific_version:
+        missing_distributions = [item for item in they_have.get(specific_version, dict(distributions=[])).get('distributions', []) if
+                                 item not in we_have.get(specific_version, dict(distributions=[])).get('distributions', [])]
+        those_needed = [dict(distributions=missing_distributions)]
+    else:
+        those_needed = sorted(those_missing.values(), key=lambda item: item['version'])
+
     urls = [_normalize_remote_url(remote, uri) for
             uri in get_files_from_versions(those_needed, specific_platform, specific_arch)]
 
