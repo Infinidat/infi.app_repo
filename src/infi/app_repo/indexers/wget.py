@@ -187,7 +187,7 @@ class PrettyIndexer(Indexer):
                                                                 install=dict(download_link=distribution['filepath']))
 
         custom_instructions = self._get_custom_installation_instructions(package)
-        for platform in platforms:
+        for platform in platforms.union(set(installation_instructions.keys())):
             for instruction in ('install', 'upgrade'):
                 new_instruction = custom_instructions.get(platform, dict()).get(instruction)
                 if isinstance(new_instruction, basestring):
