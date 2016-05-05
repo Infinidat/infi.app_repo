@@ -1,8 +1,7 @@
-from infi.exceptools import InfiException
 from infi.rpc.errors import RPCUserException
 
 
-class AppRepoBaseException(RPCUserException, InfiException):
+class AppRepoBaseException(RPCUserException):
     pass
 
 
