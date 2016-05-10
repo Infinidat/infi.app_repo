@@ -6,7 +6,7 @@
     {% endif %}
 {% endmacro %}
 
-{% macro instructions_tab_content(package, platform, value, host_url, is_first) %}
+{% macro instructions_tab_content(package, platform, value, host_url, setup_url, is_first) %}
     {% if is_first %}
         <div class="tab-pane fade in active" id="{{ package.name }}-{{platform}}">
     {% else %}

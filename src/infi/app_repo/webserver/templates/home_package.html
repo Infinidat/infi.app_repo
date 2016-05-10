@@ -25,9 +25,9 @@
                 <!-- Tab panes -->
                 <div class="tab-content">
                     {% for platform, value in package.installation_instructions | dictsort %}
-                        {{ macros.instructions_tab_content(package, platform, value, host_url, loop.index == 1) }}
+                        {{ macros.instructions_tab_content(package, platform, value, host_url, setup_url, loop.index == 1) }}
                         {% if platform == "redhat" %}
-                            {{ macros.instructions_tab_content(package, "oracle", value, host_url, False) }}
+                            {{ macros.instructions_tab_content(package, "oracle", value, host_url, setup_url, False) }}
                         {% endif %}
                     {% endfor %}
                 </div>
