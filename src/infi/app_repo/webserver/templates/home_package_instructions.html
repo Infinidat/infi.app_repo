@@ -13,7 +13,7 @@
         <div class="tab-pane fade" id="{{ package.name }}-{{platform}}">
     {% endif %}
     <h3>Instructions for {{ platform_name(platform) }}</h3>
-    {% if platform == "redhat" or platform == "centos" or platform == "ubuntu" or platform == "suse" %}
+    {% if platform in ("redhat", "oracle", "centos", "ubuntu", "suse") %}
         <h4>Setup (first time only)</h4><input class="cmd" value="curl -s {{ setup_url }} | sudo sh -" readonly="readonly">
     {% endif %}
     {% if platform == "aix" %}
