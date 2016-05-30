@@ -17,6 +17,7 @@ KNOWN_DISTRIBUTIONS = {
         'raring': ('i386', 'amd64'),
         'saucy': ('i386', 'amd64'),
         'trusty': ('i386', 'amd64'),
+        'xenial': ('i386', 'amd64'),
     }
 }
 
