@@ -84,7 +84,9 @@ span.ver {
 }
 
 .sidebar-nav {
-  top: 20px !important;
+  padding-top: 20px;
+  padding-bottom: 74px;
+  height: initial !important;
 }
 
 a, .sidebar-nav li a {
