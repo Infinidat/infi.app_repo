@@ -109,8 +109,10 @@ cases = [
          basename="python-functools32_3.2.3-2-1-linux-ubuntu-trusty-x64.deb"),
 
     dict(expected=('python-infinidat-openstack', '2.2.post24-1', 'linux-ubuntu-trusty', 'x64', 'deb'),
-         basename="python-infinidat-openstack_2.2.post24-1-linux-ubuntu-trusty-x64.deb")
+         basename="python-infinidat-openstack_2.2.post24-1-linux-ubuntu-trusty-x64.deb"),
 
+    dict(expected=('python-infinisdk', '59.0~dev12-1', 'linux-ubuntu-trusty', 'x64', 'deb'),
+         basename='python-infinisdk_59.0~dev12-1-linux-ubuntu-trusty-x64.deb'),
     ]
 
 class ParserTestCase(TestCase):
