@@ -128,7 +128,12 @@ class PrettyIndexer(Indexer):
                     yield distribution
 
     def _get_latest_release(self, releases):
-        return sorted(releases, key=lambda release: parse_version(release['version']))[-1] if releases else None
+        def sort_by_version(release):
+            import re
+            # remove all "-1" or "-xx" at the end (Ubuntu deb packages)
+            version = re.sub("-\d+$", "", release['version'])
+            return parse_version(version)
+        return sorted(releases, key=sort_by_version)[-1] if releases else None
 
     def _get_custom_installation_instructions(self, package):
         filepath = path.join(package['abspath'], 'installation_instructions.json')
