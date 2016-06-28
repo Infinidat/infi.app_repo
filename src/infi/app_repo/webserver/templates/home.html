@@ -2,22 +2,16 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <title>application repository -- {{ index_name }}</title>
+        <title>Application Repository -- {{ index_name }}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="">
         <meta name="author" content="">
         <link href="/static/css/bootstrap.css" rel="stylesheet">
-        <link href="/static/css/apprepo.css" rel="stylesheet">
+        <link href="/static/css/bootstrap.vertical-tabs.min.css" rel="stylesheet">
         <link href="/static/css/jquery.dataTables.min.css" rel="stylesheet">
         <link href="/static/css/simple-sidebar.css" rel="stylesheet">
-        <style>
-            body {
-                padding-top: 20px;
-            }
-            .big-code {
-                font-size: 150%;
-            }
-        </style>
+        <link href='/static/css/opensans.css' rel='stylesheet' type='text/css'>
+        <link href="/static/css/apprepo.css" rel="stylesheet">
         <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
         <!--[if lt IE 9]>
             <script src="http://html5shim.googlecode.com/svn/trunk/html5.js">
@@ -27,13 +21,20 @@
         <link rel="shortcut icon" href="/static/img/favicon.ico">
     </head>
     <body>
+        <header>
+            <div class="header-inner">
+                <div class="logo">
+                    <a href="/"><img src="/static/img/logo.png">
+                    <div>REPO</div></a>
+                </div>
+            </div>
+        </header>
+        <div class="header-push"></div>
+        <div class="color-header"></div>
         <div id="wrapper">
             <div id="sidebar-wrapper">
                 <ul class="sidebar-nav">
-                    <li class="">
-                        <a href="#hero">Setting up the repository</a>
-                    </li>
-                    <li class="nav-header">
+                    <li class="nav-header" style="font-weight: 700">
                         Available packages
                     </li>
                     {% for package in packages %}
@@ -46,54 +47,6 @@
             <div id="page-content-wrapper">
                 <div class="container-fluid">
                     <div class="row">
-                        <div class="jumbotron" id="hero">
-                            <h1>Setup Instructions</h1>
-                            <br>
-                            <h2>
-                                Step 1 (first time only)
-                            </h2>
-                            <div class="row">
-                                <div class="col-xs-3">
-                                    <span class="label label-danger">redhat</span>
-                                    <span class="label label-danger">oracle</span>
-                                    <span class="label label-danger">centos</span>
-                                    <span class="label label-warning">ubuntu</span>
-                                    <span class="label label-success">suse</span>
-                                </div>
-                                <div class="col-xs-9">
-                                    Execute in shell: <input class="cmd" value="curl -s {{ setup_url }} | sudo sh -">
-                                </div>
-                            </div>
-                            <hr style="margin:0px; margin-bottom: 10px;">
-                            <div class="row">
-                                <div class="col-xs-3">
-                                    <span class="label label-default">solaris</span>
-                                    <span class="label label-info">vmware</span>
-                                    <span class="label label-success">windows</span>
-                                </div>
-                                <div class="col-xs-9">
-                                    Skip to step 2
-                                </div>
-                            </div>
-                            <hr style="margin:0px; margin-bottom: 10px;">
-                            <div class="row">
-                                <div class="col-xs-3">
-                                    <span class="label label-default">aix</span>
-                                </div>
-                                <div class="col-xs-9">
-                                    <a href="http://www.perzl.org/aix/index.php?n=main.curl" target="_blank">Download and install curl</a>
-                                </div>
-                            </div>
-                            <br>
-                            <h2>
-                                Step 2
-                            </h2>
-                            <p>
-                                Choose a package from the list on the left
-                            </p>
-                        </div>
-                        <br>
-                        <div style="height: 1080px">
                         </div>
                         <h1>Available packages</h1>
                         {% for package in packages %}

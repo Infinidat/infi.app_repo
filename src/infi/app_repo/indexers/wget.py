@@ -16,8 +16,8 @@ YUM_UPGRADE_COMMAND = 'sudo yum makecache; sudo yum update -y {0}'
 APT_INSTALL_COMMAND = 'sudo apt-get install -y {0}'
 APT_UGPRADE_COMMAND = 'sudo apt-get update; sudo apt-get install -y {0}'
 
-ZYPPER_INSTALL_COMMAND = 'sudo zypper install -y {0}'
-ZYPPER_UGPRADE_COMMAND = 'sudo zypper refresh; sudo zypper update -y {0}'
+ZYPPER_INSTALL_COMMAND = 'sudo zypper install -n {0}'
+ZYPPER_UGPRADE_COMMAND = 'sudo zypper refresh; sudo zypper update -n {0}'
 
 PIP_INSTALL_COMMAND = 'sudo pip install --extra-index-url ///packages/{0}/pypi {1}'
 PIP_UGPRADE_COMMAND = 'sudo pip install --upgrade --extra-index-url ///packages/{0}/pypi {1}'
@@ -128,7 +128,12 @@ class PrettyIndexer(Indexer):
                     yield distribution
 
     def _get_latest_release(self, releases):
-        return sorted(releases, key=lambda release: parse_version(release['version']))[-1] if releases else None
+        def sort_by_version(release):
+            import re
+            # remove all "-1" or "-xx" at the end (Ubuntu deb packages)
+            version = re.sub("-\d+$", "", release['version'])
+            return parse_version(version)
+        return sorted(releases, key=sort_by_version)[-1] if releases else None
 
     def _get_custom_installation_instructions(self, package):
         filepath = path.join(package['abspath'], 'installation_instructions.json')
@@ -187,7 +192,7 @@ class PrettyIndexer(Indexer):
                                                                 install=dict(download_link=distribution['filepath']))
 
         custom_instructions = self._get_custom_installation_instructions(package)
-        for platform in platforms:
+        for platform in platforms.union(set(installation_instructions.keys())):
             for instruction in ('install', 'upgrade'):
                 new_instruction = custom_instructions.get(platform, dict()).get(instruction)
                 if isinstance(new_instruction, basestring):

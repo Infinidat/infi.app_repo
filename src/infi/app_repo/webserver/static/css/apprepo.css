@@ -1,5 +1,5 @@
-h3 {
-    font-size: 20px;
+body {
+  font-family: 'Open Sans', sans-serif;
 }
 
 .table_wrapper {
@@ -45,13 +45,132 @@ span.ver {
 }
 
 .cmd {
-  padding: 0 4px;
+  padding: 5px 8px;
   font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
   font-size: 12px;
-  color: #333333;
   border-radius: 3px;
-  color: #d14;
+  color: #804323;
   background-color: #f7f7f9 !important;
   border: 1px solid #e1e1e8;
   cursor: default !important;
+}
+
+.tab-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+}
+
+.package .row {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.package .row > [class*="col-"] {
+  display: table-cell;
+  float: none;
+  vertical-align: top;
+}
+
+.package .row > [class*="col-"]:first-child > ul {
+  display: inline-block;
+  height: 100%;
+  width: 100%;
+}
+
+#wrapper {
+  margin-top: 20px;
+}
+
+.sidebar-nav {
+  padding-top: 20px;
+  padding-bottom: 74px;
+  height: initial !important;
+}
+
+a, .sidebar-nav li a {
+  color: #3B7348;
+}
+
+a:hover, .sidebar-nav li a:hover {
+  color: #39b86b;
+}
+
+li.active {
+  font-weight: bold;
+}
+
+header {
+  height: 54px;
+  background-color: #0b1924;
+  width: 100%;
+  position: fixed;
+  z-index: 3000;
+}
+
+.tab-pane h3:first-child {
+  margin-top: 0px;
+  margin-bottom: 20px;
+}
+
+.header-push {
+  height: 54px;
+}
+
+.header-inner {
+  padding-left: 20px;
+  display: table;
+  height: 100%;
+}
+
+.logo {
+  vertical-align: middle;
+  display: table-cell;
+}
+
+.color-header {
+  height: 20px;
+  width: 100%;
+  padding: 0;
+  background-color: #43B772;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-image: url(/static/img/strip_noshadow.jpg);
+  box-shadow: 1px 1.732px 6.93px 2.07px rgba(0, 0, 0, 0.35);
+  position: fixed;
+  z-index: 2000;
+}
+
+.anchor {
+  display: block;
+  height: 54px; /* same height as header */
+  margin-top: -54px; /* same height as header */
+  visibility: hidden;
+}
+
+#versions_modal_dialog {
+  margin-top: 87px;
+}
+
+.logo div {
+  display: inline-block;
+  color: #c5c5c5;
+  font-weight: 300;
+  transform: scale(1,1.18);
+  vertical-align: middle;
+  line-height: 12px;
+  letter-spacing: 3.5px;
+}
+
+.logo a {
+  text-decoration: none
+}
+
+h3 {
+  font-size: 22px;
+}
+
+h4 {
+  font-size: 16px;
 }

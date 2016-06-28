@@ -78,6 +78,8 @@ _aix_download() {
     case "$release" in
         "7.1") release="7.1"
             ;;
+        "7.2") release="7.2"
+            ;;
         *) echo "unsupported aix release" 1>&2;
             exit 1
             ;;

@@ -1,44 +1,44 @@
-<hr id="{{ package.name }}">
-<br>
-<div class="row">
-    <div class="col-xs-9">
+{% import "home_package_instructions.html" as macros %}
+
+<span id="{{ package.name }}" class="anchor"></span>
+<hr>
+<div class="row package">
+    <div class="col-xs-12">
         <h2>
             {{ package.product_name }}
             <span class="ver">{{ package.latest_version }}</span>
         </h2>
+
         {% if package.installation_instructions %}
-        {% for platform, value in package.installation_instructions|dictsort %}
-        {% if value.install %}
-        <h3>Installation instructions</h3>
-        {% break %}
-        {% endif %}
-        {% endfor %}
-        {% for platform, value in package.installation_instructions|dictsort %}
-            {% if value.install %}
-            {% with instructions = value.install %}
-                {% include "home_package_instructions.html" %}
-            {% endwith %}
-            {% endif %}
-        {% endfor %}
-        {% for platform, value in package.installation_instructions|dictsort %}
-        {% if value.upgrade %}
-        <h3>Upgrade instructions</h3>
-        {% break %}
-        {% endif %}
-        {% endfor %}
-        {% for platform, value in package.installation_instructions|dictsort %}
-            {% if value.upgrade %}
-            {% with instructions = value.upgrade %}
-                {% include "home_package_instructions.html" %}
-            {% endwith %}
-            {% endif %}
-        {% endfor %}
+        <div class="row">
+            <div class="col-xs-3">
+                <ul class="nav nav-tabs tabs-left">
+                    {% for platform in package.installation_instructions.keys() | sort %}
+                        {{ macros.instructions_tab_link(package, platform, loop.index == 1) }}
+                        {% if platform == "redhat" %}
+                            {{ macros.instructions_tab_link(package, "oracle", False) }}
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col-xs-9">
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    {% for platform, value in package.installation_instructions | dictsort %}
+                        {{ macros.instructions_tab_content(package, platform, value, host_url, setup_url, loop.index == 1) }}
+                        {% if platform == "redhat" %}
+                            {{ macros.instructions_tab_content(package, "oracle", value, host_url, setup_url, False) }}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
         {% endif %}
     </div>
 </div>
 <br>
 {% if package.release_notes_url %}
-<a href="{{ package.release_notes_url }}" target="_blank">Change log and user's guide</a>
+<a href="{{ package.release_notes_url }}" target="_blank">Changelog and user guide</a>
 <br>
 {% endif %}
 <a href="#" onclick="show_versions('{{ package.product_name }}', '{{ package.releases_uri }}'); return false;">

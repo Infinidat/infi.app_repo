@@ -1,53 +1,83 @@
-<div class="row">
-    <div class="col-xs-3">
-        {% if platform == 'redhat' %}
-            <span class="label label-danger">redhat</span>
-            <span class="label label-danger">oracle</span>
-        {% endif %}
-        {% if platform == 'centos' %}
-            <span class="label label-danger">centos</span>
-        {% endif %}
-        {% if platform == 'ubuntu' %}
-            <span class="label label-warning">ubuntu</span>
-        {% endif %}
-        {% if platform == 'solaris' %}
-            <span class="label label-default">solaris</span>
-        {% endif %}
-        {% if platform == 'aix' %}
-            <span class="label label-default">aix</span>
-        {% endif %}
-        {% if platform == 'suse' %}
-            <span class="label label-success">suse</span>
-        {% endif %}
-        {% if platform == 'vmware' %}
-            <span class="label label-primary">vmware</span>
-        {% endif %}
-        {% if 'windows' in platform %}
-            <span class="label label-info">{{ platform }}</span>
-        {% endif %}
-        {% if platform == 'python' %}
-            <span class="label label-default">python</span>
-        {% endif %}
+{% macro instructions_tab_link(package, platform, is_first) %}
+    {% if is_first %}
+        <li class="active"><a href="#{{ package.name }}-{{platform}}" data-toggle="tab"><img src="/static/img/logo-{{ platform }}.png" class="tab-icon">{{ platform_name(platform) }}</a></li>
+    {% else %}
+        <li><a href="#{{ package.name }}-{{platform}}" data-toggle="tab"><img src="/static/img/logo-{{ platform }}.png" class="tab-icon">{{ platform_name(platform) }}</a></li>
+    {% endif %}
+{% endmacro %}
+
+{% macro instructions_tab_content(package, platform, value, host_url, setup_url, is_first) %}
+    {% if is_first %}
+        <div class="tab-pane fade in active" id="{{ package.name }}-{{platform}}">
+    {% else %}
+        <div class="tab-pane fade" id="{{ package.name }}-{{platform}}">
+    {% endif %}
+    <h3>Instructions for {{ platform_name(platform) }}</h3>
+    {% if platform in ("redhat", "oracle", "centos", "ubuntu", "suse") %}
+        <h4>Setup (first time only)</h4><input class="cmd" value="curl -s {{ setup_url }} | sudo sh -" readonly="readonly">
+    {% endif %}
+    {% if platform == "aix" %}
+        <h4>Setup (first time only)</h4><a href="http://www.perzl.org/aix/index.php?n=main.curl" target="_blank">Download and install curl</a>
+    {% endif %}
+    {% if value.install %}
+        <h4>Install</h4>
+        {{ instructions_content_part(platform, value.install, host_url) }}
+    {% endif %}
+    {% if value.upgrade %}
+        <h4>Upgrade</h4>
+        {{ instructions_content_part(platform, value.upgrade, host_url) }}
+    {% endif %}
     </div>
-    <div class="col-xs-9">
-        {% if platform == 'vmware' %}
-            {% if instructions.notes %}
-                {% for note in instructions.notes %}
-                    {{ note }}<br>
-                {% endfor %}
-            {% else %}
-                <a href="{{ instructions.download_link }}" class="btn btn-mini">Download</a> the OVF and deploy it via VMware vSphere.
-            {% endif %}
-        {% elif platform == 'python-docs' %}
-                <a href="{{ instructions.download_link }}" class="btn btn-mini">Download</a> and extact the documentation archive.
+{% endmacro %}
+
+{% macro instructions_content_part(platform, instructions, host_url) %}
+    {% if platform == 'vmware' %}
+        {% if instructions.notes %}
+            {% for note in instructions.notes %}
+                {{ note }}<br>
+            {% endfor %}
         {% else %}
-            {% if instructions.command %}
-                <input class="cmd" value="{{ instructions.command.replace("//", host_url) }}">
-            {% elif instructions.download_link %}
-                <a href="{{ instructions.download_link }}" class="btn btn-mini">Download</a> the installer and run it.
-            {% else %}
-                {{ instructions }}
-            {% endif %}
+            <a href="{{ instructions.download_link }}">Download</a> the OVF and deploy it via VMware vSphere.
         {% endif %}
-    </div>
-</div>
+    {% elif platform == 'python-docs' %}
+            <a href="{{ instructions.download_link }}">Download</a> and extact the documentation archive.
+    {% else %}
+        {% if instructions.command %}
+            <input class="cmd" value="{{ instructions.command.replace("//", host_url) }}">
+        {% elif instructions.download_link %}
+            <a href="{{ instructions.download_link }}">Download</a> the installer and run it.
+        {% else %}
+            {{ instructions }}
+        {% endif %}
+    {% endif %}
+{% endmacro %}
+
+{% macro platform_name(platform) %}
+    {% if platform == "aix" %}
+        AIX
+    {% elif platform == "redhat" %}
+        RedHat
+    {% elif platform == "centos" %}
+        CentOS
+    {% elif platform == "oracle" %}
+        Oracle
+    {% elif platform == "windows-x86" %}
+         Windows (x86)
+    {% elif platform == "windows-x64" %}
+         Windows (x64)
+    {% elif platform == "vmware" %}
+        VMware
+    {% elif platform == "solaris" %}
+        Solaris
+    {% elif platform == "suse" %}
+        SUSE
+    {% elif platform == "ubuntu" %}
+        Ubuntu
+    {% elif platform == "python" %}
+        Python
+    {% elif platform == "python-docs" %}
+         Python Docs
+    {% else %}
+        {{ platform }}
+    {% endif %}
+{% endmacro %}
