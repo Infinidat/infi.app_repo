@@ -124,7 +124,8 @@ class PrettyIndexer(Indexer):
                                                self._is_hidden(extension_dirpath),
                                         architecture=path.basename(arch_dirpath),
                                         extension=path.basename(extension_dirpath),
-                                        filepath=self._normalize_url(filepath))
+                                        filepath=self._normalize_url(filepath),
+                                        filesize=path.getsize(filepath))
                     yield distribution
 
     def _get_latest_release(self, releases):
