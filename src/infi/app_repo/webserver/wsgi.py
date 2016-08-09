@@ -46,4 +46,4 @@ class WSGIHandlerWithWorkarounds(WSGIHandler):
         try:
             return super(WSGIHandlerWithWorkarounds, self).process_result()
         except error as _error:
-            logger.warn("got {} while sending result to client, probably got disconnected", _error)
+            logger.warn("got {} while sending result to client {} for {!r}, probably got disconnected after {} bytes".format(_error, self.client_address[0], self.requestline, self.response_length))
