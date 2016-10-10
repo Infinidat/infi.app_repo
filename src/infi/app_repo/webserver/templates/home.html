@@ -157,14 +157,23 @@
             // Make it easy to copy commands
             $(function() {
                 $('.cmd')
-                    .attr('readonly', 'readonly')
                     .on('click', function() {
                         this.focus();
                         this.select();
                     })
                     .each(function() {
-                        $(this).css('width', $(this).val().length * 8);
+                        $(this).css('width', $(this).val().length * 8 + 10);
                     });
+            });
+
+            $('div.copylink').each(function() {
+                $(this).find("i").click(function(event) {
+                    event.stopPropagation();
+                    $(this).parent().find('.cmd').select();
+                    document.execCommand('copy');
+                    window.getSelection().removeAllRanges();
+                    return false;
+                });
             });
         </script>
     </body>

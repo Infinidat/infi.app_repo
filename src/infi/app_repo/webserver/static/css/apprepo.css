@@ -167,6 +167,22 @@ header {
   text-decoration: none
 }
 
+div.copylink {
+    position: relative;
+}
+div.copylink input {
+    padding-right: 20px;
+}
+div.copylink i {
+    color: #ccc;
+    position: relative;
+    left: -25px;
+}
+div.copylink i:hover {
+    color: #aaa;
+    cursor: pointer;
+}
+
 h3 {
   font-size: 22px;
 }

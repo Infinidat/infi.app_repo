@@ -14,7 +14,11 @@
     {% endif %}
     <h3>Instructions for {{ platform_name(platform) }}</h3>
     {% if platform in ("redhat", "oracle", "centos", "ubuntu", "suse") %}
-        <h4>Setup (first time only)</h4><input class="cmd" value="curl -s {{ setup_url }} | sudo sh -" readonly="readonly">
+        <h4>Setup (first time only)</h4>
+        <div class="copylink">
+            <input class="cmd" value="curl -s {{ setup_url }} | sudo sh -" readonly="readonly">
+            <i class="glyphicon glyphicon-copy"></i>
+        </div>
     {% endif %}
     {% if platform == "aix" %}
         <h4>Setup (first time only)</h4><a href="http://www.perzl.org/aix/index.php?n=main.curl" target="_blank">Download and install curl</a>
@@ -43,7 +47,10 @@
             <a href="{{ instructions.download_link }}">Download</a> and extact the documentation archive.
     {% else %}
         {% if instructions.command %}
-            <input class="cmd" value="{{ instructions.command.replace("//", host_url) }}">
+            <div class="copylink">
+                <input class="cmd" value="{{ instructions.command.replace("//", host_url) }}" readonly="readonly">
+                <i class="glyphicon glyphicon-copy"></i>
+            </div>
         {% elif instructions.download_link %}
             <a href="{{ instructions.download_link }}">Download</a> the installer and run it.
         {% else %}
