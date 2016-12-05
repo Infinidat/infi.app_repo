@@ -30,11 +30,11 @@ class WSGIHandlerWithWorkarounds(WSGIHandler):
 
     def format_request(self):
         start_msg = "processing http request {!r} from {}"
-        end_msg = "finished processing http request {!r} from {}, returning http code {} after {} seconds"
+        end_msg = "finished processing http request {!r} from {}, returning {} bytes with http code {} after {} seconds"
         if self.time_finish:
             delta = '%.6f' % (self.time_finish - self.time_start)
             return_code = (getattr(self, 'status', None) or '000').split()[0]
-            return end_msg.format(self.requestline, self.client_address[0], return_code, delta)
+            return end_msg.format(self.requestline, self.client_address[0], self.response_length, return_code, delta)
         return start_msg.format(self.requestline, self.client_address[0])
 
     def process_result(self):
@@ -46,4 +46,4 @@ class WSGIHandlerWithWorkarounds(WSGIHandler):
         try:
             return super(WSGIHandlerWithWorkarounds, self).process_result()
         except error as _error:
-            logger.warn("got {} while sending result to client, probably got disconnected", _error)
+            logger.warn("got {} while sending result to client {} for {!r}, probably got disconnected after {} bytes".format(_error, self.client_address[0], self.requestline, self.response_length))

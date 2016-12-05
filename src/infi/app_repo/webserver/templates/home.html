@@ -73,6 +73,7 @@
                             <th>last modified</th>
                             <th>platform</th>
                             <th>architecture</th>
+                            <th>size</th>
                             <th>link</th>
                         </tr>
                     </thead>
@@ -108,6 +109,23 @@
                 });
             });
 
+            function humanFileSize(bytes, si) {
+                // http://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable
+                var thresh = si ? 1000 : 1024;
+                if(Math.abs(bytes) < thresh) {
+                    return bytes + ' B';
+                }
+                var units = si
+                    ? ['kB','MB','GB','TB','PB','EB','ZB','YB']
+                    : ['KiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB'];
+                var u = -1;
+                do {
+                    bytes /= thresh;
+                    ++u;
+                } while(Math.abs(bytes) >= thresh && u < units.length - 1);
+                return bytes.toFixed(1)+' '+units[u];
+            }
+
             function show_versions(title, url) {
                 $.get(url, function(data) {
                     var table = $(".download-links").dataTable();
@@ -117,7 +135,7 @@
                             _.each(version.distributions, function(distro) {
                                 if (!distro.hidden) {
                                     var link = '<a href="' + distro.filepath + '">download</a>';
-                                    row = table.api().row.add([version.version, version.last_modified, distro.platform, distro.architecture, link], false).node();
+                                    row = table.api().row.add([version.version, version.last_modified, distro.platform, distro.architecture, humanFileSize(distro.filesize, true), link], false).node();
                                 }
                             });
 
@@ -139,14 +157,23 @@
             // Make it easy to copy commands
             $(function() {
                 $('.cmd')
-                    .attr('readonly', 'readonly')
                     .on('click', function() {
                         this.focus();
                         this.select();
                     })
                     .each(function() {
-                        $(this).css('width', $(this).val().length * 8);
+                        $(this).css('width', $(this).val().length * 8 + 10);
                     });
+            });
+
+            $('div.copylink').each(function() {
+                $(this).find("i").click(function(event) {
+                    event.stopPropagation();
+                    $(this).parent().find('.cmd').select();
+                    document.execCommand('copy');
+                    window.getSelection().removeAllRanges();
+                    return false;
+                });
             });
         </script>
     </body>

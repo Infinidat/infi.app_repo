@@ -327,21 +327,20 @@ def delete_packages(config, should_delete, index, index_type, dry_run, quiet):
     client = get_client(config)
     show_warning = False
     with script_logging_context(syslog=False, logfile=False, stderr=True):
-        artifacts = client.get_artifacts(index, index_type)
-    files_to_remove = [filepath for filepath in artifacts if should_delete(path.basename(filepath))]
-    for filepath in files_to_remove:
-        filepath_relative = path.relpath(filepath, config.base_directory)
-        if dry_run:
-            logger.info("[dry-run] deleting {}".format(filepath_relative))
-            continue
-        if not quiet:
-            if not raw_input('delete {} [y/N]? '.format(filepath_relative)).lower() in ('y', 'yes'):
+        files_to_remove = [filepath for filepath in artifacts if should_delete(path.basename(filepath))]
+        for filepath in files_to_remove:
+            filepath_relative = path.relpath(filepath, config.base_directory)
+            if dry_run:
+                logger.info("[dry-run] deleting {}".format(filepath_relative))
                 continue
-        logger.info("deleting {} ".format(filepath_relative))
-        show_warning = True
-        client.delete_artifact(filepath)
-    if show_warning:
-        logger.warn("do not forget to rebuild the index(es) after deleting all the packages that you wanted to delete")
+            if not quiet:
+                if not raw_input('delete {} [y/N]? '.format(filepath_relative)).lower() in ('y', 'yes'):
+                    continue
+            logger.info("deleting {} ".format(filepath_relative))
+            show_warning = True
+            client.delete_artifact(filepath)
+        if show_warning:
+            logger.warn("do not forget to rebuild the index(es) after deleting all the packages that you wanted to delete")
 
 
 def resign_packages(config, async_rpc=False):

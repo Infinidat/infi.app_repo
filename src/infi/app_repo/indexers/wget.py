@@ -23,7 +23,7 @@ PIP_INSTALL_COMMAND = 'sudo pip install --extra-index-url ///packages/{0}/pypi {
 PIP_UGPRADE_COMMAND = 'sudo pip install --upgrade --extra-index-url ///packages/{0}/pypi {1}'
 
 MANUAL_COMMAND = "curl -s ///install/{0}/{1} | sudo sh -"
-SOLARIS_MANUAL_COMMAND = "curl -s ///install/{0}/{1} | su root -c bash -"
+SOLARIS_MANUAL_COMMAND = """curl -s ///install/{0}/{1} | su root -c "PATH=$PATH bash" -"""
 
 
 def ensure_packages_json_file_exists_in_directory(dirpath):
@@ -124,7 +124,8 @@ class PrettyIndexer(Indexer):
                                                self._is_hidden(extension_dirpath),
                                         architecture=path.basename(arch_dirpath),
                                         extension=path.basename(extension_dirpath),
-                                        filepath=self._normalize_url(filepath))
+                                        filepath=self._normalize_url(filepath),
+                                        filesize=path.getsize(filepath))
                     yield distribution
 
     def _get_latest_release(self, releases):
