@@ -169,6 +169,7 @@ header {
 
 div.copylink {
     position: relative;
+    white-space: nowrap;
 }
 div.copylink input {
     padding-right: 20px;
