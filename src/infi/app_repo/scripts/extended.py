@@ -327,6 +327,7 @@ def delete_packages(config, should_delete, index, index_type, dry_run, quiet):
     client = get_client(config)
     show_warning = False
     with script_logging_context(syslog=False, logfile=False, stderr=True):
+        artifacts = client.get_artifacts(index, index_type)
         files_to_remove = [filepath for filepath in artifacts if should_delete(path.basename(filepath))]
         for filepath in files_to_remove:
             filepath_relative = path.relpath(filepath, config.base_directory)
