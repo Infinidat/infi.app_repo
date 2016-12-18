@@ -107,6 +107,18 @@
                     info: false,
                     autoWidth: true
                 });
+
+                $('div.copylink i').tooltip()
+
+                $('div.copylink i').click(function() {
+                    $(this).tooltip('hide')
+                              .attr('data-original-title', 'Copied!')
+                              .tooltip('fixTitle')
+                              .tooltip('toggle');
+                    $(this).attr('data-original-title', 'Copy to Clipboard');
+                });
+
+                $('[data-toggle="tooltip"]').tooltip();
             });
 
             function humanFileSize(bytes, si) {

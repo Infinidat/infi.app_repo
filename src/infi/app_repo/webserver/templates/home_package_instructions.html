@@ -17,7 +17,7 @@
         <h4>Setup (first time only)</h4>
         <div class="copylink">
             <input class="cmd" value="curl -s {{ setup_url }} | sudo sh -" readonly="readonly">
-            <i class="glyphicon glyphicon-copy"></i>
+            <i class="glyphicon glyphicon-copy" data-toggle="tooltip" data-placement="bottom" title="Copy to Clipboard"></i>
         </div>
     {% endif %}
     {% if platform == "aix" %}
@@ -49,7 +49,7 @@
         {% if instructions.command %}
             <div class="copylink">
                 <input class="cmd" value="{{ instructions.command.replace("//", host_url) }}" readonly="readonly">
-                <i class="glyphicon glyphicon-copy"></i>
+                <i class="glyphicon glyphicon-copy" data-toggle="tooltip" data-placement="bottom" title="Copy to Clipboard"></i>
             </div>
         {% elif instructions.download_link %}
             <a href="{{ instructions.download_link }}">Download</a> the installer and run it.
