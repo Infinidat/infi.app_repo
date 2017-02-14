@@ -11,16 +11,17 @@ CREATEREPO_ARGUMENTS = ['createrepo', '--simple-md-filenames', '--pretty', '--ch
 KNOWN_PLATFORMS = {
     "linux-redhat-5": ("i686", "x86_64"),
     "linux-redhat-6": ("i686", "x86_64"),
-    "linux-redhat-7": ("x86_64", ),
+    "linux-redhat-7": ("x86_64", "ppc64", "ppc64le"),
     "linux-centos-5": ("i686", "x86_64"),
     "linux-centos-6": ("i686", "x86_64"),
-    "linux-centos-7": ("x86_64", ),
+    "linux-centos-7": ("x86_64", "ppc64", "ppc64le"),
     "linux-suse-10": ("i686", "x86_64"),
     "linux-suse-11": ("i686", "x86_64"),
     "linux-suse-12": ("x86_64", ),
 }
 
-TRANSLATE_ARCH = {'x86': 'i686', 'x64': 'x86_64', 'i686': 'i686', 'x86_64': 'x86_64'}
+TRANSLATE_ARCH = {'x86': 'i686', 'x64': 'x86_64', 'i686': 'i686', 'x86_64': 'x86_64',
+                  'ppc64': 'ppc64', 'ppc64le': 'ppc64le'}
 
 
 class YumIndexer(Indexer):
