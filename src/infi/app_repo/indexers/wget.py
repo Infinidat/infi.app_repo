@@ -19,8 +19,8 @@ APT_UGPRADE_COMMAND = 'sudo apt-get update; sudo apt-get install -y {0}'
 ZYPPER_INSTALL_COMMAND = 'sudo zypper install -n {0}'
 ZYPPER_UGPRADE_COMMAND = 'sudo zypper refresh; sudo zypper update -n {0}'
 
-PIP_INSTALL_COMMAND = 'sudo pip install --extra-index-url ///packages/{0}/pypi {1}'
-PIP_UGPRADE_COMMAND = 'sudo pip install --upgrade --extra-index-url ///packages/{0}/pypi {1}'
+PIP_INSTALL_COMMAND = 'sudo pip install --trusted-host /// --extra-index-url ///packages/{0}/pypi {1}'
+PIP_UGPRADE_COMMAND = 'sudo pip install --upgrade --trusted-host /// --extra-index-url ///packages/{0}/pypi {1}'
 
 MANUAL_COMMAND = "curl -s ///install/{0}/{1} | sudo sh -"
 SOLARIS_MANUAL_COMMAND = """curl -s ///install/{0}/{1} | su root -c "PATH=$PATH bash" -"""
