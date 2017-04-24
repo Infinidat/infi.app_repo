@@ -20,7 +20,7 @@ class PypiIndexer(Indexer):
 
     def consume_file(self, filepath, platform, arch):
         package_name, package_version, platform_string, architecture, extension = parse_filepath(filepath)
-        directory = path.join(self.base_directory, package_name)
+        directory = path.join(self.base_directory, package_name.replace('_', '-'))
         ensure_directory_exists(directory)
         filename = '{0}-{1}.tar.gz'.format(package_name, package_version)
         hard_link_or_raise_exception(filepath, path.join(directory, filename))
