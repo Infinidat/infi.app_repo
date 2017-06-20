@@ -116,7 +116,7 @@ def mul_by_two_or_min_five(n):
 
 class Client(AutoTimeoutClient, IPython_Mixin):
     def __init__(self, transport, timeout_calc_func=mul_by_two_or_min_five):
-        super(Client, transport, timeout_calc_func)
+        super(Client, self).__init__(transport, timeout_calc_func)
     pass
 
 
