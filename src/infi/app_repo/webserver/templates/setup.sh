@@ -29,7 +29,11 @@ gpgkey={{ host_url }}/packages/gpg.key" > /etc/yum.repos.d/{{ host }}.{{ index_n
 
 _zypper() {
     name={{ host }}.{{ index_name }}
-    version=`cat /etc/SuSE-release | grep -Eo "[0-9]+" | head -n 1`
+    if [ -f /etc/os-release ]
+        version=`cat /etc/os-release | grep -Eo "[0-9]+" | head -n 1`
+    else
+        version=`cat /etc/SuSE-release | grep -Eo "[0-9]+" | head -n 1`
+    fi
     arch=`uname -m`
     url={{ host_url }}/packages/{{ index_name }}/yum/linux-suse-$version-$arch/
 
