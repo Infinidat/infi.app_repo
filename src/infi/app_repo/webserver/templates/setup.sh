@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 _apt() {
     echo Setting up...
     distribution=`lsb_release -i | awk '{print tolower($3)}'`
