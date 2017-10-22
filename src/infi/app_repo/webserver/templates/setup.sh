@@ -32,6 +32,7 @@ gpgkey={{ host_url }}/packages/gpg.key" > /etc/yum.repos.d/{{ host }}.{{ index_n
 _zypper() {
     name={{ host }}.{{ index_name }}
     if [ -f /etc/os-release ]
+    then
         version=`cat /etc/os-release | grep -Eo "[0-9]+" | head -n 1`
     else
         version=`cat /etc/SuSE-release | grep -Eo "[0-9]+" | head -n 1`
