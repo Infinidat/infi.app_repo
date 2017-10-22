@@ -1,7 +1,5 @@
 #!/bin/sh
 
-set -e
-
 {% include 'functions.sh' %}
 
 {% if package %}
