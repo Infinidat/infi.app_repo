@@ -30,7 +30,7 @@ Options:
     --style=STYLE            Output style [default: solarized]
     --index=INDEX            Index name [default: main-stable]
     --async                  async rpc request
-    --days                   default: 7
+    --days                   days to keep [default: 7]
     -h --help                show this screen.
     -v --version             show version.
 """
