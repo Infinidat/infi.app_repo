@@ -23,14 +23,14 @@ Usage:
     eapp_repo [options] package pull <remote-server> <remote-index> <package> [<version> [<platform> [<arch>]]]
     eapp_repo [options] package push <remote-server> <remote-index> <package> [<version> [<platform> [<arch>]]]
     eapp_repo [options] package delete <regex> <index> [<index-type>] [(--dry-run | --yes)]
-    eapp_repo [options] package cleanup <index> [(--dry-run | --yes)] [--days=<days>]
+    eapp_repo [options] package cleanup <index> [(--dry-run | --yes)] [--days=DAYS]
 
 Options:
     -f --file=CONFIGFILE     Use this config file [default: data/config.json]
     --style=STYLE            Output style [default: solarized]
     --index=INDEX            Index name [default: main-stable]
     --async                  async rpc request
-    --days                   days to keep [default: 7]
+    --days=DAYS              days to keep [default: 7]
     -h --help                show this screen.
     -v --version             show version.
 """
