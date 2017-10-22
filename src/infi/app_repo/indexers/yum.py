@@ -27,6 +27,12 @@ TRANSLATE_ARCH = {'x86': 'i686', 'x64': 'x86_64', 'i686': 'i686', 'x86_64': 'x86
 class YumIndexer(Indexer):
     INDEX_TYPE = 'yum'
 
+    def __init__(self, *args, **kwargs):
+        from os import path
+        super(YumIndexer, self).__init__(*args, **kwargs)
+        self.cachedir = path.join(self.base_directory, 'cachedir')
+        ensure_directory_exists(self.cachedir)
+
     def initialise(self):
         from os import path
         ensure_directory_exists(self.base_directory)
