@@ -115,12 +115,19 @@ def setup_authorization(config):
     AppRepoFtpHandler.authorizer = authorizer
 
 
+def setup_masquerade(config):
+    from socket import gethostbyname
+    if config.ftpserver.masquerade_address:
+        AppRepoFtpHandler.masquerade_address = gethostbyname(config.ftpserver.masquerade_address)
+
+
 def start(config):
     from .service import get_client
     from .persistent_dict import PersistentDict
     make_pyftpdlib_gevent_friendly()
     disable_ioloop_logging()
     setup_authorization(config)
+    setup_masquerade(config)
 
     server = SafeGreenletFTPServer((config.ftpserver.address, config.ftpserver.port), AppRepoFtpHandler)
     server.socket.setblocking(1)
