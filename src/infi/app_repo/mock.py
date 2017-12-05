@@ -40,13 +40,13 @@ def dpkg_scanpackages_side_effect(cmdline_arguments):
     return contents
 
 
-def createrepo_side_effect(dirpath):
+def createrepo_side_effect(dirpath, cachedir=None):
     assert path.exists(dirpath)
     ensure_directory_exists(path.join(dirpath, 'repodata'))
     write_file(path.join(dirpath, 'repodata', 'repomd.xml'), '')
 
 
-def createrepo_update_side_effect(dirpath):
+def createrepo_update_side_effect(dirpath, cachedir=None):
     assert path.exists(path.join(dirpath, 'repodata'))
 
 

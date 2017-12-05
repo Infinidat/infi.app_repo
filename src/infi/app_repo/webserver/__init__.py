@@ -154,6 +154,8 @@ def gpg_key():
 
 def index_home_page(index_name):
     packages_json = path.join(flask.current_app.app_repo_config.packages_directory, index_name, 'index', 'packages.json')
+    if not os.path.exists(packages_json):
+        raise flask.abort(404)
     data = decode(read_file(packages_json))
     host_url = flask.request.host_url.rstrip('/')
     setup_url = '%s%s' % (host_url,

@@ -1,5 +1,5 @@
 from logging import getLogger
-from infi.gevent_utils.os import path, walk, link, makedirs, remove, fopen
+from infi.gevent_utils.os import path, walk, link, makedirs, remove, fopen, stat
 from infi.gevent_utils.json_utils import encode, decode, DecodeError
 from infi.gevent_utils.deferred import create_threadpool_executed_func
 from infi.gevent_utils.shutil import copyfile, copyfileobj
@@ -148,6 +148,12 @@ def read_file(filepath):
     """ Read the contents of a file in a gevent-friendly way """
     with fopen(filepath) as fd:
         return fd.read()
+
+
+@create_threadpool_executed_func
+def get_last_modified(filepath):
+    from datetime import datetime
+    return datetime.fromtimestamp(os.stat(filepath).st_mtime)
 
 
 @create_threadpool_executed_func

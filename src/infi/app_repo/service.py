@@ -110,7 +110,13 @@ class AppRepoService(ServiceWithSynchronized):
         return sign_rpm_package(rpm_filepath)
 
 
+def mul_by_two_or_min_five(n):
+    return max(n * 2, 5)
+
+
 class Client(AutoTimeoutClient, IPython_Mixin):
+    def __init__(self, transport, timeout_calc_func=mul_by_two_or_min_five):
+        super(Client, self).__init__(transport, timeout_calc_func)
     pass
 
 

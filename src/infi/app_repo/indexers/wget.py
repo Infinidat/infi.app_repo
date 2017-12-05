@@ -98,15 +98,29 @@ class PrettyIndexer(Indexer):
                        release_notes_url=self._deduce_release_notes_url(package_dirpath),
                        releases_uri=self._normalize_url(path.join(package_dirpath, 'releases.json',)))
 
+    def _read_release_date_from_file(self, dirpath):
+        from dateutil.parser import parse
+        try:
+            with fopen(path.join(dirpath, 'release_date')) as fd:
+                release_date = fd.read().strip()
+                return parse(release_date).date()
+        except:
+            return None
+
     def _iter_releases(self, package):
         from os import stat
         from time import ctime
+        from datetime import date, datetime
         for version_dirpath in glob(path.join(package['abspath'], 'releases', '*')):
             mod_time = stat(version_dirpath).st_mtime
+            release_date = self._read_release_date_from_file(version_dirpath) or mod_time
             release = dict(version=path.basename(version_dirpath),
                            hidden=self._is_hidden(version_dirpath),
                            abspath=version_dirpath,
-                           last_modified=ctime(mod_time) if mod_time else '')
+                           last_modified=datetime.fromtimestamp(mod_time).isoformat() if mod_time else '',
+                           last_modified_timestamp=int(mod_time) if mod_time else None,
+                           release_date=date.fromtimestamp(release_date).isoformat() if release_date else '',
+                           )
             yield release
 
     def _iter_distributions(self, package, release):
@@ -262,6 +276,7 @@ class PrettyIndexer(Indexer):
             latest_release_txt = path.join(package['abspath'], 'latest_release.txt')
             if latest_release:
                 package['latest_version'] = latest_release['version']
+                package['latest_version_release_date'] = latest_release['release_date']
                 package['installation_instructions'], package['requires_setup'] = self._get_installation_instructions(package, latest_release)
 
                 packages.append(package)

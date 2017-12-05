@@ -27,8 +27,18 @@ TRANSLATE_ARCH = {'x86': 'i686', 'x64': 'x86_64', 'i686': 'i686', 'x86_64': 'x86
 class YumIndexer(Indexer):
     INDEX_TYPE = 'yum'
 
+    def __init__(self, *args, **kwargs):
+        from os import path
+        super(YumIndexer, self).__init__(*args, **kwargs)
+        self.cachedir = path.join(self.base_directory, 'cachedir')
+        ensure_directory_exists(self.cachedir)
+
     def initialise(self):
+        from os import path
         ensure_directory_exists(self.base_directory)
+        self.cachedir = path.join(self.base_directory, 'cachedir')
+        ensure_directory_exists(self.cachedir)
+
         for platform, architectures in KNOWN_PLATFORMS.items():
             for arch in architectures:
                 dirpath = path.join(self.base_directory, '%s-%s' % (platform, arch))
@@ -67,14 +77,14 @@ class YumIndexer(Indexer):
 
     def _update_index(self, dirpath):
         if not self._is_repodata_exists(dirpath):
-            createrepo(dirpath)
+            createrepo(dirpath, self.cachedir)
         else:
             try:
-                createrepo_update(dirpath)
+                createrepo_update(dirpath, self.cachedir)
             except:
                 logger.exception("Failed to update metadata, will attempt to remove it and create it from scratch")
                 self._delete_repo_metadata(dirpath)
-                createrepo(dirpath)
+                createrepo(dirpath, self.cachedir)
         sign_repomd(dirpath)
 
     def _delete_repo_metadata(self, dirpath):
@@ -88,15 +98,20 @@ class YumIndexer(Indexer):
 
 def sign_repomd(dirpath):
     repomd = path.join(dirpath, 'repodata', 'repomd.xml')
-    if path.exists('%s.asc'  % repomd):
-        remove('%s.asc'  % repomd)
+    if path.exists('%s.asc' % repomd):
+        remove('%s.asc' % repomd)
     log_execute_assert_success(['gpg', '-a', '--detach-sign', repomd])
 
 
+def createrepo_update(dirpath, cachedir=None):
+    arguments = CREATEREPO_ARGUMENTS + ['--update', '--skip-stat', dirpath]
+    if cachedir:
+        arguments += ['--cachedir', cachedir]
+    log_execute_assert_success(arguments)
 
-def createrepo_update(dirpath):
-    log_execute_assert_success(CREATEREPO_ARGUMENTS + ['--update', '--skip-stat', dirpath])
 
-
-def createrepo(dirpath):
-    log_execute_assert_success(CREATEREPO_ARGUMENTS + [dirpath])
+def createrepo(dirpath, cachedir=None):
+    arguments = CREATEREPO_ARGUMENTS + [dirpath]
+    if cachedir:
+        arguments += ['--cachedir', cachedir]
+    log_execute_assert_success(arguments)

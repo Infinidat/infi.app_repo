@@ -32,6 +32,7 @@ class FtpServerConfiguration(Model):
     port = IntType(default=8002)
     username = StringType(default="app_repo")
     password = StringType(default="app_repo")
+    masquerade_address = StringType(required=False, default=None)
 
 
 class RemoteConfiguration(Model):

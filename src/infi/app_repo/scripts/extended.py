@@ -23,13 +23,14 @@ Usage:
     eapp_repo [options] package pull <remote-server> <remote-index> <package> [<version> [<platform> [<arch>]]]
     eapp_repo [options] package push <remote-server> <remote-index> <package> [<version> [<platform> [<arch>]]]
     eapp_repo [options] package delete <regex> <index> [<index-type>] [(--dry-run | --yes)]
-    eapp_repo [options] package cleanup <index> [(--dry-run | --yes)]
+    eapp_repo [options] package cleanup <index> [(--dry-run | --yes)] [--days=DAYS]
 
 Options:
     -f --file=CONFIGFILE     Use this config file [default: data/config.json]
     --style=STYLE            Output style [default: solarized]
     --index=INDEX            Index name [default: main-stable]
     --async                  async rpc request
+    --days=DAYS              days to keep [default: 7]
     -h --help                show this screen.
     -v --version             show version.
 """
@@ -169,7 +170,8 @@ def eapp_repo(argv=argv[1:]):
         return delete_packages(config, build_regex_predicate(args['<regex>']), args['<index>'], args['<index-type>'],
                                args['--dry-run'], args['--yes'])
     elif args['package'] and args['cleanup']:
-        return delete_old_packages(config, args['<index>'], args['--dry-run'], args['--yes'])
+        return delete_old_packages(config, args['<index>'], args['--dry-run'], args['--yes'], int(args['--days']))
+
 
 def get_config(args):
     from infi.app_repo.config import Configuration
@@ -295,8 +297,8 @@ def rebuild_index(config, index, index_type, async_rpc=False):
     return get_client(config).rebuild_index(index, index_type, async_rpc=async_rpc)
 
 
-def delete_old_packages(config, index, dry_run, quiet):
-    from infi.app_repo.utils import pretty_print, decode, read_file, path
+def delete_old_packages(config, index, dry_run, quiet, days=7):
+    from infi.app_repo.utils import pretty_print, decode, read_file, path, get_last_modified
     packages_json = path.join(config.packages_directory, index, 'index', 'packages.json')
     data = decode(read_file(packages_json))
     for package in data:
@@ -304,13 +306,17 @@ def delete_old_packages(config, index, dry_run, quiet):
         if not latest_version:
             continue
 
+        def not_recent(filepath):
+            from datetime import datetime
+            return datetime.now() - days > get_last_modified(filepath)
+
         def should_delete(filepath):
             """returns True on old releases of the package"""
             basename = path.basename(filepath)
             if not basename.startswith(package['name']):
                 return False
             prefix = '{}-{}-'.format(package['name'], latest_version)
-            return not basename.startswith(prefix)
+            return not basename.startswith(prefix) and not_recent(filepath)
 
         delete_packages(config, should_delete, index, None, dry_run, quiet)
 
