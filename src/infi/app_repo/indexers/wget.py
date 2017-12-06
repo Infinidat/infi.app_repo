@@ -263,7 +263,7 @@ class PrettyIndexer(Indexer):
 
     def rebuild_index(self):
         packages = []
-        log_execute_assert_success(['find', self.base_directory, '-type', 'd', '-empty', '-print', 'delete'])
+        log_execute_assert_success(['find', self.base_directory, '-type', 'd', '-empty', '-print', '-delete'])
         for package in self._iter_packages():
             releases = []
             for release in sorted(self._iter_releases(package), reverse=True, key=lambda release: parse_version(release['version'])):
