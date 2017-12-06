@@ -3,7 +3,7 @@ from .base import Indexer
 from infi.gevent_utils.os import path, fopen, remove
 from infi.gevent_utils.glob import glob
 from infi.app_repo.utils import ensure_directory_exists, hard_link_or_raise_exception, write_file
-from infi.app_repo.utils import is_really_rpm, is_really_deb
+from infi.app_repo.utils import is_really_rpm, is_really_deb, log_execute_assert_success
 from infi.gevent_utils.json_utils import decode, encode
 from infi.app_repo.filename_parser import parse_filepath, FilenameParsingFailed
 from pkg_resources import parse_version
@@ -263,6 +263,7 @@ class PrettyIndexer(Indexer):
 
     def rebuild_index(self):
         packages = []
+        log_execute_assert_success(['find', self.base_directory, '-type', 'd' '-empty', '-print', 'delete'])
         for package in self._iter_packages():
             releases = []
             for release in sorted(self._iter_releases(package), reverse=True, key=lambda release: parse_version(release['version'])):
