@@ -298,7 +298,7 @@ def rebuild_index(config, index, index_type, async_rpc=False):
 
 
 def delete_old_packages(config, index, dry_run, quiet, days=7):
-    from infi.app_repo.utils import pretty_print, decode, read_file, path, get_last_modified
+    from infi.app_repo.utils import decode, read_file, path, get_last_modified
     packages_json = path.join(config.packages_directory, index, 'index', 'packages.json')
     data = decode(read_file(packages_json))
     for package in data:
@@ -307,8 +307,8 @@ def delete_old_packages(config, index, dry_run, quiet, days=7):
             continue
 
         def not_recent(filepath):
-            from datetime import datetime
-            return datetime.now() - days > get_last_modified(filepath)
+            from datetime import datetime, timedelta
+            return datetime.now() - timedelta(days=days) > get_last_modified(filepath)
 
         def should_delete(filepath):
             """returns True on old releases of the package"""
@@ -323,7 +323,8 @@ def delete_old_packages(config, index, dry_run, quiet, days=7):
 
 def build_regex_predicate(pattern):
     import re
-    return re.compile(pattern).match
+    from infi.gevent_utils.os import path
+    return lambda filepath: re.compile(pattern).match(path.basename(filepath))
 
 
 def delete_packages(config, should_delete, index, index_type, dry_run, quiet):
@@ -334,7 +335,7 @@ def delete_packages(config, should_delete, index, index_type, dry_run, quiet):
     show_warning = False
     with script_logging_context(syslog=False, logfile=False, stderr=True):
         artifacts = client.get_artifacts(index, index_type)
-        files_to_remove = [filepath for filepath in artifacts if should_delete(path.basename(filepath))]
+        files_to_remove = [filepath for filepath in artifacts if should_delete(filepath)]
         for filepath in files_to_remove:
             filepath_relative = path.relpath(filepath, config.base_directory)
             if dry_run:
