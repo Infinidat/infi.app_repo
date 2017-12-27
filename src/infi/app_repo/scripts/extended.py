@@ -31,6 +31,7 @@ Options:
     --index=INDEX            Index name [default: main-stable]
     --async                  async rpc request
     --days=DAYS              days to keep [default: 7]
+    --yes                    provide to confirm the action
     -h --help                show this screen.
     -v --version             show version.
 """
@@ -124,9 +125,13 @@ def eapp_repo(argv=argv[1:]):
             config.webserver.support_legacy_uris = True
             config.to_disk()
         return setup(config, args['--with-mock'], args['--force-resignature'])
-    elif args['destroy'] and args['--yes']:
-        from infi.app_repo.install import destroy_all
-        destroy_all(config)
+    elif args['destroy']:
+        if args['--yes']:
+            from infi.app_repo.install import destroy_all
+            destroy_all(config)
+        else:
+            print "This command will destroy the application repository"
+            print "If this is absolutely what you want, pass the --yes flag in the command-line.\nAborting."
     elif args['web-server']:
         return web_server(config, args['--signal-upstart'])
     elif args['ftp-server']:
@@ -150,8 +155,12 @@ def eapp_repo(argv=argv[1:]):
         print ' '.join(config.indexes)
     elif args['index'] and args['add']:
         return add_index(config, args['<index>'], args['--async'])
-    elif args['index'] and args['remove'] and args['--yes']:
-        return remove_index(config, args['<index>'], args['--async'])
+    elif args['index'] and args['remove']:
+        if args['--yes']:
+            return remove_index(config, args['<index>'], args['--async'])
+        else:
+            print "This command will remove index \"{0}\" from the application repository".format(args['<index>'])
+            print "If this is absolutely what you want, pass the --yes flag in the command-line.\nAborting."
     elif args['package'] and args['list']:
         return show_packages(config, args['--index'])
     elif args['package'] and args['remote-list']:
