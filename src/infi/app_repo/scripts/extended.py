@@ -379,7 +379,6 @@ def add_index(config, index_name, async_rpc=False):
     get_client(config).reload_configuration_from_disk(async_rpc=async_rpc)
 
 
-
 def remove_index(config, index_name, async_rpc=False):
     from infi.app_repo.indexers import get_indexers
     from infi.app_repo.utils import log_execute_assert_success
@@ -402,4 +401,4 @@ def show_packages(config, index_name):
 def show_remote_packages(config, remote_host, remote_index):
     from requests import get
     from infi.app_repo.utils import pretty_print
-    pretty_print(get("http://{}/packages/{}/index/packages.json".format(remote_host, remote_index)).get_json())
+    pretty_print(get("http://{}/packages/{}/index/packages.json".format(remote_host, remote_index)).json())
