@@ -30,7 +30,7 @@ class SyncTestCase(TestCase):
                 yield config
 
     def upload_dummy_package(self, config):
-        filename =  "my-app-0.1-linux-ubuntu-natty-x64.deb"
+        filename =  "my-app-0.1-linux-ubuntu-xenial-x64.deb"
         write_file(filename, "")
         sync._upload_file('127.0.0.1', config.ftpserver.port, config.ftpserver.username, config.ftpserver.password,
                           'main-stable', filename)

@@ -47,7 +47,7 @@ def apt_ftparchive_side_effect(cmdline_arguments):
     from glob import glob
     if cmdline_arguments[0] == "packages":
         # scan packages
-        _, tempdir, _ = cmdline_arguments
+        tempdir = cmdline_arguments[-1]
         result = MagicMock()
         contents = ''
         for filepath in glob(path.join(tempdir, '*.deb')):
