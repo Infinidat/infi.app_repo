@@ -37,24 +37,24 @@ class IndexersTestCase(TestCase):
             indexer = AptIndexer(config, 'main-stable')
             indexer.initialise()
             filepath = self.write_new_package_in_incoming_directory(config, extension='deb')
-            self.assertTrue(indexer.are_you_interested_in_file(filepath, 'linux-ubuntu-natty', 'x86'))
-            self.assertFalse(indexer.are_you_interested_in_file('foo.rpm', 'linux-ubuntu-natty', 'x86'))
-            indexer.consume_file(filepath, 'linux-ubuntu-natty', 'i386')
+            self.assertTrue(indexer.are_you_interested_in_file(filepath, 'linux-ubuntu-xenial', 'x86'))
+            self.assertFalse(indexer.are_you_interested_in_file('foo.rpm', 'linux-ubuntu-xenial', 'x86'))
+            indexer.consume_file(filepath, 'linux-ubuntu-xenial', 'i386')
 
-            packages_file = path.join(indexer.base_directory, 'linux-ubuntu', 'dists', 'natty', 'main', 'binary-i386', 'Packages')
+            packages_file = path.join(indexer.base_directory, 'linux-ubuntu', 'dists', 'xenial', 'main', 'binary-i386', 'Packages')
             with fopen(packages_file) as fd:
                 packages_contents = fd.read()
                 self.assertNotEquals(packages_contents, '')
-                self.assertIn("Filename: dists/natty/main/binary-i386/some-package.deb", packages_contents)
+                self.assertIn("Filename: dists/xenial/main/binary-i386/some-package.deb", packages_contents)
             with gzip.open(packages_file + '.gz', 'rb') as fd:
                 self.assertEquals(packages_contents, fd.read())
 
-            release_dirpath = path.join(indexer.base_directory, 'linux-ubuntu', 'dists', 'natty')
+            release_dirpath = path.join(indexer.base_directory, 'linux-ubuntu', 'dists', 'xenial')
             self.assertTrue(path.exists(path.join(release_dirpath, 'main', 'binary-i386', 'some-package.deb')))
 
             release_filepath = path.join(release_dirpath, 'Release')
             # with fopen(release_filepath) as fd:
-            #     self.assertEquals(fd.read(), 'Codename: natty\nArchitectures: amd64 i386\nComponents: main\nok')
+            #     self.assertEquals(fd.read(), 'Codename: xenial\nArchitectures: amd64 i386\nComponents: main\nok')
             self.assertTrue(path.exists(release_filepath))
             # self.assertTrue(path.exists(release_filepath + '.gpg'))
             # self.assertTrue(path.exists(path.join(release_dirpath, 'InRelease')))
@@ -74,13 +74,13 @@ class IndexersTestCase(TestCase):
         with self._setup_context() as config:
             indexer = PrettyIndexer(config, 'main-stable')
             indexer.initialise()
-            filepath = self.write_new_package_in_incoming_directory(config, package_basename='my-app-0.1-linux-ubuntu-natty-x64', extension='deb')
-            self.assertTrue(indexer.are_you_interested_in_file(filepath, 'linux-ubuntu-natty', 'x64'))
-            indexer.consume_file(filepath, 'linux-ubuntu-natty', 'x64')
+            filepath = self.write_new_package_in_incoming_directory(config, package_basename='my-app-0.1-linux-ubuntu-xenial-x64', extension='deb')
+            self.assertTrue(indexer.are_you_interested_in_file(filepath, 'linux-ubuntu-xenial', 'x64'))
+            indexer.consume_file(filepath, 'linux-ubuntu-xenial', 'x64')
 
             self.assertTrue(path.exists(path.join(indexer.base_directory, 'packages', 'my-app', 'releases', '0.1', 'distributions',
-                                                  'linux-ubuntu-natty', 'architectures', 'x64', 'extensions', 'deb',
-                                                  'my-app-0.1-linux-ubuntu-natty-x64.deb')))
+                                                  'linux-ubuntu-xenial', 'architectures', 'x64', 'extensions', 'deb',
+                                                  'my-app-0.1-linux-ubuntu-xenial-x64.deb')))
             packages = read_json_file(path.join(indexer.base_directory, 'packages.json'))
             self.assertIsInstance(packages, list)
             self.assertGreater(len(packages), 0)

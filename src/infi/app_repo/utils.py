@@ -153,7 +153,7 @@ def read_file(filepath):
 @create_threadpool_executed_func
 def get_last_modified(filepath):
     from datetime import datetime
-    return datetime.fromtimestamp(os.stat(filepath).st_mtime)
+    return datetime.fromtimestamp(stat(filepath).st_mtime)
 
 
 @create_threadpool_executed_func

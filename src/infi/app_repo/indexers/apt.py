@@ -9,13 +9,6 @@ from infi.app_repo.utils import is_really_deb
 
 KNOWN_DISTRIBUTIONS = {
     'linux-ubuntu': {
-        'lucid': ('i386', 'amd64'),
-        'natty': ('i386', 'amd64'),
-        'oneiric': ('i386', 'amd64'),
-        'precise': ('i386', 'amd64'),
-        'quantal': ('i386', 'amd64'),
-        'raring': ('i386', 'amd64'),
-        'saucy': ('i386', 'amd64'),
         'trusty': ('i386', 'amd64'),
         'xenial': ('i386', 'amd64'),
     }
@@ -39,10 +32,6 @@ def write_to_packages_file(dirpath, contents, mode):
 
 def apt_ftparchive(cmdline_arguments):
     return log_execute_assert_success(['apt-ftparchive'] + cmdline_arguments).get_stdout()
-
-
-def dpkg_scanpackages(cmdline_arguments):
-    return log_execute_assert_success(['dpkg-scanpackages'] + cmdline_arguments).get_stdout()
 
 
 def gpg(cmdline_arguments):
@@ -82,31 +71,25 @@ class AptIndexer(Indexer):
         dirpath = path.join(self.base_directory, distribution, 'dists', codename)
         in_release = path.join(dirpath, 'InRelease')
         release = path.join(dirpath, 'Release')
-
-        def write_release_file():
-            cache = path.join(dirpath, 'apt_cache.db')
-            contents = apt_ftparchive(['--db', cache, 'release', dirpath])
-
-            def _write():
-                with fopen(release, 'w') as fd:
-                    available_archs = sorted(KNOWN_DISTRIBUTIONS[distribution][codename])
-                    fd.write(RELEASE_FILE_HEADER.format(codename, " ".join(available_archs), contents))
-
-            _write()
-
-        def delete_old_release_signature_files():
-            for filepath in [in_release, '%s.gpg' % release]:
-                if path.exists(filepath):
-                    remove(filepath)
-
-        def sign_release_file():
-            gpg(['--clearsign', '-o', in_release, release])
-            gpg(['-abs', '-o', '%s.gpg' % release, release])
-
-        if force or not path.exists(release):
-            write_release_file()
-            delete_old_release_signature_files()
-            sign_release_file()
+        release_gpg = release + '.gpg'
+        if path.exists(release) and not force:
+            return
+        # write release file
+        contents = apt_ftparchive(['release', dirpath])
+        with fopen(release, 'w') as fd:
+            available_archs = sorted(KNOWN_DISTRIBUTIONS[distribution][codename])
+            fd.write(RELEASE_FILE_HEADER.format(codename, " ".join(available_archs), contents))
+        # delete old release signature files
+        for filepath in [in_release, release_gpg]:
+            if path.exists(filepath):
+                remove(filepath)
+        # sign release file
+        if codename == "trusty":
+            # trusty doesn't support SHA256 for InRelease
+            gpg(['--clearsign', '--digest-algo', 'SHA1', '-o', in_release, release])
+        else:
+            gpg(['--clearsign', '--digest-algo', 'SHA256', '-o', in_release, release])
+        gpg(['-abs', '-o', release_gpg, release])
 
     def consume_file(self, filepath, platform, arch):
         from infi.app_repo.utils import sign_deb_package
@@ -116,7 +99,7 @@ class AptIndexer(Indexer):
         sign_deb_package(filepath)
         with temporary_directory_context() as tempdir:
             hard_link_or_raise_exception(filepath, tempdir)
-            contents = dpkg_scanpackages(['--multiversion', tempdir, '/dev/null'])
+            contents = apt_ftparchive(['packages', tempdir])
             relapath = dirpath.replace(path.join(self.base_directory, distribution_name), '').strip(path.sep)
             fixed_contents = contents.replace(tempdir, relapath)
             write_to_packages_file(dirpath, fixed_contents, 'a')
@@ -132,11 +115,12 @@ class AptIndexer(Indexer):
                         yield filepath
 
     def rebuild_index(self):
+        cache_file = path.join(self.base_directory, 'apt_cache.db')
         for distribution_name, distribution_dict in KNOWN_DISTRIBUTIONS.items():
             for version, architectures in distribution_dict.items():
                 for arch in architectures:
                     dirpath = self.deduce_dirname(distribution_name, version, arch)
-                    contents = dpkg_scanpackages(['--multiversion', dirpath, '/dev/null'])
+                    contents = apt_ftparchive(['packages', '--db', cache_file, dirpath])
                     relapath = dirpath.replace(path.join(self.base_directory, distribution_name), '').strip(path.sep)
                     fixed_contents = contents.replace(dirpath, relapath)
                     write_to_packages_file(dirpath, fixed_contents, 'w')

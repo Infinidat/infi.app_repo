@@ -27,19 +27,6 @@ Description: Some description
 
 """
 
-def dpkg_scanpackages_side_effect(cmdline_arguments):
-    from uuid import uuid1
-    from glob import glob
-    _, tempdir, _ = cmdline_arguments
-    result = MagicMock()
-    contents = ''
-    for filepath in glob(path.join(tempdir, '*.deb')):
-        contents += DPKG_SCANPACKGES_OUTPUT.lstrip().format(package_name=str(uuid1()), version='1.0', arch='i386',
-                                                            file_size=100, md5_sum=1, sha1_sum=1, sha256_sum=1,
-                                                            filepath=filepath)
-    return contents
-
-
 def createrepo_side_effect(dirpath, cachedir=None):
     assert path.exists(dirpath)
     ensure_directory_exists(path.join(dirpath, 'repodata'))
@@ -56,6 +43,18 @@ def setup_gpg_side_effect(config, force_resignature=False):
 
 
 def apt_ftparchive_side_effect(cmdline_arguments):
+    from uuid import uuid1
+    from glob import glob
+    if cmdline_arguments[0] == "packages":
+        # scan packages
+        tempdir = cmdline_arguments[-1]
+        result = MagicMock()
+        contents = ''
+        for filepath in glob(path.join(tempdir, '*.deb')):
+            contents += DPKG_SCANPACKGES_OUTPUT.lstrip().format(package_name=str(uuid1()), version='1.0', arch='i386',
+                                                                file_size=100, md5_sum=1, sha1_sum=1, sha256_sum=1,
+                                                                filepath=filepath)
+        return contents
     return ''
 
 
@@ -73,22 +72,20 @@ def patch_all():
     with patch("infi.app_repo.indexers.yum.createrepo") as createrepo:
         with patch("infi.app_repo.indexers.yum.createrepo_update") as createrepo_update:
             with patch("infi.app_repo.indexers.apt.apt_ftparchive") as apt_ftparchive:
-                with patch("infi.app_repo.indexers.apt.dpkg_scanpackages") as dpkg_scanpackages:
-                    with patch("infi.app_repo.install.setup_gpg") as setup_gpg:
-                            with patch("infi.app_repo.utils.sign_rpm_package"):
-                                with patch("infi.app_repo.utils.sign_deb_package"):
-                                    with patch("infi.app_repo.install._import_gpg_key_to_rpm_database"):
-                                        with patch("infi.app_repo.indexers.apt.apt_ftparchive") as apt_ftparchive:
-                                            with patch("infi.app_repo.indexers.apt.gpg"):
-                                                with patch("infi.app_repo.indexers.yum.sign_repomd"):
-                                                    with patch_is_really_functions():
-                                                        apt_ftparchive.side_effect = apt_ftparchive_side_effect
-                                                        createrepo.side_effect = createrepo_side_effect
-                                                        createrepo_update.side_effect = createrepo_update_side_effect
-                                                        dpkg_scanpackages.side_effect = dpkg_scanpackages_side_effect
-                                                        apt_ftparchive.return_value = APT_FTPARCHIVE_RETURN_VALUE
-                                                        setup_gpg.side_effect = setup_gpg_side_effect
-                                                        yield
+                with patch("infi.app_repo.install.setup_gpg") as setup_gpg:
+                        with patch("infi.app_repo.utils.sign_rpm_package"):
+                            with patch("infi.app_repo.utils.sign_deb_package"):
+                                with patch("infi.app_repo.install._import_gpg_key_to_rpm_database"):
+                                    with patch("infi.app_repo.indexers.apt.apt_ftparchive") as apt_ftparchive:
+                                        with patch("infi.app_repo.indexers.apt.gpg"):
+                                            with patch("infi.app_repo.indexers.yum.sign_repomd"):
+                                                with patch_is_really_functions():
+                                                    apt_ftparchive.side_effect = apt_ftparchive_side_effect
+                                                    createrepo.side_effect = createrepo_side_effect
+                                                    createrepo_update.side_effect = createrepo_update_side_effect
+                                                    apt_ftparchive.return_value = APT_FTPARCHIVE_RETURN_VALUE
+                                                    setup_gpg.side_effect = setup_gpg_side_effect
+                                                    yield
 
 
 @contextmanager

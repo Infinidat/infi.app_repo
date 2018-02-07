@@ -31,6 +31,7 @@ Options:
     --index=INDEX            Index name [default: main-stable]
     --async                  async rpc request
     --days=DAYS              days to keep [default: 7]
+    --yes                    provide to confirm the action
     -h --help                show this screen.
     -v --version             show version.
 """
@@ -124,9 +125,13 @@ def eapp_repo(argv=argv[1:]):
             config.webserver.support_legacy_uris = True
             config.to_disk()
         return setup(config, args['--with-mock'], args['--force-resignature'])
-    elif args['destroy'] and args['--yes']:
-        from infi.app_repo.install import destroy_all
-        destroy_all(config)
+    elif args['destroy']:
+        if args['--yes']:
+            from infi.app_repo.install import destroy_all
+            destroy_all(config)
+        else:
+            print "This command will destroy the application repository"
+            print "If this is absolutely what you want, pass the --yes flag in the command-line.\nAborting."
     elif args['web-server']:
         return web_server(config, args['--signal-upstart'])
     elif args['ftp-server']:
@@ -150,8 +155,12 @@ def eapp_repo(argv=argv[1:]):
         print ' '.join(config.indexes)
     elif args['index'] and args['add']:
         return add_index(config, args['<index>'], args['--async'])
-    elif args['index'] and args['remove'] and args['--yes']:
-        return remove_index(config, args['<index>'], args['--async'])
+    elif args['index'] and args['remove']:
+        if args['--yes']:
+            return remove_index(config, args['<index>'], args['--async'])
+        else:
+            print "This command will remove index \"{0}\" from the application repository".format(args['<index>'])
+            print "If this is absolutely what you want, pass the --yes flag in the command-line.\nAborting."
     elif args['package'] and args['list']:
         return show_packages(config, args['--index'])
     elif args['package'] and args['remote-list']:
@@ -298,7 +307,7 @@ def rebuild_index(config, index, index_type, async_rpc=False):
 
 
 def delete_old_packages(config, index, dry_run, quiet, days=7):
-    from infi.app_repo.utils import pretty_print, decode, read_file, path, get_last_modified
+    from infi.app_repo.utils import decode, read_file, path, get_last_modified
     packages_json = path.join(config.packages_directory, index, 'index', 'packages.json')
     data = decode(read_file(packages_json))
     for package in data:
@@ -307,8 +316,8 @@ def delete_old_packages(config, index, dry_run, quiet, days=7):
             continue
 
         def not_recent(filepath):
-            from datetime import datetime
-            return datetime.now() - days > get_last_modified(filepath)
+            from datetime import datetime, timedelta
+            return datetime.now() - timedelta(days=days) > get_last_modified(filepath)
 
         def should_delete(filepath):
             """returns True on old releases of the package"""
@@ -323,7 +332,8 @@ def delete_old_packages(config, index, dry_run, quiet, days=7):
 
 def build_regex_predicate(pattern):
     import re
-    return re.compile(pattern).match
+    from infi.gevent_utils.os import path
+    return lambda filepath: re.compile(pattern).match(path.basename(filepath))
 
 
 def delete_packages(config, should_delete, index, index_type, dry_run, quiet):
@@ -334,7 +344,7 @@ def delete_packages(config, should_delete, index, index_type, dry_run, quiet):
     show_warning = False
     with script_logging_context(syslog=False, logfile=False, stderr=True):
         artifacts = client.get_artifacts(index, index_type)
-        files_to_remove = [filepath for filepath in artifacts if should_delete(path.basename(filepath))]
+        files_to_remove = [filepath for filepath in artifacts if should_delete(filepath)]
         for filepath in files_to_remove:
             filepath_relative = path.relpath(filepath, config.base_directory)
             if dry_run:
@@ -369,7 +379,6 @@ def add_index(config, index_name, async_rpc=False):
     get_client(config).reload_configuration_from_disk(async_rpc=async_rpc)
 
 
-
 def remove_index(config, index_name, async_rpc=False):
     from infi.app_repo.indexers import get_indexers
     from infi.app_repo.utils import log_execute_assert_success
@@ -392,4 +401,4 @@ def show_packages(config, index_name):
 def show_remote_packages(config, remote_host, remote_index):
     from requests import get
     from infi.app_repo.utils import pretty_print
-    pretty_print(get("http://{}/packages/{}/index/packages.json".format(remote_host, remote_index)).get_json())
+    pretty_print(get("http://{}/packages/{}/index/packages.json".format(remote_host, remote_index)).json())
