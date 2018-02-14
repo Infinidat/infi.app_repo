@@ -212,7 +212,6 @@ class PrettyIndexer(Indexer):
                                                            install=dict(download_link=distribution['filepath']))
 
             if platform == 'vmware' and distribution['extension'] == 'ova':
-                requires_setup = True
                 installation_instructions[platform] = dict(installable=True,
                                                            upgrade=dict(download_link=distribution['filepath'],
                                                                         notes=["Upgrade the appliance through vCenter by using the VMware Update Manager Plug-in",
