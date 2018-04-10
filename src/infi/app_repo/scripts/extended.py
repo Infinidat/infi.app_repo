@@ -107,6 +107,7 @@ def bypass_console_script_logging():
 
 
 def eapp_repo(argv=argv[1:]):
+    from infi.logging.wrappers import script_logging_context
     bypass_console_script_logging()
     args = docopt(__doc__, argv)
     config = get_config(args)
@@ -338,7 +339,6 @@ def build_regex_predicate(pattern):
 
 
 def delete_packages(config, should_delete, index, index_type, dry_run, quiet, no_rebuild, async_rpc=False):
-    from infi.logging.wrappers import script_logging_context
     from infi.gevent_utils.os import path
     from infi.app_repo.service import get_client
     client = get_client(config)
