@@ -16,20 +16,20 @@ def get_base_directory():
 
 
 class WebserverConfiguration(Model):
-    address = StringType(default="127.0.0.1")
-    port = IntType(default=8000)
+    address = StringType(default="0.0.0.0")
+    port = IntType(default=80)
     default_index = StringType(required=False, default="main-stable")
     support_legacy_uris = BooleanType(default=False, required=True)
 
 
 class RPCServerConfiguration(Model):
     address = StringType(default="127.0.0.1")
-    port = IntType(default=8001)
+    port = IntType(default=90)
 
 
 class FtpServerConfiguration(Model):
-    address = StringType(default="127.0.0.1")
-    port = IntType(default=8002)
+    address = StringType(default="0.0.0.0")
+    port = IntType(default=21)
     username = StringType(default="app_repo")
     password = StringType(default="app_repo")
     masquerade_address = StringType(required=False, default=None)
@@ -79,8 +79,8 @@ class Configuration(Model, PropertyMixin):
 
     base_directory = StringType(default=get_base_directory())
     logging_level = IntType(default=logging.DEBUG)
-    development_mode = BooleanType(default=True)
-    production_mode = BooleanType(default=False)
+    development_mode = BooleanType(default=False)
+    production_mode = BooleanType(default=True)
     indexes = ListType(StringType(), required=True, default=['main-stable', 'main-unstable'])
 
     @classmethod
@@ -128,20 +128,24 @@ class Configuration(Model, PropertyMixin):
         with fopen(self.filepath, 'w') as fd:
             fd.write(self.to_json())
 
-    def reset_to_development_defaults(self):
-        self.webserver.address, self.webserver.port = WebserverConfiguration.address.default, WebserverConfiguration.port.default
-        self.rpcserver.address, self.rpcserver.port = RPCServerConfiguration.address.default, RPCServerConfiguration.port.default
-        self.ftpserver.address, self.ftpserver.port = FtpServerConfiguration.address.default, FtpServerConfiguration.port.default
-        self.production_mode = False
-        self.development_mode = True
-        self.to_disk()
+    def _reset_configuration(self):
+        """Private method to reset Configuration instance to default values"""
+        configuration_fields_to_reset = self.keys()
+        configuration_fields_to_reset.remove('filepath')
+        for field in configuration_fields_to_reset:
+            self._data[field] = Configuration()._data[field]
 
     def reset_to_production_defaults(self):
-        self.webserver.address, self.webserver.port = "0.0.0.0", 80
-        self.rpcserver.address, self.rpcserver.port = "127.0.0.1", 90
-        self.ftpserver.address, self.ftpserver.port = "0.0.0.0", 21
-        self.production_mode = True
-        self.development_mode = False
+        self._reset_configuration()
+        self.to_disk()
+
+    def reset_to_development_defaults(self):
+        self._reset_configuration()
+        self.webserver.address, self.webserver.port = "127.0.0.1", 8000
+        self.rpcserver.address, self.rpcserver.port = "127.0.0.1", 8001
+        self.ftpserver.address, self.ftpserver.port = "127.0.0.1", 8002
+        self.production_mode = False
+        self.development_mode = True
         self.to_disk()
 
     def get_indexers(self, index_name):

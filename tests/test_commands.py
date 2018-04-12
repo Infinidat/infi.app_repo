@@ -26,7 +26,7 @@ class CommandTestCase(TemporaryBaseDirectoryTestCase):
 
     def setUp(self):
         super(CommandTestCase, self).setUp()
-        self.config = Configuration.from_disk(None)
+        self.config = self._get_config_for_test()
         self._test_function = functools.partial(delete_packages, self.config, 'TEST_PKG_*',
                                                 'main-stable', None, None, None)
 

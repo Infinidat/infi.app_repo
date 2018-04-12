@@ -32,7 +32,7 @@ class ServiceTestCase(TestCase):
 class RpcTestCase(TestCase):
     def test_reload_configuration_from_disk(self):
         with self.temporary_base_directory_context():
-            config = Configuration.from_disk(None)
+            config = self._get_config_for_test()
             config.to_disk()
             with self.rpc_server_context(config):
                 client = service.get_client(config)

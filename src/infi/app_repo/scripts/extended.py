@@ -3,8 +3,8 @@
 Usage:
     eapp_repo [options] counters show
     eapp_repo [options] config show
-    eapp_repo [options] config apply (production-defaults | development-defaults)
-    eapp_repo [options] setup (production-defaults | development-defaults) [--with-mock] [--with-legacy] [--force-resignature]
+    eapp_repo [options] config reset [--development]
+    eapp_repo [options] setup [--development] [--with-mock] [--with-legacy] [--force-resignature]
     eapp_repo [options] destroy [--yes]
     eapp_repo [options] ftp-server [--signal-upstart] [--process-incoming-on-startup]
     eapp_repo [options] web-server [--signal-upstart]
@@ -116,12 +116,11 @@ def eapp_repo(argv=argv[1:]):
         return show_counters(config)
     elif args['config'] and args['show']:
         print config.to_json()
-    elif args['config'] and args['apply']:
-        config.reset_to_development_defaults() if args['development-defaults'] else None
-        config.reset_to_production_defaults() if args['production-defaults'] else None
+    elif args['config'] and args['reset']:
+        config.reset_to_development_defaults() if args['--development'] else config.reset_to_production_defaults()
     elif args['setup']:
-        config.reset_to_development_defaults() if args['development-defaults'] else None
-        config.reset_to_production_defaults() if args['production-defaults'] else None
+        if args['--development']:
+            config.reset_to_development_defaults() if args['development-defaults'] else None
         if args['--with-legacy']:
             config.webserver.support_legacy_uris = True
             config.to_disk()

@@ -9,7 +9,7 @@ from StringIO import StringIO
 class FtpServerTestCase(TemporaryBaseDirectoryTestCase):
     def setUp(self):
         super(FtpServerTestCase, self).setUp()
-        self.config = Configuration.from_disk(None)
+        self.config = self._get_config_for_test()
         ensure_directory_exists(self.config.incoming_directory)
         self.test_succeded = False
 
@@ -44,7 +44,7 @@ class FtpWithRpcTestCase(TemporaryBaseDirectoryTestCase):
     def setUp(self):
         from gevent.event import Event
         super(FtpWithRpcTestCase, self).setUp()
-        self.config = Configuration.from_disk(None)
+        self.config = self._get_config_for_test()
         ensure_directory_exists(path.join(self.config.incoming_directory, 'main-stable'))
         self.test_succeded = Event()
 

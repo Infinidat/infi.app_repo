@@ -18,7 +18,7 @@ class ShellTestCase(TestCase):
     @contextmanager
     def server_context(self):
         with self.temporary_base_directory_context():
-            config = Configuration.from_disk(None)
+            config = self._get_config_for_test()
             setup_all(config)
             with self.ftp_server_context(config), self.rpc_server_context(config), self.web_server_context(config):
                 sleep(1)
