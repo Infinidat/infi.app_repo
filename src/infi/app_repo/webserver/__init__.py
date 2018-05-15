@@ -29,7 +29,7 @@ class FlaskApp(flask.Flask):
         return self
 
     def _register_blueprints(self):
-        from flask.ext.autoindex import AutoIndex
+        from flask_autoindex import AutoIndex
 
         def _directory_index():
             packages = flask.Blueprint("packages", __name__)
@@ -73,7 +73,7 @@ class FlaskApp(flask.Flask):
         self.after_request(_func)
 
     def _register_legacy(self):
-        from flask.ext.autoindex import AutoIndex
+        from flask_autoindex import AutoIndex
 
         def _deb():
             deb = flask.Blueprint("deb", __name__)
@@ -180,7 +180,7 @@ def start(config):
     from gevent.wsgi import WSGIServer
     from werkzeug.contrib.fixers import ProxyFix
     from werkzeug.debug import DebuggedApplication
-    from flask.ext.cors import CORS
+    from flask_cors import CORS
     from os import getpid
 
     app = FlaskApp.from_config(config)

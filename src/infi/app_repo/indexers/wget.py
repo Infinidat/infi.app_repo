@@ -212,12 +212,15 @@ class PrettyIndexer(Indexer):
                                                            install=dict(download_link=distribution['filepath']))
 
             if platform == 'vmware' and distribution['extension'] == 'ova':
-                requires_setup = True
-                installation_instructions[platform] = dict(installable=True,
-                                                           upgrade=dict(download_link=distribution['filepath'],
-                                                                        notes=["Upgrade the appliance through vCenter by using the VMware Update Manager Plug-in",
-                                                                               "Or by the management interface on HTTPS port 5480. Consult with the User Guide for more information."]),
-                                                           install=dict(download_link=distribution['filepath']))
+                instructions = dict(installable=True,
+                                    install=dict(download_link=distribution['filepath']))
+                installation_instructions.setdefault(platform, dict()).update(instructions)
+
+            if platform == 'vmware' and distribution['extension'] == 'iso':
+                instructions = dict(upgrade=dict(download_link=distribution['filepath'],
+                                                 notes=["Upgrade the appliance through vCenter by using the VMware Update Manager Plug-in",
+                                                        "Or by the management interface on HTTPS port 5480. Consult with the User Guide for more information."]))
+                installation_instructions.setdefault(platform, dict()).update(instructions)
 
             if 'solaris' == platform and distribution['extension'] == 'pkg.gz':
                 requires_setup = True

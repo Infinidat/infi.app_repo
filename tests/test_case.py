@@ -1,6 +1,7 @@
 from infi import unittest
 from infi.pyutils.contexts import contextmanager
 from infi.app_repo.utils import path, fopen
+from infi.app_repo.config import Configuration
 from mock import patch
 from logging import getLogger
 from logbook.concurrency import enable_gevent
@@ -94,6 +95,12 @@ class TestCase(unittest.TestCase):
             pass
         logger.debug("write_new_package_in_incoming_directory %s" % filepath)
         return filepath
+
+    def _get_config_for_test(self):
+        """Private method for testing- returns Configuration for testing purposes"""
+        config = Configuration.from_disk(None)
+        config.reset_to_development_defaults()
+        return config
 
 
 class TemporaryBaseDirectoryTestCase(TestCase):

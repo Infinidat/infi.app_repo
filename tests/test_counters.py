@@ -10,7 +10,7 @@ from gevent import sleep
 class CountersTestCase(TestCase):
     def test_counters_from_web_and_ftp_servers(self):
         with patch_all(), self.temporary_base_directory_context():
-            config = Configuration.from_disk(None)
+            config = self._get_config_for_test()
             setup_all(config)
             with self.web_server_context(config), self.ftp_server_context(config):
                 self._get_from_http(config, "/packages/main-stable/index/packages.json")

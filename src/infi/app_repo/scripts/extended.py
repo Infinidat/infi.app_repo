@@ -3,8 +3,8 @@
 Usage:
     eapp_repo [options] counters show
     eapp_repo [options] config show
-    eapp_repo [options] config apply (production-defaults | development-defaults)
-    eapp_repo [options] setup (production-defaults | development-defaults) [--with-mock] [--with-legacy] [--force-resignature]
+    eapp_repo [options] config reset [--development]
+    eapp_repo [options] setup [--development] [--with-mock] [--with-legacy] [--force-resignature]
     eapp_repo [options] destroy [--yes]
     eapp_repo [options] ftp-server [--signal-upstart] [--process-incoming-on-startup]
     eapp_repo [options] web-server [--signal-upstart]
@@ -22,7 +22,7 @@ Usage:
     eapp_repo [options] package remote-list <remote-server> <remote-index>
     eapp_repo [options] package pull <remote-server> <remote-index> <package> [<version> [<platform> [<arch>]]]
     eapp_repo [options] package push <remote-server> <remote-index> <package> [<version> [<platform> [<arch>]]]
-    eapp_repo [options] package delete <regex> <index> [<index-type>] [(--dry-run | --yes)]
+    eapp_repo [options] package delete <regex> <index> [<index-type>] [(--dry-run | --yes)] [--no-rebuild]
     eapp_repo [options] package cleanup <index> [(--dry-run | --yes)] [--days=DAYS]
 
 Options:
@@ -42,7 +42,7 @@ from infi.pyutils.decorators import wraps
 from logging import getLogger
 
 logger = getLogger(__name__)
-_bypass_console_script_logging = True # we want to use the functions in this module in the tests but without the logging stuff
+_bypass_console_script_logging = True  # we want to use the functions in this module in the tests but without the logging stuff
 
 
 @contextmanager
@@ -80,7 +80,7 @@ def console_script(func=None, name=None):
 
             enable_gevent()
             filename = '/tmp/{}.log'.format(name if name else f.__name__)
-            with script_logging_context(logfile_path=filename, logfile_max_size=20*1024*1024), traceback_context(), exception_handling_context():
+            with script_logging_context(logfile_path=filename, logfile_max_size=20 * 1024 * 1024), traceback_context(), exception_handling_context():
                 logbook.set_datetime_format("local")
                 logger.info("Calling {}".format(f.__name__))
                 result = f(*args, **kwargs)
@@ -107,6 +107,7 @@ def bypass_console_script_logging():
 
 
 def eapp_repo(argv=argv[1:]):
+    from infi.logging.wrappers import script_logging_context
     bypass_console_script_logging()
     args = docopt(__doc__, argv)
     config = get_config(args)
@@ -115,12 +116,11 @@ def eapp_repo(argv=argv[1:]):
         return show_counters(config)
     elif args['config'] and args['show']:
         print config.to_json()
-    elif args['config'] and args['apply']:
-        config.reset_to_development_defaults() if args['development-defaults'] else None
-        config.reset_to_production_defaults() if args['production-defaults'] else None
+    elif args['config'] and args['reset']:
+        config.reset_to_development_defaults() if args['--development'] else config.reset_to_production_defaults()
     elif args['setup']:
-        config.reset_to_development_defaults() if args['development-defaults'] else None
-        config.reset_to_production_defaults() if args['production-defaults'] else None
+        if args['--development']:
+            config.reset_to_development_defaults() if args['development-defaults'] else None
         if args['--with-legacy']:
             config.webserver.support_legacy_uris = True
             config.to_disk()
@@ -176,8 +176,9 @@ def eapp_repo(argv=argv[1:]):
         return push_packages(config, args['--index'], args['<remote-server>'], args['<remote-index>'],
                              args.get('<package>'), args.get('<version>'), args.get('<platform>'), args.get('<arch>'))
     elif args['package'] and args['delete']:
-        return delete_packages(config, build_regex_predicate(args['<regex>']), args['<index>'], args['<index-type>'],
-                               args['--dry-run'], args['--yes'])
+        with script_logging_context(syslog=False, logfile=False, stderr=True):
+            return delete_packages(config, build_regex_predicate(args['<regex>']), args['<index>'], args['<index-type>'],
+                                   args['--dry-run'], args['--yes'], args['--no-rebuild'], args['--async'])
     elif args['package'] and args['cleanup']:
         return delete_old_packages(config, args['<index>'], args['--dry-run'], args['--yes'], int(args['--days']))
 
@@ -336,28 +337,29 @@ def build_regex_predicate(pattern):
     return lambda filepath: re.compile(pattern).match(path.basename(filepath))
 
 
-def delete_packages(config, should_delete, index, index_type, dry_run, quiet):
-    from infi.logging.wrappers import script_logging_context
+def delete_packages(config, should_delete, index, index_type, dry_run, quiet, no_rebuild, async_rpc=False):
     from infi.gevent_utils.os import path
     from infi.app_repo.service import get_client
     client = get_client(config)
     show_warning = False
-    with script_logging_context(syslog=False, logfile=False, stderr=True):
-        artifacts = client.get_artifacts(index, index_type)
-        files_to_remove = [filepath for filepath in artifacts if should_delete(filepath)]
-        for filepath in files_to_remove:
-            filepath_relative = path.relpath(filepath, config.base_directory)
-            if dry_run:
-                logger.info("[dry-run] deleting {}".format(filepath_relative))
+    artifacts = client.get_artifacts(index, index_type)
+    files_to_remove = [filepath for filepath in artifacts if should_delete(filepath)]
+    for filepath in files_to_remove:
+        filepath_relative = path.relpath(filepath, config.base_directory)
+        if dry_run:
+            logger.info("[dry-run] deleting {}".format(filepath_relative))
+            continue
+        if not quiet:
+            if not raw_input('delete {} [y/N]? '.format(filepath_relative)).lower() in ('y', 'yes'):
                 continue
-            if not quiet:
-                if not raw_input('delete {} [y/N]? '.format(filepath_relative)).lower() in ('y', 'yes'):
-                    continue
-            logger.info("deleting {} ".format(filepath_relative))
-            show_warning = True
-            client.delete_artifact(filepath)
+        logger.info("deleting {} ".format(filepath_relative))
+        show_warning = True
+        client.delete_artifact(filepath)
+    if no_rebuild:
         if show_warning:
             logger.warn("do not forget to rebuild the index(es) after deleting all the packages that you wanted to delete")
+    else:
+        rebuild_index(config, index, index_type, async_rpc)
 
 
 def resign_packages(config, async_rpc=False):

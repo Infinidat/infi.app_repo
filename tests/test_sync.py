@@ -13,7 +13,7 @@ class SyncTestCase(TestCase):
     @contextmanager
     def source_context(self):
         with self.temporary_base_directory_context():
-            config = Configuration.from_disk(None)
+            config = self._get_config_for_test()
             setup_all(config)
             with self.ftp_server_context(config), self.rpc_server_context(config), self.web_server_context(config):
                 yield config
@@ -21,7 +21,7 @@ class SyncTestCase(TestCase):
     @contextmanager
     def target_context(self):
         with self.temporary_base_directory_context():
-            config = Configuration.from_disk(None)
+            config = self._get_config_for_test()
             config.ftpserver.port += 10
             config.webserver.port += 10
             config.rpcserver.port += 10
