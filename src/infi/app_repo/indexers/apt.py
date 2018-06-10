@@ -11,7 +11,7 @@ KNOWN_DISTRIBUTIONS = {
     'linux-ubuntu': {
         'trusty': ('i386', 'amd64'),
         'xenial': ('i386', 'amd64'),
-        'bionic': ('i386', 'amd64'),
+        'bionic': ('amd64', ),
     }
 }
 
