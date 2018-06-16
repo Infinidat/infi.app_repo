@@ -206,7 +206,7 @@ class PrettyIndexer(Indexer):
                                                            install=dict(command=ZYPPER_INSTALL_COMMAND.format(package['name'])))
 
             if distribution['platform'] == 'windows' and distribution['extension'] == 'msi':
-                requires_setup = True
+                requires_setup = False
                 installation_instructions[platform] = dict(installable=True,
                                                            upgrade=dict(download_link=distribution['filepath']),
                                                            install=dict(download_link=distribution['filepath']))
