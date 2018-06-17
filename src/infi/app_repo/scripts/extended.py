@@ -355,7 +355,7 @@ def delete_packages(config, should_delete, index, index_type, dry_run, quiet, no
         logger.info("deleting {} ".format(filepath_relative))
         show_warning = True
         client.delete_artifact(filepath)
-    if no_rebuild:
+    if no_rebuild or dry_run:  # passing --dry-run implies --no-rebuild
         if show_warning:
             logger.warn("do not forget to rebuild the index(es) after deleting all the packages that you wanted to delete")
     else:
