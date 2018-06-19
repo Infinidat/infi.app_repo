@@ -28,23 +28,42 @@ class CommandTestCase(TemporaryBaseDirectoryTestCase):
         super(CommandTestCase, self).setUp()
         self.config = self._get_config_for_test()
         self._test_function = functools.partial(delete_packages, self.config, 'TEST_PKG_*',
-                                                'main-stable', None, None, None)
+                                                'main-stable', None)
 
     def test_package_deletion_no_rebuild(self):
         error_message = 'rebuild_index method for indexer {} should not have been called, called {} times'
         with self.temporary_base_directory_context(), self.rpc_server_context(self.config):
             with patch_all_and_patch_relevant_indexes() as mega_patch:
-                self._test_function(no_rebuild=True)
+                self._test_function(None, None, no_rebuild=True)
                 for indexer, patched_rebuild_method in mega_patch.iteritems():
                     self.assertFalse(patched_rebuild_method.called,
                                      error_message.format(indexer, patched_rebuild_method.call_count))
 
-    def test_package_deletion_with_rebuild(self):
-        error_message = 'rebuild_index method for indexer {} should have been called'
+    def test_package_deletion_no_rebuild_with_dry_run(self):
+        error_message = 'rebuild_index method for indexer {} should not have been called, called {} times'
+        with self.temporary_base_directory_context(), self.rpc_server_context(self.config):
+            with patch_all_and_patch_relevant_indexes() as mega_patch:
+                self._test_function(True, None, no_rebuild=None)
+                for indexer, patched_rebuild_method in mega_patch.iteritems():
+                    self.assertFalse(patched_rebuild_method.called,
+                                     error_message.format(indexer, patched_rebuild_method.call_count))
+
+    def test_package_deletion_no_rebuild_when_nothing_to_delete(self):
+        error_message = 'rebuild_index method for indexer {} should not have been called, called {} times'
         with self.temporary_base_directory_context(), self.rpc_server_context(self.config):
             with patch_all_and_patch_relevant_indexes() as mega_patch:
                 ensure_directories_for_indexers(self.config)
-                self._test_function(no_rebuild=None)
+                self._test_function(None, None, no_rebuild=None)
                 for indexer, patched_rebuild_method in mega_patch.iteritems():
-                    self.assertTrue(patched_rebuild_method.called,
-                                    error_message.format(indexer))
+                    self.assertFalse(patched_rebuild_method.called,
+                                     error_message.format(indexer, patched_rebuild_method.call_count))
+
+    # def test_package_deletion_with_rebuild(self):
+    #     error_message = 'rebuild_index method for indexer {} should have been called'
+    #     with self.temporary_base_directory_context(), self.rpc_server_context(self.config):
+    #         with patch_all_and_patch_relevant_indexes() as mega_patch:
+    #             ensure_directories_for_indexers(self.config)
+    #             self._test_function(None, None, no_rebuild=None)
+    #             for indexer, patched_rebuild_method in mega_patch.iteritems():
+    #                 self.assertTrue(patched_rebuild_method.called,
+    #                                 error_message.format(indexer))
