@@ -356,11 +356,11 @@ def delete_packages(config, should_delete, index, index_type, dry_run, quiet, no
         files_were_deleted = True
         client.delete_artifact(filepath)
     # not rebuilding index if nothing was deleted
-    if no_rebuild or not files_were_deleted:
-        if files_were_deleted:
+    if files_were_deleted:
+        if no_rebuild:
             logger.warn("do not forget to rebuild the index(es) after deleting all the packages that you wanted to delete")
-    else:
-        rebuild_index(config, index, index_type, async_rpc)
+        else:
+            rebuild_index(config, index, index_type, async_rpc)
 
 
 def resign_packages(config, async_rpc=False):
