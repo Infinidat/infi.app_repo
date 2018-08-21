@@ -1,6 +1,6 @@
 from logbook import Logger
 from infi.logging.plugins.request_id_tag import set_random_tag
-from gevent.wsgi import WSGIHandler
+from gevent.pywsgi import WSGIHandler
 
 
 logger = Logger(__name__)

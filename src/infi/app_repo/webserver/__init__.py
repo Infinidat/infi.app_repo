@@ -177,7 +177,7 @@ def default_homepage():
 
 def start(config):
     from .wsgi import DummyWSGILogger, WSGIHandlerWithWorkarounds
-    from gevent.wsgi import WSGIServer
+    from gevent.pywsgi import WSGIServer
     from werkzeug.contrib.fixers import ProxyFix
     from werkzeug.debug import DebuggedApplication
     from flask_cors import CORS

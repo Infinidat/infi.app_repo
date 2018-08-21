@@ -17,7 +17,7 @@ APT_INSTALL_COMMAND = 'sudo apt-get install -y {0}'
 APT_UGPRADE_COMMAND = 'sudo apt-get update; sudo apt-get install -y {0}'
 
 ZYPPER_INSTALL_COMMAND = 'sudo zypper install -n {0}'
-ZYPPER_UGPRADE_COMMAND = 'sudo zypper refresh; sudo zypper update -n {0}'
+ZYPPER_UGPRADE_COMMAND = 'sudo zypper refresh; sudo zypper update {0}'
 
 PIP_INSTALL_COMMAND = 'sudo pip install --trusted-host /// --extra-index-url ///packages/{0}/pypi {1}'
 PIP_UGPRADE_COMMAND = 'sudo pip install --upgrade --trusted-host /// --extra-index-url ///packages/{0}/pypi {1}'
@@ -206,7 +206,7 @@ class PrettyIndexer(Indexer):
                                                            install=dict(command=ZYPPER_INSTALL_COMMAND.format(package['name'])))
 
             if distribution['platform'] == 'windows' and distribution['extension'] == 'msi':
-                requires_setup = True
+                requires_setup = False
                 installation_instructions[platform] = dict(installable=True,
                                                            upgrade=dict(download_link=distribution['filepath']),
                                                            install=dict(download_link=distribution['filepath']))

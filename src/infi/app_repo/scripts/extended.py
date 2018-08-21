@@ -341,7 +341,7 @@ def delete_packages(config, should_delete, index, index_type, dry_run, quiet, no
     from infi.gevent_utils.os import path
     from infi.app_repo.service import get_client
     client = get_client(config)
-    show_warning = False
+    files_were_deleted = False
     artifacts = client.get_artifacts(index, index_type)
     files_to_remove = [filepath for filepath in artifacts if should_delete(filepath)]
     for filepath in files_to_remove:
@@ -353,13 +353,14 @@ def delete_packages(config, should_delete, index, index_type, dry_run, quiet, no
             if not raw_input('delete {} [y/N]? '.format(filepath_relative)).lower() in ('y', 'yes'):
                 continue
         logger.info("deleting {} ".format(filepath_relative))
-        show_warning = True
+        files_were_deleted = True
         client.delete_artifact(filepath)
-    if no_rebuild:
-        if show_warning:
+    # not rebuilding index if nothing was deleted
+    if files_were_deleted:
+        if no_rebuild:
             logger.warn("do not forget to rebuild the index(es) after deleting all the packages that you wanted to delete")
-    else:
-        rebuild_index(config, index, index_type, async_rpc)
+        else:
+            rebuild_index(config, index, index_type, async_rpc)
 
 
 def resign_packages(config, async_rpc=False):
