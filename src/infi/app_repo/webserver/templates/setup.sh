@@ -45,8 +45,8 @@ _zypper() {
     rpm --import /tmp/$name.gpg.key  > /dev/null 2>&1
 
     echo Setting up...
-    zypper sd $name > /dev/null 2>&1
-    zypper sa -t YUM $url $name > /dev/null 2>&1
+    zypper rr $name > /dev/null 2>&1
+    zypper ar -t YUM $url $name > /dev/null 2>&1
 
     echo Fetching package metadata...
     zypper refresh {{ host }}.{{ index_name }} > /dev/null 2>&1
