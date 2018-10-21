@@ -58,7 +58,7 @@
                 <a href="{{ instructions.download_link }}">Download</a> the executable and run it.
             {% endif %}
         {% else %}
-            {{ instructions }}
+            {{ instructions|safe }}
         {% endif %}
     {% endif %}
 {% endmacro %}
