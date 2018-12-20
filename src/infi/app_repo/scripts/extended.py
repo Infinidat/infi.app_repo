@@ -120,7 +120,7 @@ def eapp_repo(argv=argv[1:]):
         config.reset_to_development_defaults() if args['--development'] else config.reset_to_production_defaults()
     elif args['setup']:
         if args['--development']:
-            config.reset_to_development_defaults() if args['development-defaults'] else None
+            config.reset_to_development_defaults()
         if args['--with-legacy']:
             config.webserver.support_legacy_uris = True
             config.to_disk()

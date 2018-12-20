@@ -13,14 +13,14 @@
         <div class="tab-pane fade" id="{{ package.name }}-{{platform}}">
     {% endif %}
     <h3>Instructions for {{ platform_name(platform) }}</h3>
-    {% if platform in ("redhat", "oracle", "centos", "ubuntu", "suse") and package.requires_setup %}
+    {% if platform in ("redhat", "oracle", "centos", "ubuntu", "suse") and value.requires_setup %}
         <h4>Setup (first time only)</h4>
         <div class="copylink">
             <input class="cmd" value="curl -s {{ setup_url }} | sudo sh -" readonly="readonly">
             <i class="glyphicon glyphicon-copy" data-toggle="tooltip" data-placement="bottom" title="Copy to Clipboard"></i>
         </div>
     {% endif %}
-    {% if platform == "aix" %}
+    {% if platform == "aix" and value.requires_setup %}
         <h4>Setup (first time only)</h4><a href="http://www.perzl.org/aix/index.php?n=main.curl" target="_blank">Download and install curl</a>
     {% endif %}
     {% if value.install %}
@@ -58,7 +58,7 @@
                 <a href="{{ instructions.download_link }}">Download</a> the executable and run it.
             {% endif %}
         {% else %}
-            {{ instructions }}
+            {{ instructions|safe }}
         {% endif %}
     {% endif %}
 {% endmacro %}

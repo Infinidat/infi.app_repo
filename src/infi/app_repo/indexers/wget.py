@@ -180,7 +180,6 @@ class PrettyIndexer(Indexer):
 
     def _get_installation_instructions(self, package, release):
         installation_instructions = {}
-        requires_setup = False
         platforms = {self._get_pretty_platform_name(distribution) for distribution in release['distributions']}
         platforms.discard(None)
 
@@ -188,63 +187,72 @@ class PrettyIndexer(Indexer):
             platform = self._get_pretty_platform_name(distribution)
 
             if platform in ('redhat', 'centos', 'oracle') and distribution['extension'] == 'rpm':
-                requires_setup = True
-                installation_instructions[platform] = dict(installable=True,
+                installation_instructions[platform] = dict(requires_setup=True,
+                                                           installable=True,
                                                            upgrade=dict(command=YUM_UPGRADE_COMMAND.format(package['name'])),
                                                            install=dict(command=YUM_INSTALL_COMMAND.format(package['name'])))
 
             if platform in ('ubuntu', ) and distribution['extension'] == 'deb':
-                requires_setup = True
-                installation_instructions[platform] = dict(installable=True,
+                installation_instructions[platform] = dict(requires_setup=True,
+                                                           installable=True,
                                                            upgrade=dict(command=APT_UGPRADE_COMMAND.format(package['name'])),
                                                            install=dict(command=APT_INSTALL_COMMAND.format(package['name'])))
 
             if platform in ('suse', ) and distribution['extension'] == 'rpm':
-                requires_setup = True
-                installation_instructions[platform] = dict(installable=True,
+                installation_instructions[platform] = dict(requires_setup=True,
+                                                           installable=True,
                                                            upgrade=dict(command=ZYPPER_UGPRADE_COMMAND.format(package['name'])),
                                                            install=dict(command=ZYPPER_INSTALL_COMMAND.format(package['name'])))
 
             if distribution['platform'] == 'windows' and distribution['extension'] == 'msi':
-                requires_setup = False
-                installation_instructions[platform] = dict(installable=True,
+                installation_instructions[platform] = dict(requires_setup=False,
+                                                           installable=True,
                                                            upgrade=dict(download_link=distribution['filepath']),
                                                            install=dict(download_link=distribution['filepath']))
 
             if platform == 'vmware' and distribution['extension'] == 'ova':
                 instructions = dict(installable=True,
+                                    requires_setup=False,
                                     install=dict(download_link=distribution['filepath']))
                 installation_instructions.setdefault(platform, dict()).update(instructions)
 
             if platform == 'vmware' and distribution['extension'] == 'iso':
-                instructions = dict(upgrade=dict(download_link=distribution['filepath'],
+                instructions = dict(requires_setup=False,
+                                    upgrade=dict(download_link=distribution['filepath'],
                                                  notes=["Upgrade the appliance through vCenter by using the VMware Update Manager Plug-in",
                                                         "Or by the management interface on HTTPS port 5480. Consult with the User Guide for more information."]))
                 installation_instructions.setdefault(platform, dict()).update(instructions)
 
             if 'solaris' == platform and distribution['extension'] == 'pkg.gz':
-                requires_setup = True
                 command = SOLARIS_MANUAL_COMMAND.format(self.index_name, package['name'])
-                installation_instructions[platform] = dict(installable=True, upgrade=dict(command=command), install=dict(command=command))
+                installation_instructions[platform] = dict(requires_setup=True,
+                                                           installable=True,
+                                                           upgrade=dict(command=command),
+                                                           install=dict(command=command))
 
             if 'aix' == platform and distribution['extension'] == 'rpm':
-                requires_setup = True
                 command = MANUAL_COMMAND.format(self.index_name, package['name']).replace("sudo", "su root -c")
-                installation_instructions[platform] = dict(installable=True, upgrade=dict(command=command), install=dict(command=command))
+                installation_instructions[platform] = dict(requires_setup=True,
+                                                           installable=True,
+                                                           upgrade=dict(command=command), install=dict(command=command))
 
             if platform == 'python' and distribution['architecture'] == 'sdist':
-                    requires_setup = True
                     install = PIP_INSTALL_COMMAND.format(self.index_name, package['name'])
                     upgrade = PIP_UGPRADE_COMMAND.format(self.index_name, package['name'])
-                    installation_instructions[platform] = dict(installable=True, upgrade=dict(command=upgrade), install=dict(command=install))
+                    installation_instructions[platform] = dict(requires_setup=True,
+                                                               installable=True,
+                                                               upgrade=dict(command=upgrade),
+                                                               install=dict(command=install))
 
             if platform == 'python-docs' and distribution['architecture'] == 'docs':
-                installation_instructions[platform] = dict(installable=False,
+                installation_instructions[platform] = dict(requires_setup=False,
+                                                           installable=False,
                                                            upgrade=dict(download_link=distribution['filepath']),
                                                            install=dict(download_link=distribution['filepath']))
 
             if distribution['extension'] == 'exe':
-                installation_instructions[platform] = dict(installable=False,
+                installation_instructions[platform] = dict(requires_setup=False,
+                                                           installable=False,
                                                            upgrade=dict(download_link=distribution['filepath']),
                                                            install=dict(download_link=distribution['filepath']))
 
@@ -254,9 +262,11 @@ class PrettyIndexer(Indexer):
                 new_instruction = custom_instructions.get(platform, dict()).get(instruction)
                 if isinstance(new_instruction, basestring):
                     installation_instructions.setdefault(platform, dict())[instruction] = new_instruction
-            custom_installable = custom_instructions.get(platform, dict()).get('installable')
-            installation_instructions.get(platform, dict())['installable'] = custom_installable or installation_instructions.get(platform, dict()).get('installable')
-        return installation_instructions, requires_setup
+            for instruction in ('installable', 'requires_setup'):
+                new_instruction = custom_instructions.get(platform, dict()).get(instruction)
+                if isinstance(new_instruction, bool):
+                    installation_instructions.setdefault(platform, dict())[instruction] = new_instruction
+        return installation_instructions
 
     def iter_files(self):
         for package in self._iter_packages():
@@ -281,7 +291,7 @@ class PrettyIndexer(Indexer):
             if latest_release:
                 package['latest_version'] = latest_release['version']
                 package['latest_version_release_date'] = latest_release['release_date']
-                package['installation_instructions'], package['requires_setup'] = self._get_installation_instructions(package, latest_release)
+                package['installation_instructions'] = self._get_installation_instructions(package, latest_release)
 
                 packages.append(package)
                 write_file(latest_release_txt, latest_release['version'])
