@@ -53,21 +53,21 @@ _zypper() {
 }
 
 # suse
-if [ -f /etc/SuSE-release ]
+if test -f /etc/SuSE-release || (test -f /etc/os-release && grep -Fq suse /etc/os-release)
 then
     _zypper
     exit 0
 fi
 
 # debian-based
-if [ -f /etc/debian_version ]
+if test -f /etc/debian_version
 then
     _apt
     exit 0
 fi
 
 # redhat-based
-if [ -f /etc/redhat-release -o -f /etc/centos-release ]
+if test -f /etc/redhat-release || test -f /etc/centos-release
 then
     _yum
     exit 0
