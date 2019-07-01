@@ -180,7 +180,8 @@ def eapp_repo(argv=argv[1:]):
             return delete_packages(config, build_regex_predicate(args['<regex>']), args['<index>'], args['<index-type>'],
                                    args['--dry-run'], args['--yes'], args['--no-rebuild'], args['--async'])
     elif args['package'] and args['cleanup']:
-        return delete_old_packages(config, args['<index>'], args['--dry-run'], args['--yes'], int(args['--days']))
+        with script_logging_context(syslog=False, logfile=False, stderr=True):
+            return delete_old_packages(config, args['<index>'], args['--dry-run'], args['--yes'], int(args['--days']))
 
 
 def get_config(args):
