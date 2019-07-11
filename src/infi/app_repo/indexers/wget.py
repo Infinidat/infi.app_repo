@@ -177,6 +177,8 @@ class PrettyIndexer(Indexer):
             if distribution['architecture'] == 'docs':
                 return 'python-docs'
             return 'python'
+        if distribution['platform'] == 'docker':
+            return 'docker'
 
     def _get_installation_instructions(self, package, release):
         installation_instructions = {}
