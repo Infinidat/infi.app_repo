@@ -258,6 +258,11 @@ class PrettyIndexer(Indexer):
                                                            upgrade=dict(download_link=distribution['filepath']),
                                                            install=dict(download_link=distribution['filepath']))
 
+            if platform == 'docker':
+                installation_instructions[platform] = dict(requires_setup=False,
+                                                           installable=False,
+                                                           install=dict(download_link=distribution['filepath']))
+
         custom_instructions = self._get_custom_installation_instructions(package)
         for platform in platforms.union(set(installation_instructions.keys())):
             for instruction in ('install', 'upgrade'):

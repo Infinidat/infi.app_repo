@@ -55,7 +55,21 @@
             {% if installable %}
                 <a href="{{ instructions.download_link }}">Download</a> the installer and run it.
             {% else %}
-                <a href="{{ instructions.download_link }}">Download</a> the executable and run it.
+                {% if platform == 'docker' %}
+                    <ul>
+                        <li>
+                            <a href="{{ instructions.download_link }}">Download</a> the tarball.
+                        </li>
+                        <li>
+                            <div class="copylink">
+                                <input class="cmd" value="docker import {{ instructions.download_link.split('/')[-1] }}" readonly="readonly">
+                                <i class="glyphicon glyphicon-copy" data-toggle="tooltip" data-placement="bottom" title="Copy to Clipboard"></i>
+                            </div>
+                        </li>
+                    </ul>
+                {% else%}
+                    <a href="{{ instructions.download_link }}">Download</a> the executable and run it.
+                {% endif %}
             {% endif %}
         {% else %}
             {{ instructions|safe }}
