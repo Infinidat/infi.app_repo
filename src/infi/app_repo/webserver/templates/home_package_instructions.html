@@ -64,6 +64,12 @@
                             <div class="copylink">
                                 <input class="cmd" value="docker import {{ instructions.download_link.split('/')[-1] }}" readonly="readonly">
                                 <i class="glyphicon glyphicon-copy" data-toggle="tooltip" data-placement="bottom" title="Copy to Clipboard"></i>
+                                {% if instructions.notes %}
+                                    <br>
+                                    {% for note in instructions.notes %}
+                                        {{ note }}<br>
+                                    {% endfor %}
+                                {% endif %}
                             </div>
                         </li>
                     </ul>
