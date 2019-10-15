@@ -177,6 +177,8 @@ class PrettyIndexer(Indexer):
             if distribution['architecture'] == 'docs':
                 return 'python-docs'
             return 'python'
+        if distribution['platform'] == 'docker':
+            return 'docker'
 
     def _get_installation_instructions(self, package, release):
         installation_instructions = {}
@@ -255,6 +257,12 @@ class PrettyIndexer(Indexer):
                                                            installable=False,
                                                            upgrade=dict(download_link=distribution['filepath']),
                                                            install=dict(download_link=distribution['filepath']))
+
+            if platform == 'docker':
+                installation_instructions[platform] = dict(requires_setup=False,
+                                                           installable=False,
+                                                           install=dict(download_link=distribution['filepath'],
+                                                                        notes=['Consult the documentation for instructions on how to run the container.']))
 
         custom_instructions = self._get_custom_installation_instructions(package)
         for platform in platforms.union(set(installation_instructions.keys())):

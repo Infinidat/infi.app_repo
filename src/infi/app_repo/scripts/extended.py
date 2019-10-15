@@ -180,7 +180,8 @@ def eapp_repo(argv=argv[1:]):
             return delete_packages(config, build_regex_predicate(args['<regex>']), args['<index>'], args['<index-type>'],
                                    args['--dry-run'], args['--yes'], args['--no-rebuild'], args['--async'])
     elif args['package'] and args['cleanup']:
-        return delete_old_packages(config, args['<index>'], args['--dry-run'], args['--yes'], int(args['--days']))
+        with script_logging_context(syslog=False, logfile=False, stderr=True):
+            return delete_old_packages(config, args['<index>'], args['--dry-run'], args['--yes'], int(args['--days']))
 
 
 def get_config(args):
@@ -337,7 +338,7 @@ def build_regex_predicate(pattern):
     return lambda filepath: re.compile(pattern).match(path.basename(filepath))
 
 
-def delete_packages(config, should_delete, index, index_type, dry_run, quiet, no_rebuild, async_rpc=False):
+def delete_packages(config, should_delete, index, index_type, dry_run, quiet, no_rebuild=False, async_rpc=False):
     from infi.gevent_utils.os import path
     from infi.app_repo.service import get_client
     client = get_client(config)
