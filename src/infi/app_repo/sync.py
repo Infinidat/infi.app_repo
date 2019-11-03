@@ -13,7 +13,7 @@ def get_local_packages_json(config, index):
 
 def get_remote_packages_json(remote, index):
     url = "http://{}:{}/packages/{}/index/packages.json".format(remote['address'], remote['http_port'], index)
-    return decode(execute_assert_success(["curl", url]).get_stdout())
+    return decode(execute_assert_success(["curl", url]).get_stdout().decode('utf-8'))
 
 
 def get_local_releases_for_package(config, package):
@@ -22,7 +22,7 @@ def get_local_releases_for_package(config, package):
 
 def get_remote_releases_for_package(remote, package):
     url = "http://{}:{}/{}".format(remote['address'], remote['http_port'], package['releases_uri'])
-    return decode(execute_assert_success(["curl", url]).get_stdout())
+    return decode(execute_assert_success(["curl", url]).get_stdout().decode('utf-8'))
 
 
 def _list_to_dict(lst, key='name'):
@@ -98,10 +98,10 @@ def pull_packages(config, local_index_name, remote_server, remote_index_name,
 
     we_have = get_local_versions_for_package(config, local_index_name, package_name)
     they_have = get_remote_versions_for_package(remote, remote_index_name, package_name)
-    those_missing = {key: value for key, value in they_have.iteritems() if key not in we_have}
+    those_missing = {key: value for key, value in list(they_have.items()) if key not in we_have}
 
     if specific_version in ('latest', 'current'):
-        specific_version = sorted(they_have.keys(), key=lambda version: parse_version(version))[-1]
+        specific_version = sorted(list(they_have.keys()), key=lambda version: parse_version(version))[-1]
     if specific_version in ('all', '*'):
         specific_version = None
 
@@ -110,7 +110,7 @@ def pull_packages(config, local_index_name, remote_server, remote_index_name,
                                  item not in we_have.get(specific_version, dict(distributions=[])).get('distributions', [])]
         those_needed = [dict(distributions=missing_distributions)]
     else:
-        those_needed = sorted(those_missing.values(), key=lambda item: item['version'])
+        those_needed = sorted(list(those_missing.values()), key=lambda item: item['version'])
 
     urls = [_normalize_remote_url(remote, uri) for
             uri in get_files_from_versions(those_needed, specific_platform, specific_arch)]
@@ -128,17 +128,17 @@ def push_packages(config, local_index_name, remote_server, remote_index_name,
 
     we_have = get_local_versions_for_package(config, local_index_name, package_name)
     they_have = get_remote_versions_for_package(remote, remote_index_name, package_name)
-    those_missing = {key: value for key, value in we_have.iteritems() if key not in they_have}
+    those_missing = {key: value for key, value in list(we_have.items()) if key not in they_have}
 
     if specific_version in ('latest', 'current'):
-        specific_version = sorted(we_have.keys(), key=lambda version: parse_version(version))[-1]
+        specific_version = sorted(list(we_have.keys()), key=lambda version: parse_version(version))[-1]
 
     if specific_version:
         missing_distributions = [item for item in we_have.get(specific_version, dict(distributions=[])).get('distributions', []) if
                                  item not in they_have.get(specific_version, dict(distributions=[])).get('distributions', [])]
         those_needed = [dict(distributions=missing_distributions)]
     else:
-        those_needed = sorted(those_missing.values(), key=lambda item: item['version'])
+        those_needed = sorted(list(those_missing.values()), key=lambda item: item['version'])
 
     urls = [_normlize_local_path(config, uri) for
             uri in get_files_from_versions(those_needed, specific_platform, specific_arch)]

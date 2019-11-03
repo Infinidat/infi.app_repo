@@ -51,10 +51,10 @@ def exception_handling_context():
     logger.info("Logging started")
     try:
         yield
-    except DocoptExit, e:
+    except DocoptExit as e:
         stderr.write(str(e) + "\n")
         logger.info("printed usage, exitting.")
-    except SystemExit, e:
+    except SystemExit as e:
         raise
     except:
         logger.exception("Caught exception")
@@ -115,7 +115,7 @@ def eapp_repo(argv=argv[1:]):
     if args['counters'] and args['show']:
         return show_counters(config)
     elif args['config'] and args['show']:
-        print config.to_json()
+        print((config.to_json()))
     elif args['config'] and args['reset']:
         config.reset_to_development_defaults() if args['--development'] else config.reset_to_production_defaults()
     elif args['setup']:
@@ -130,8 +130,8 @@ def eapp_repo(argv=argv[1:]):
             from infi.app_repo.install import destroy_all
             destroy_all(config)
         else:
-            print "This command will destroy the application repository"
-            print "If this is absolutely what you want, pass the --yes flag in the command-line.\nAborting."
+            print("This command will destroy the application repository")
+            print("If this is absolutely what you want, pass the --yes flag in the command-line.\nAborting.")
     elif args['web-server']:
         return web_server(config, args['--signal-upstart'])
     elif args['ftp-server']:
@@ -152,15 +152,15 @@ def eapp_repo(argv=argv[1:]):
     elif args['service'] and args['resign-packages']:
         return resign_packages(config, args['--async'])
     elif args['index'] and args['list']:
-        print ' '.join(config.indexes)
+        print((' '.join(config.indexes)))
     elif args['index'] and args['add']:
         return add_index(config, args['<index>'], args['--async'])
     elif args['index'] and args['remove']:
         if args['--yes']:
             return remove_index(config, args['<index>'], args['--async'])
         else:
-            print "This command will remove index \"{0}\" from the application repository".format(args['<index>'])
-            print "If this is absolutely what you want, pass the --yes flag in the command-line.\nAborting."
+            print(("This command will remove index \"{0}\" from the application repository".format(args['<index>'])))
+            print("If this is absolutely what you want, pass the --yes flag in the command-line.\nAborting.")
     elif args['package'] and args['list']:
         return show_packages(config, args['--index'])
     elif args['package'] and args['remote-list']:
@@ -197,14 +197,14 @@ def get_counters(config):
     web_counters.load()
     all_counters = {}
     all_counters.update(ftp_counters)
-    for key, value in web_counters.iteritems():
+    for key, value in list(web_counters.items()):
         all_counters[key] = all_counters.get(key, value) + 1
     return all_counters
 
 
 def show_counters(config):
-    print "\n".join('{item[1]:<10}{item[0]}'.format(item=item) for
-                    item in sorted(get_counters(config).iteritems(), key=lambda item: item[1], reverse=True))
+    print(("\n".join('{item[1]:<10}{item[0]}'.format(item=item) for
+                    item in sorted(iter(list(get_counters(config).items())), key=lambda item: item[1], reverse=True))))
 
 
 @console_script(name="app_repo_setup")
@@ -351,7 +351,7 @@ def delete_packages(config, should_delete, index, index_type, dry_run, quiet, no
             logger.info("[dry-run] deleting {}".format(filepath_relative))
             continue
         if not quiet:
-            if not raw_input('delete {} [y/N]? '.format(filepath_relative)).lower() in ('y', 'yes'):
+            if not input('delete {} [y/N]? '.format(filepath_relative)).lower() in ('y', 'yes'):
                 continue
         logger.info("deleting {} ".format(filepath_relative))
         files_were_deleted = True

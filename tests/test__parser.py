@@ -119,4 +119,4 @@ class ParserTestCase(TestCase):
     @parameters.iterate("case", [item for item in cases])
     def test_parser(self, case):
         actual = parse_filepath(case['basename'])
-        self.assertEquals(actual, case['expected'])
+        self.assertEqual(actual, case['expected'])

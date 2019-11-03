@@ -17,7 +17,7 @@ class CountersTestCase(TestCase):
                 self._get_from_ftp(config, "/packages/main-stable/index/packages.json")
             sleep(1)
             counters = get_counters(config)
-            self.assertEquals(counters, {"/packages/main-stable/index/packages.json": 2})
+            self.assertEqual(counters, {b"/packages/main-stable/index/packages.json": 2})
 
     def _get_from_ftp(self, config, uri):
         log_execute_assert_success(["curl", "ftp://127.0.0.1:{}/{}".format(config.ftpserver.port, uri)])

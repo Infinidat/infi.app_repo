@@ -101,7 +101,7 @@ class Configuration(Model, PropertyMixin):
         with fopen(self.filepath) as fd:
             kwargs = decode(fd.read())
         kwargs['filepath'] = self.filepath
-        for key, value in kwargs.iteritems():
+        for key, value in list(kwargs.items()):
             setattr(self, key, value)
         return self
 
@@ -116,7 +116,7 @@ class Configuration(Model, PropertyMixin):
                 kwargs = decode(fd.read())
                 kwargs['filepath'] = filepath
                 self = cls()
-                for key, value in kwargs.iteritems():
+                for key, value in list(kwargs.items()):
                     setattr(self, key, value)
 
         assert self.webserver.default_index is None or self.webserver.default_index in self.indexes
@@ -130,7 +130,7 @@ class Configuration(Model, PropertyMixin):
 
     def _reset_configuration(self):
         """Private method to reset Configuration instance to default values"""
-        configuration_fields_to_reset = self.keys()
+        configuration_fields_to_reset = list(self.keys())
         configuration_fields_to_reset.remove('filepath')
         for field in configuration_fields_to_reset:
             self._data[field] = Configuration()._data[field]

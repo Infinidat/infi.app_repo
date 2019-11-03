@@ -131,7 +131,7 @@ def pretty_print(builtin_datatype, style="solarized"):
             from httpie.output.formatters.colors import Solarized256Style
     from pygments.formatters import Terminal256Formatter
     style = Solarized256Style if style == "solarized" else style
-    print highlight(encode(builtin_datatype, indent=4, large_object=True), JsonLexer(), Terminal256Formatter(style=style))
+    print((highlight(encode(builtin_datatype, indent=4, large_object=True), JsonLexer(), Terminal256Formatter(style=style))))
 
 
 def jsonify_arguments(*args):

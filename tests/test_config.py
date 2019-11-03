@@ -19,7 +19,7 @@ class ConfigTestCase(TemporaryBaseDirectoryTestCase):
         self.config = Configuration.from_disk(None)
 
     def test_to_json(self):
-        self.assertIsInstance(self.config.to_json(), basestring)
+        self.assertIsInstance(self.config.to_json(), str)
 
     def test_save_and_load(self):
         self.config.to_disk()

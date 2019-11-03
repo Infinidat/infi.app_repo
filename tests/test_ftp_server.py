@@ -3,7 +3,7 @@ from infi.app_repo.config import Configuration
 from infi.app_repo import ftpserver
 from infi.app_repo.utils import ensure_directory_exists, path, fopen
 from mock import patch
-from StringIO import StringIO
+from io import StringIO, BytesIO
 
 
 class FtpServerTestCase(TemporaryBaseDirectoryTestCase):
@@ -19,7 +19,7 @@ class FtpServerTestCase(TemporaryBaseDirectoryTestCase):
     def test_upload(self):
         with patch.object(ftpserver.AppRepoFtpHandler, "on_file_received") as on_file_received:
             on_file_received.side_effect = self.mark_success
-            fd = StringIO("hello world")
+            fd = BytesIO(b"hello world")
             with self.ftp_server_context(self.config), self.ftp_client_context(self.config, True) as client:
                 client.storbinary("STOR testfile", fd)
 
@@ -55,7 +55,7 @@ class FtpWithRpcTestCase(TemporaryBaseDirectoryTestCase):
         from infi.app_repo import service
         with patch("infi.app_repo.service.process_filepath_by_name") as process_filepath_by_name:
             process_filepath_by_name.side_effect = self.mark_success
-            fd = StringIO("hello world")
+            fd = BytesIO(b"hello world")
             with self.ftp_server_context(self.config), self.ftp_client_context(self.config, True) as client:
                 with self.rpc_server_context(self.config) as server:
                     client.storbinary("STOR main-stable/testfile", fd)

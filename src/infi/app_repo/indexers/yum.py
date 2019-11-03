@@ -42,7 +42,7 @@ class YumIndexer(Indexer):
         self.cachedir = path.join(self.base_directory, 'cachedir')
         ensure_directory_exists(self.cachedir)
 
-        for platform, architectures in KNOWN_PLATFORMS.items():
+        for platform, architectures in list(KNOWN_PLATFORMS.items()):
             for arch in architectures:
                 dirpath = path.join(self.base_directory, '%s-%s' % (platform, arch))
                 ensure_directory_exists(path.join(dirpath, 'repodata'))
@@ -67,7 +67,7 @@ class YumIndexer(Indexer):
         self._update_index(dirpath)
 
     def iter_files(self):
-        for platform, architectures in KNOWN_PLATFORMS.items():
+        for platform, architectures in list(KNOWN_PLATFORMS.items()):
             for arch in architectures:
                 dirpath = path.join(self.base_directory, '%s-%s' % (platform, arch))
                 for filepath in glob(path.join(dirpath, '*.rpm')):
