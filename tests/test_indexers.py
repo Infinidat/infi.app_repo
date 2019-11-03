@@ -44,10 +44,10 @@ class IndexersTestCase(TestCase):
             packages_file = path.join(indexer.base_directory, 'linux-ubuntu', 'dists', 'xenial', 'main', 'binary-i386', 'Packages')
             with fopen(packages_file) as fd:
                 packages_contents = fd.read()
-                self.assertNotEquals(packages_contents, '')
+                self.assertNotEqual(packages_contents, '')
                 self.assertIn("Filename: dists/xenial/main/binary-i386/some-package.deb", packages_contents)
             with gzip.open(packages_file + '.gz', 'rb') as fd:
-                self.assertEquals(packages_contents, fd.read())
+                self.assertEqual(packages_contents, fd.read().decode('utf-8'))
 
             release_dirpath = path.join(indexer.base_directory, 'linux-ubuntu', 'dists', 'xenial')
             self.assertTrue(path.exists(path.join(release_dirpath, 'main', 'binary-i386', 'some-package.deb')))

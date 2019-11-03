@@ -268,7 +268,7 @@ class PrettyIndexer(Indexer):
         for platform in platforms.union(set(installation_instructions.keys())):
             for instruction in ('install', 'upgrade'):
                 new_instruction = custom_instructions.get(platform, dict()).get(instruction)
-                if isinstance(new_instruction, basestring):
+                if isinstance(new_instruction, str):
                     installation_instructions.setdefault(platform, dict())[instruction] = new_instruction
             for instruction in ('installable', 'requires_setup'):
                 new_instruction = custom_instructions.get(platform, dict()).get(instruction)

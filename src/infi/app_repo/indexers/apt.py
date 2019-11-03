@@ -44,8 +44,8 @@ class AptIndexer(Indexer):
 
     def initialise(self):
         ensure_directory_exists(self.base_directory)
-        for distribution_name, distribution_dict in KNOWN_DISTRIBUTIONS.items():
-            for version, architectures in distribution_dict.items():
+        for distribution_name, distribution_dict in list(KNOWN_DISTRIBUTIONS.items()):
+            for version, architectures in list(distribution_dict.items()):
                 for arch in architectures:
                     dirpath = self.deduce_dirname(distribution_name, version, arch)
                     ensure_directory_exists(dirpath)
@@ -108,8 +108,8 @@ class AptIndexer(Indexer):
 
     def iter_files(self):
         ensure_directory_exists(self.base_directory)
-        for distribution_name, distribution_dict in KNOWN_DISTRIBUTIONS.items():
-            for version, architectures in distribution_dict.items():
+        for distribution_name, distribution_dict in list(KNOWN_DISTRIBUTIONS.items()):
+            for version, architectures in list(distribution_dict.items()):
                 for arch in architectures:
                     dirpath = self.deduce_dirname(distribution_name, version, arch)
                     for filepath in glob(path.join(dirpath, '*.deb')):
@@ -117,8 +117,8 @@ class AptIndexer(Indexer):
 
     def rebuild_index(self):
         cache_file = path.join(self.base_directory, 'apt_cache.db')
-        for distribution_name, distribution_dict in KNOWN_DISTRIBUTIONS.items():
-            for version, architectures in distribution_dict.items():
+        for distribution_name, distribution_dict in list(KNOWN_DISTRIBUTIONS.items()):
+            for version, architectures in list(distribution_dict.items()):
                 for arch in architectures:
                     dirpath = self.deduce_dirname(distribution_name, version, arch)
                     contents = apt_ftparchive(['packages', '--db', cache_file, dirpath])
