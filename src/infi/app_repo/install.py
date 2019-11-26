@@ -62,7 +62,7 @@ def _generate_gpg_key_if_does_not_exist(config):
         with fopen(path.join(path.expanduser("~"), ".rpmmacros"), 'w') as fd:
             fd.write(GPG_TEMPLATE)
         with fopen(home_key_path, 'w') as fd:
-            fd.write(pid.get_stdout().decode('utf-8'))
+            fd.write(pid.get_stdout().decode())
     data_key_path = path.join(config.artifacts_directory, 'packages', 'gpg.key')
     if not path.exists(data_key_path):
         copy(home_key_path, data_key_path)

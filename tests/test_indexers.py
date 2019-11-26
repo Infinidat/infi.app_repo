@@ -47,7 +47,7 @@ class IndexersTestCase(TestCase):
                 self.assertNotEqual(packages_contents, '')
                 self.assertIn("Filename: dists/xenial/main/binary-i386/some-package.deb", packages_contents)
             with gzip.open(packages_file + '.gz', 'rb') as fd:
-                self.assertEqual(packages_contents, fd.read().decode('utf-8'))
+                self.assertEqual(packages_contents, fd.read().decode())
 
             release_dirpath = path.join(indexer.base_directory, 'linux-ubuntu', 'dists', 'xenial')
             self.assertTrue(path.exists(path.join(release_dirpath, 'main', 'binary-i386', 'some-package.deb')))

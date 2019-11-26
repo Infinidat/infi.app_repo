@@ -1,3 +1,4 @@
+from __future__ import print_function
 """Application Repository Management Tool
 
 Usage:
@@ -115,7 +116,7 @@ def eapp_repo(argv=argv[1:]):
     if args['counters'] and args['show']:
         return show_counters(config)
     elif args['config'] and args['show']:
-        print((config.to_json()))
+        print(config.to_json())
     elif args['config'] and args['reset']:
         config.reset_to_development_defaults() if args['--development'] else config.reset_to_production_defaults()
     elif args['setup']:
@@ -152,7 +153,7 @@ def eapp_repo(argv=argv[1:]):
     elif args['service'] and args['resign-packages']:
         return resign_packages(config, args['--async'])
     elif args['index'] and args['list']:
-        print((' '.join(config.indexes)))
+        print(' '.join(config.indexes))
     elif args['index'] and args['add']:
         return add_index(config, args['<index>'], args['--async'])
     elif args['index'] and args['remove']:
@@ -197,14 +198,14 @@ def get_counters(config):
     web_counters.load()
     all_counters = {}
     all_counters.update(ftp_counters)
-    for key, value in list(web_counters.items()):
+    for key, value in web_counters.items():
         all_counters[key] = all_counters.get(key, value) + 1
     return all_counters
 
 
 def show_counters(config):
-    print(("\n".join('{item[1]:<10}{item[0]}'.format(item=item) for
-                    item in sorted(iter(list(get_counters(config).items())), key=lambda item: item[1], reverse=True))))
+    print("\n".join('{item[1]:<10}{item[0]}'.format(item=item) for
+                    item in sorted(iter(list(get_counters(config).items())), key=lambda item: item[1], reverse=True)))
 
 
 @console_script(name="app_repo_setup")

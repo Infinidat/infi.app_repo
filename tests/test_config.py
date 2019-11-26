@@ -1,6 +1,7 @@
 from .test_case import TestCase, TemporaryBaseDirectoryTestCase
 from infi.app_repo.config import Configuration, WebserverConfiguration, RPCServerConfiguration, FtpServerConfiguration
 from infi.gevent_utils.os import path
+import six
 
 
 class GettersTestCase(TestCase):
@@ -19,7 +20,7 @@ class ConfigTestCase(TemporaryBaseDirectoryTestCase):
         self.config = Configuration.from_disk(None)
 
     def test_to_json(self):
-        self.assertIsInstance(self.config.to_json(), str)
+        self.assertIsInstance(self.config.to_json(), six.string_types)
 
     def test_save_and_load(self):
         self.config.to_disk()

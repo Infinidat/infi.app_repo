@@ -8,6 +8,7 @@ from infi.gevent_utils.json_utils import decode, encode
 from infi.app_repo.filename_parser import parse_filepath, FilenameParsingFailed
 from pkg_resources import parse_version
 from logbook import Logger
+import six
 logger = Logger(__name__)
 
 YUM_INSTALL_COMMAND = 'sudo yum install -y {0}'
@@ -268,7 +269,7 @@ class PrettyIndexer(Indexer):
         for platform in platforms.union(set(installation_instructions.keys())):
             for instruction in ('install', 'upgrade'):
                 new_instruction = custom_instructions.get(platform, dict()).get(instruction)
-                if isinstance(new_instruction, str):
+                if isinstance(new_instruction, six.string_types):
                     installation_instructions.setdefault(platform, dict())[instruction] = new_instruction
             for instruction in ('installable', 'requires_setup'):
                 new_instruction = custom_instructions.get(platform, dict()).get(instruction)

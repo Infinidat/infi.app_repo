@@ -1,3 +1,4 @@
+from __future__ import print_function
 from logging import getLogger
 from infi.gevent_utils.os import path, walk, link, makedirs, remove, fopen, stat
 from infi.gevent_utils.json_utils import encode, decode, DecodeError
@@ -131,7 +132,7 @@ def pretty_print(builtin_datatype, style="solarized"):
             from httpie.output.formatters.colors import Solarized256Style
     from pygments.formatters import Terminal256Formatter
     style = Solarized256Style if style == "solarized" else style
-    print((highlight(encode(builtin_datatype, indent=4, large_object=True), JsonLexer(), Terminal256Formatter(style=style))))
+    print(highlight(encode(builtin_datatype, indent=4, large_object=True), JsonLexer(), Terminal256Formatter(style=style)))
 
 
 def jsonify_arguments(*args):

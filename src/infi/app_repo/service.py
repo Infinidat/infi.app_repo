@@ -1,4 +1,4 @@
-
+from __future__ import absolute_import
 
 from logging import getLogger
 from infi.gevent_utils.os import remove, path

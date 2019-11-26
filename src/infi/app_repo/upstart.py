@@ -46,7 +46,7 @@ def _install_upstart_job(service_name, commandline_arguments):
 
 def install():  # pragma: no cover
     with restart_after():
-        for service, commandline_arguments in list(SERVICES.items()):
+        for service, commandline_arguments in SERVICES.items():
             _install_upstart_job(service, commandline_arguments)
     log_execute_assert_success(['initctl', 'reload-configuration'])
 

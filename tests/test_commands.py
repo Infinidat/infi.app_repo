@@ -51,7 +51,7 @@ class CommandTestCase(TemporaryBaseDirectoryTestCase):
         with self.temporary_base_directory_context(), self.rpc_server_context(self.config):
             with patch_all_and_patch_relevant_indexes() as mega_patch:
                 self._test_function(None, None, no_rebuild=True)
-                for indexer, patched_rebuild_method in list(mega_patch.items()):
+                for indexer, patched_rebuild_method in mega_patch.items():
                     self.assertFalse(patched_rebuild_method.called,
                                      error_message.format(indexer, patched_rebuild_method.call_count))
 
@@ -60,7 +60,7 @@ class CommandTestCase(TemporaryBaseDirectoryTestCase):
         with self.temporary_base_directory_context(), self.rpc_server_context(self.config):
             with patch_all_and_patch_relevant_indexes() as mega_patch:
                 self._test_function(True, None, no_rebuild=None)
-                for indexer, patched_rebuild_method in list(mega_patch.items()):
+                for indexer, patched_rebuild_method in mega_patch.items():
                     self.assertFalse(patched_rebuild_method.called,
                                      error_message.format(indexer, patched_rebuild_method.call_count))
 
@@ -70,7 +70,7 @@ class CommandTestCase(TemporaryBaseDirectoryTestCase):
             with patch_all_and_patch_relevant_indexes() as mega_patch:
                 ensure_directories_for_indexers(self.config)
                 self._test_function(None, None, no_rebuild=None)
-                for indexer, patched_rebuild_method in list(mega_patch.items()):
+                for indexer, patched_rebuild_method in mega_patch.items():
                     self.assertFalse(patched_rebuild_method.called,
                                      error_message.format(indexer, patched_rebuild_method.call_count))
 
@@ -81,6 +81,6 @@ class CommandTestCase(TemporaryBaseDirectoryTestCase):
                 with patch_indexers_iter_files():
                     ensure_directories_for_indexers(self.config)
                     self._test_function(None, True, no_rebuild=None)
-                    for indexer, patched_rebuild_method in list(mega_patch.items()):
+                    for indexer, patched_rebuild_method in mega_patch.items():
                         self.assertTrue(patched_rebuild_method.called,
                                         error_message.format(indexer))

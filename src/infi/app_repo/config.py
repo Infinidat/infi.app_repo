@@ -101,7 +101,7 @@ class Configuration(Model, PropertyMixin):
         with fopen(self.filepath) as fd:
             kwargs = decode(fd.read())
         kwargs['filepath'] = self.filepath
-        for key, value in list(kwargs.items()):
+        for key, value in kwargs.items():
             setattr(self, key, value)
         return self
 
@@ -116,7 +116,7 @@ class Configuration(Model, PropertyMixin):
                 kwargs = decode(fd.read())
                 kwargs['filepath'] = filepath
                 self = cls()
-                for key, value in list(kwargs.items()):
+                for key, value in kwargs.items():
                     setattr(self, key, value)
 
         assert self.webserver.default_index is None or self.webserver.default_index in self.indexes
