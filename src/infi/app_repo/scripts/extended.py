@@ -1,4 +1,3 @@
-from __future__ import print_function
 """Application Repository Management Tool
 
 Usage:
@@ -37,6 +36,7 @@ Options:
     -v --version             show version.
 """
 
+from __future__ import print_function
 from sys import argv
 from infi.pyutils.contexts import contextmanager
 from infi.pyutils.decorators import wraps
