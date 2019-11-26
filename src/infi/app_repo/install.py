@@ -31,8 +31,8 @@ def initialize_all_indexers(config):
     safe_joinall([safe_spawn_later(0, func) for func in funcs])
 
 
-def setup_upstart_services(config):
-    from .upstart import install
+def setup_services(config):
+    from .systemd import install
     install()
 
 
@@ -161,7 +161,7 @@ def setup_all(config, force_resignature=False, shell_completion=False):
     if shell_completion:
         install_shell_completion()
     if config.production_mode:
-        setup_upstart_services(config)
+        setup_services(config)
     if config.webserver.support_legacy_uris:
         _ensure_legacy_directory_structure_exists(config)
 

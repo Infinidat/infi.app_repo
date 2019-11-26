@@ -6,9 +6,9 @@ Usage:
     eapp_repo [options] config reset [--development]
     eapp_repo [options] setup [--development] [--with-mock] [--with-legacy] [--force-resignature]
     eapp_repo [options] destroy [--yes]
-    eapp_repo [options] ftp-server [--signal-upstart] [--process-incoming-on-startup]
-    eapp_repo [options] web-server [--signal-upstart]
-    eapp_repo [options] rpc-server [--signal-upstart] [--with-mock]
+    eapp_repo [options] ftp-server [--process-incoming-on-startup]
+    eapp_repo [options] web-server
+    eapp_repo [options] rpc-server [--with-mock]
     eapp_repo [options] rpc-client [--style=<style>] [<method> [<arg>...]]
     eapp_repo [options] service upload-file <filepath>
     eapp_repo [options] service process-rejected-file <filepath> <platform> <arch>
@@ -134,11 +134,11 @@ def eapp_repo(argv=argv[1:]):
             print("This command will destroy the application repository")
             print("If this is absolutely what you want, pass the --yes flag in the command-line.\nAborting.")
     elif args['web-server']:
-        return web_server(config, args['--signal-upstart'])
+        return web_server(config)
     elif args['ftp-server']:
-        return ftp_server(config, args['--signal-upstart'])
+        return ftp_server(config)
     elif args['rpc-server']:
-        return rpc_server(config, args['--signal-upstart'], args['--with-mock'])
+        return rpc_server(config, args['--with-mock'])
     elif args['rpc-client']:
         return rpc_client(config, args['<method>'], args['<arg>'], args['--style'], args['--async'])
     elif args['service'] and args['upload-file']:
@@ -217,29 +217,23 @@ def setup(config, apply_mock_patches, force_resignature):
 
 
 @console_script(name="app_repo_web")
-def web_server(config, signal_upstart):
+def web_server(config):
     from infi.app_repo.webserver import start
     webserver = start(config)
-    if signal_upstart:
-        from infi.app_repo.upstart import signal_init_that_i_am_ready
-        signal_init_that_i_am_ready()
     webserver.serve_forever()
     webserver.close()
 
 
 @console_script(name="app_repo_ftp")
-def ftp_server(config, signal_upstart):
+def ftp_server(config):
     from infi.app_repo.ftpserver import start
     ftpserver = start(config)
-    if signal_upstart:
-        from infi.app_repo.upstart import signal_init_that_i_am_ready
-        signal_init_that_i_am_ready()
     ftpserver.serve_forever()
     ftpserver.close_all()
 
 
 @console_script(name="app_repo_rpc")
-def rpc_server(config, signal_upstart, apply_mock_patches):
+def rpc_server(config, apply_mock_patches):
     from infi.rpc import Server, ZeroRPCServerTransport
     from infi.app_repo.service import AppRepoService
     from infi.app_repo.mock import patch_all, empty_context
@@ -251,11 +245,6 @@ def rpc_server(config, signal_upstart, apply_mock_patches):
         logger.debug("binding RPC server")
         server = Server(transport, service)
         server.bind()
-
-        if signal_upstart:
-            from infi.app_repo.upstart import signal_init_that_i_am_ready
-            signal_init_that_i_am_ready()
-
         server._shutdown_event.wait()
         server.unbind()
 
