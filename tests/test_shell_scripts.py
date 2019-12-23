@@ -60,8 +60,8 @@ class ShellTestCase(TestCase):
         def _assert(download_sh, cmdline):
             with self.assertRaises(ExecutionError) as _context:
                 execute_assert_success(cmdline)
-            self.assertEquals(_context.exception.result.get_stdout(), '')
-            self.assertIn("package not found", _context.exception.result.get_stderr())
+            self.assertEqual(_context.exception.result.get_stdout(), b'')
+            self.assertIn(b"package not found", _context.exception.result.get_stderr())
 
         with patch_all(), self.server_context() as config:
             download_sh = self.get_download_script(config)
@@ -81,8 +81,8 @@ class ShellTestCase(TestCase):
         def _assert(download_sh, cmdline):
             with self.assertRaises(ExecutionError) as _context:
                 execute_assert_success(cmdline)
-            self.assertEquals(_context.exception.result.get_stdout(), '')
-            self.assertIn("file not found", _context.exception.result.get_stderr())
+            self.assertEqual(_context.exception.result.get_stdout(), b'')
+            self.assertIn(b"file not found", _context.exception.result.get_stderr())
 
         def _patch(download_sh):
             self.inject_patch_to_script(download_sh, '_system() {\n    echo SunOS\n}')
@@ -101,7 +101,7 @@ class ShellTestCase(TestCase):
     def test_download_script__solaris(self):
         def _assert(download_sh, cmdline):
             pid = execute_assert_success(cmdline)
-            self.assertEquals(pid.get_stdout(), "some-package-1.0-solaris-11-sparc.pkg.gz\n")
+            self.assertEqual(pid.get_stdout(), b"some-package-1.0-solaris-11-sparc.pkg.gz\n")
 
         def _patch(download_sh):
             self.inject_patch_to_script(download_sh, '_system() {\n    echo SunOS\n}')
@@ -119,7 +119,7 @@ class ShellTestCase(TestCase):
     def test_install_script__solaris(self):
         def _assert(install_sh, cmdline):
             pid = execute_assert_success(cmdline)
-            self.assertEquals(pid.get_stdout(), "gunzip\npkgadd\n")
+            self.assertEqual(pid.get_stdout(), b"gunzip\npkgadd\n")
 
         def _patch(install_sh):
             self.inject_patch_to_script(install_sh, '_system() {\n    echo SunOS\n}')
@@ -157,7 +157,7 @@ class ShellTestCase(TestCase):
     def test_install_script__aix(self):
         def _assert(install_sh, cmdline):
             pid = execute_assert_success(cmdline)
-            self.assertEquals(pid.get_stdout(), "rpm\n")
+            self.assertEqual(pid.get_stdout(), b"rpm\n")
 
         def _patch(install_sh):
             self.inject_patch_to_script(install_sh, '_system() {\n    echo AIX\n}')

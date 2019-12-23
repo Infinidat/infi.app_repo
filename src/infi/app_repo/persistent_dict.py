@@ -1,6 +1,6 @@
 from infi.gevent_utils.os import path, remove, fopen
 from infi.gevent_utils.deferred import create_threadpool_executed_func
-from UserDict import UserDict
+from six.moves import UserDict
 from msgpack import packb, unpackb
 from infi.rpc.base import SynchronizedMixin, synchronized
 from gevent.lock import RLock

@@ -22,7 +22,7 @@ def process_filepath(config, index, filepath, platform, arch):
     for indexer in indexers:
         try:
             indexer.consume_file(filepath, platform, arch)
-        except errors.FileAlreadyExists, error:
+        except errors.FileAlreadyExists as error:
             logger.warning("indexer {} says that file {!r} already exists, moving on".format(indexer, error))
             continue
 

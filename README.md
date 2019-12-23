@@ -43,3 +43,7 @@ Running the services
 ====================
 
 TBD
+
+Python 3 Support
+================
+Python 3 support is experimental and not fully tested.

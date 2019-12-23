@@ -33,7 +33,7 @@ def patch_indexers_iter_files():
                             patched_methods = {'APT': apt_iter_files, 'WGET': wget_iter_files, 'YUM': yum_iter_files,
                                                'PYTHON': python_iter_files, 'VMWARE': vmware_iter_files, 'PYPI': pypi_iter_files}
                             # don't really need to mock all the methods, first one should be enough
-                            for method in patched_methods.values()[:1]:
+                            for method in list(patched_methods.values())[:1]:
                                 method.return_value = ['TEST_PKG_1.tar.gz']
                             yield patched_methods
 
@@ -51,7 +51,7 @@ class CommandTestCase(TemporaryBaseDirectoryTestCase):
         with self.temporary_base_directory_context(), self.rpc_server_context(self.config):
             with patch_all_and_patch_relevant_indexes() as mega_patch:
                 self._test_function(None, None, no_rebuild=True)
-                for indexer, patched_rebuild_method in mega_patch.iteritems():
+                for indexer, patched_rebuild_method in mega_patch.items():
                     self.assertFalse(patched_rebuild_method.called,
                                      error_message.format(indexer, patched_rebuild_method.call_count))
 
@@ -60,7 +60,7 @@ class CommandTestCase(TemporaryBaseDirectoryTestCase):
         with self.temporary_base_directory_context(), self.rpc_server_context(self.config):
             with patch_all_and_patch_relevant_indexes() as mega_patch:
                 self._test_function(True, None, no_rebuild=None)
-                for indexer, patched_rebuild_method in mega_patch.iteritems():
+                for indexer, patched_rebuild_method in mega_patch.items():
                     self.assertFalse(patched_rebuild_method.called,
                                      error_message.format(indexer, patched_rebuild_method.call_count))
 
@@ -70,7 +70,7 @@ class CommandTestCase(TemporaryBaseDirectoryTestCase):
             with patch_all_and_patch_relevant_indexes() as mega_patch:
                 ensure_directories_for_indexers(self.config)
                 self._test_function(None, None, no_rebuild=None)
-                for indexer, patched_rebuild_method in mega_patch.iteritems():
+                for indexer, patched_rebuild_method in mega_patch.items():
                     self.assertFalse(patched_rebuild_method.called,
                                      error_message.format(indexer, patched_rebuild_method.call_count))
 
@@ -81,6 +81,6 @@ class CommandTestCase(TemporaryBaseDirectoryTestCase):
                 with patch_indexers_iter_files():
                     ensure_directories_for_indexers(self.config)
                     self._test_function(None, True, no_rebuild=None)
-                    for indexer, patched_rebuild_method in mega_patch.iteritems():
+                    for indexer, patched_rebuild_method in mega_patch.items():
                         self.assertTrue(patched_rebuild_method.called,
                                         error_message.format(indexer))

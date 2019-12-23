@@ -31,8 +31,8 @@ def initialize_all_indexers(config):
     safe_joinall([safe_spawn_later(0, func) for func in funcs])
 
 
-def setup_upstart_services(config):
-    from .upstart import install
+def setup_services(config):
+    from .systemd import install
     install()
 
 
@@ -62,7 +62,7 @@ def _generate_gpg_key_if_does_not_exist(config):
         with fopen(path.join(path.expanduser("~"), ".rpmmacros"), 'w') as fd:
             fd.write(GPG_TEMPLATE)
         with fopen(home_key_path, 'w') as fd:
-            fd.write(pid.get_stdout())
+            fd.write(pid.get_stdout().decode())
     data_key_path = path.join(config.artifacts_directory, 'packages', 'gpg.key')
     if not path.exists(data_key_path):
         copy(home_key_path, data_key_path)
@@ -161,7 +161,7 @@ def setup_all(config, force_resignature=False, shell_completion=False):
     if shell_completion:
         install_shell_completion()
     if config.production_mode:
-        setup_upstart_services(config)
+        setup_services(config)
     if config.webserver.support_legacy_uris:
         _ensure_legacy_directory_structure_exists(config)
 
