@@ -113,7 +113,13 @@ cases = [
 
     dict(expected=('python-infinisdk', '59.0~dev12-1', 'linux-ubuntu-trusty', 'x64', 'deb'),
          basename='python-infinisdk_59.0~dev12-1-linux-ubuntu-trusty-x64.deb'),
-    ]
+
+    dict(expected=('python-v2', '7.8.13', 'linux-oracle-7', 'x64', 'tar.gz'),
+         basename="python-v2.7.8.13-linux-oracle-7-x64.tar.gz"),
+
+    dict(expected=('python-v2', '7.8.13', 'linux-centos-6', 'x64', 'tar.gz'),
+         basename="python-v2.7.8.13-linux-centos-6-x64.tar.gz"),
+]
 
 class ParserTestCase(TestCase):
     @parameters.iterate("case", [item for item in cases])
