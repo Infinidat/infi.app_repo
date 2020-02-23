@@ -106,3 +106,14 @@ class IndexersTestCase(TestCase):
             releases = read_json_file(path.join(indexer.base_directory, 'packages', 'application-repository', 'releases.json'))
             self.assertIsInstance(packages, list)
             self.assertGreater(len(packages), 0)
+
+    def test_python_consume_file(self):
+        from infi.app_repo.indexers.python import PythonIndexer
+        with self._setup_context() as config:
+            indexer = PythonIndexer(config, 'main-stable')
+            indexer.initialise()
+            filepath = self.write_new_package_in_incoming_directory(config, package_basename='python-v2.7.8.13-linux-oracle-7-x64', extension='tar.gz')
+            self.assertTrue(indexer.are_you_interested_in_file(filepath, 'linux-oracle-7', 'x64'))
+            indexer.consume_file(filepath, 'linux-oracle-7', 'x64')
+            print(filepath)
+            self.assertTrue(path.exists(path.join(indexer.base_directory, 'python-v2.7.8.13-linux-oracle-7-x64.tar.gz')))
