@@ -119,6 +119,9 @@ cases = [
 
     dict(expected=('python-v2', '7.8.13', 'linux-centos-6', 'x64', 'tar.gz'),
          basename="python-v2.7.8.13-linux-centos-6-x64.tar.gz"),
+
+    dict(expected=('infinibox-management-pack-for-vrops', '1.1.0', 'custom', 'generic', 'pak'),
+         basename="infinibox-management-pack-for-vrops-1.1.0-custom-generic.pak"),
 ]
 
 class ParserTestCase(TestCase):
