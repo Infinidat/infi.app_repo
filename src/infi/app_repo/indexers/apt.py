@@ -32,7 +32,7 @@ def write_to_packages_file(dirpath, contents, mode):
 
 
 def apt_ftparchive(cmdline_arguments):
-    return log_execute_assert_success(['apt-ftparchive'] + cmdline_arguments).get_stdout()
+    return log_execute_assert_success(['apt-ftparchive'] + cmdline_arguments).get_stdout().decode()
 
 
 def gpg(cmdline_arguments):

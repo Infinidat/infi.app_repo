@@ -165,7 +165,7 @@ def write_file(filepath, contents):
 
 def file_type_contains(filepath, output):
     try:
-        return output in execute_assert_success(['file', filepath]).get_stdout()
+        return output in execute_assert_success(['file', filepath]).get_stdout().decode()
     except ExecutionError:
         logger.exception('failed to determine file type: {0}'.format(filepath))
         return False
