@@ -136,6 +136,6 @@ def start(config):
     server.counters = PersistentDict(config.ftpserver_counters_filepath)
     server.counters.load()
     server.max_cons = 256
-    server.max_cons_per_ip = 5
+    server.max_cons_per_ip = 30
 
     return server
