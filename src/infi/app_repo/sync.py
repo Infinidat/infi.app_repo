@@ -53,7 +53,7 @@ def _upload_file(address, port, username, password, index, filepath):
         ftp.login(username, password)
         ftp.cwd(index)
 
-        with fopen(filepath) as fd:
+        with fopen(filepath, 'rb') as fd:
             ftp.storbinary("STOR %s" % path.basename(filepath), fd)
     finally:
         ftp.close()
