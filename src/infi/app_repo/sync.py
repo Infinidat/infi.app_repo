@@ -13,7 +13,7 @@ def get_local_packages_json(config, index):
 
 def get_remote_packages_json(remote, index):
     url = "http://{}:{}/packages/{}/index/packages.json".format(remote['address'], remote['http_port'], index)
-    return decode(execute_assert_success(["curl", url]).get_stdout().decode())
+    return decode(execute_assert_success(["curl", "-L", url]).get_stdout().decode())
 
 
 def get_local_releases_for_package(config, package):
@@ -22,7 +22,7 @@ def get_local_releases_for_package(config, package):
 
 def get_remote_releases_for_package(remote, package):
     url = "http://{}:{}/{}".format(remote['address'], remote['http_port'], package['releases_uri'])
-    return decode(execute_assert_success(["curl", url]).get_stdout().decode())
+    return decode(execute_assert_success(["curl", "-L", url]).get_stdout().decode())
 
 
 def _list_to_dict(lst, key='name'):
