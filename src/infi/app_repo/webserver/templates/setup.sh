@@ -16,7 +16,7 @@ _apt() {
 _yum() {
     echo Setting up...
     distfile=`ls /etc | grep -E "(centos|redhat)-release$" | head -n 1`
-    distribution=`cat /etc/$distfile | grep -Eio "centos|red hat|" | head -n 1 | sed -e 's/ //' | awk '{print tolower($1)}'`
+    distribution=`cat /etc/$distfile | grep -Eio "centos|red hat|rocky" | head -n 1 | sed -e 's/ //' | awk '{print tolower($1)}'`
     version=`cat /etc/$distfile | grep -Eo "[0-9]+" | head -n 1`
     arch=`uname -m`
     echo "[{{ host }}.{{ index_name }}]

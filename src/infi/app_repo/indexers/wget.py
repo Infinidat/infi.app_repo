@@ -188,7 +188,7 @@ class PrettyIndexer(Indexer):
         for distribution in release['distributions']:
             platform = self._get_pretty_platform_name(distribution)
 
-            if platform in ('redhat', 'centos', 'oracle') and distribution['extension'] == 'rpm':
+            if platform in ('redhat', 'centos', 'rocky', 'oracle') and distribution['extension'] == 'rpm':
                 installation_instructions[platform] = dict(requires_setup=True,
                                                            installable=True,
                                                            upgrade=dict(command=YUM_UPGRADE_COMMAND.format(package['name'])),
