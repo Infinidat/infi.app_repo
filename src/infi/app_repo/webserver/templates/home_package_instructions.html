@@ -13,7 +13,7 @@
         <div class="tab-pane fade" id="{{ package.name }}-{{platform}}">
     {% endif %}
     <h3>Instructions for {{ platform_name(platform) }}</h3>
-    {% if platform in ("redhat", "oracle", "centos", "ubuntu", "suse") and value.requires_setup %}
+    {% if platform in ("redhat", "oracle", "centos", "rocky", "ubuntu", "suse") and value.requires_setup %}
         <h4>Setup (first time only)</h4>
         <div class="copylink">
             <input class="cmd" value="curl -s {{ setup_url }} | sudo sh -" readonly="readonly">
@@ -90,6 +90,8 @@
         RedHat
     {% elif platform == "centos" %}
         CentOS
+    {% elif platform == "rocky" %}
+        Rocky
     {% elif platform == "oracle" %}
         Oracle
     {% elif platform == "windows-x86" %}

@@ -57,6 +57,9 @@ cases = [
     dict(expected=('initscripts', '9.03.38', 'linux-centos-6', 'x64', 'rpm'),
          basename='initscripts-9.03.38-linux-centos-6-x64.rpm'),
 
+    dict(expected=('initscripts', '9.03.38', 'linux-rocky-8', 'x64', 'rpm'),
+         basename='initscripts-9.03.38-linux-rocky-8-x64.rpm'),
+
     dict(expected=('libc6', '2.15', 'linux-ubuntu-precise', 'x64', 'deb'),
          basename='libc6-2.15-linux-ubuntu-precise-x64.deb'),
 
@@ -119,6 +122,9 @@ cases = [
 
     dict(expected=('python-v2', '7.8.13', 'linux-centos-6', 'x64', 'tar.gz'),
          basename="python-v2.7.8.13-linux-centos-6-x64.tar.gz"),
+
+    dict(expected=('python-v3', '8.0.5', 'linux-rocky-8', 'x64', 'tar.gz'),
+         basename="python-v3.8.0.5-linux-rocky-8-x64.tar.gz"),
 
     dict(expected=('infinibox-management-pack-for-vrops', '1.1.0', 'custom', 'generic', 'pak'),
          basename="infinibox-management-pack-for-vrops-1.1.0-custom-generic.pak"),
