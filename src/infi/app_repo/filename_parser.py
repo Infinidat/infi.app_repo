@@ -7,9 +7,9 @@ logger = getLogger(__name__)
 
 NAME = r"""(?P<package_name>[a-zA-Z]*[a-zA-Z\-_\.]+[0-9_]?[a-zA-Z\-_]+[a-zA-Z][0-9]{0,2})"""
 VERSION = r"""v?(?P<package_version>(?:[\d+\.]+)(?:-develop|-[0-9\.]+(?:_g[0-9a-f]{7})?|(?:(?:\.post\d+|\.post\d+\.|\.b\d+|\.post\d+\+|\.post\d+-\d+|\.\d+\.|-[0-9\.]+-[0-9\.]+|-\d+-|-develop-\d+-|~dev\d+-\d+)(?:g[a-z0-9]{7})?))?)"""
-PLATFORM = r"""(?P<platform_string>python|vmware-esx|custom|windows|aix-\d+\.\d+|solaris-\d+|linux-ubuntu-[a-z]+|linux-suse-\d+|linux-redhat-\d|linux-centos-\d|linux-rocky-\d|linux-oracle-\d|osx-\d+\.\d+|centos.el6|centos.el7|redhat.el6|redhat.el7|docker)"""
-ARCHITECTURE = r"""(?P<architecture>generic|docs|sdist|x86|x64|ppc64|ppc64le|powerpc|powerpc_bff|sparc|x86_OVF10|x86_OVF10_UPDATE_ISO|x86_OVF10_UPDATE_ZIP|x64_OVF10|x64_OVF10_UPDATE_ISO|x64_OVF10_UPDATE_ZIP|x64_dd|i686|x86_64)"""
-EXTENSION = r"""(?P<extension>bin|rpm|deb|msi|pkg\.gz|tar\.gz|ova|iso|zip|img|exe||so|dll|pdb|cpp|exp|pak|bff)"""
+PLATFORM = r"""(?P<platform_string>python|vmware-esx|custom|windows|aix-\d+\.\d+|solaris-\d+|linux-ubuntu-[a-z]+|linux-suse-\d+|linux-redhat-\d|linux-centos-\d|linux-rocky-\d|linux-oracle-\d|osx-\d+\.\d+|centos.el6|centos.el7|redhat.el6|redhat.el7|docker|windows-hyperv)"""
+ARCHITECTURE = r"""(?P<architecture>generic|docs|sdist|x86|x64|ppc64|ppc64le|powerpc|powerpc_bff|sparc|x86_OVF10|x86_OVF10_UPDATE_ISO|x86_OVF10_UPDATE_ZIP|x64_OVF10|x64_OVF10_UPDATE_ISO|x64_OVF10_UPDATE_ZIP|x64_dd|i686|x86_64|x64_vhd)"""
+EXTENSION = r"""(?P<extension>bin|rpm|deb|msi|pkg\.gz|tar\.gz|ova|vhd|iso|zip|img|exe||so|dll|pdb|cpp|exp|pak|bff)"""
 TEMPLATE = r"""^{}.{}.{}.{}\.?{}$"""
 FILEPATH = TEMPLATE.format(NAME, VERSION, PLATFORM, ARCHITECTURE, EXTENSION)
 PLATFORM_STRING = dict(ova='vmware-esx', img='other', zip='other')
@@ -36,4 +36,5 @@ def parse_filepath(filepath):
     group = result.groupdict()
     return translate_filepath((group['package_name'], group['package_version'],
                                PLATFORM_STRING.get(group['extension'], group['platform_string']),
-                               group['architecture'], group['extension']))
+                               group['architecture'],
+                               group['extension']))
