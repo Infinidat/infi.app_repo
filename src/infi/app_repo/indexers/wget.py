@@ -167,6 +167,8 @@ class PrettyIndexer(Indexer):
             return distribution['platform'].split('-')[1]  # linux-<dist>-<ver>
         if distribution['platform'] == 'windows':
             return 'windows-%s' % distribution['architecture']
+        if distribution['platform'] == 'windows-hyperv':
+            return 'windows hyperv'
         if distribution['platform'] == 'vmware-esx':
             return 'vmware'
         if 'solaris' in distribution['platform']:

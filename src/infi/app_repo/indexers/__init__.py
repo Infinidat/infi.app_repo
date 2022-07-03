@@ -5,6 +5,14 @@ def get_indexers(config, index_name):
     from .python import PythonIndexer
     from .pypi import PypiIndexer
     from .vmware_studio_updates import VmwareStudioUpdatesIndexer
-    return AptIndexer(config, index_name), PrettyIndexer(config, index_name), \
-           YumIndexer(config, index_name), PythonIndexer(config, index_name), \
-           VmwareStudioUpdatesIndexer(config, index_name), PypiIndexer(config, index_name)
+    from .windows_hyperv import WindowsHypervIndexer
+
+    return (
+        AptIndexer(config, index_name),
+        PrettyIndexer(config, index_name),
+        YumIndexer(config, index_name),
+        PythonIndexer(config, index_name),
+        VmwareStudioUpdatesIndexer(config, index_name),
+        PypiIndexer(config, index_name),
+        WindowsHypervIndexer(config, index_name),
+    )
