@@ -121,5 +121,5 @@ class Client(AutoTimeoutClient, IPython_Mixin):
 
 def get_client(config):
     from infi.rpc import ZeroRPCClientTransport
-    client_transport = ZeroRPCClientTransport("tcp://127.0.0.1:{}".format(config.rpcserver.port))
+    client_transport = ZeroRPCClientTransport("tcp://{}:{}".format(config.rpcserver.address, config.rpcserver.port))
     return Client(client_transport)

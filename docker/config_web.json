@@ -1,0 +1,37 @@
+{
+    "filepath": "/src/data/config.json",
+    "webserver": {
+        "address": "0.0.0.0",
+        "port": 8000,
+        "default_index": "main-stable",
+        "support_legacy_uris": false
+    },
+    "rpcserver": {
+        "address": "rpcserver",
+        "port": 8001
+    },
+    "ftpserver": {
+        "address": "ftpserver",
+        "port": 8002,
+        "username": "test",
+        "password": "test",
+        "masquerade_address": null
+    },
+    "remote_servers": [
+        {
+            "address": "repo.infinidat.com",
+            "username": "",
+            "password": "",
+            "ftp_port": 21,
+            "http_port": 80
+        }
+    ],
+    "base_directory": "/src/data",
+    "logging_level": 10,
+    "development_mode": true,
+    "production_mode": false,
+    "indexes": [
+        "main-stable",
+        "main-unstable"
+    ]
+}

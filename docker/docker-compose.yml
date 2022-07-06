@@ -1,0 +1,35 @@
+version: '3'
+services:
+  webserver:
+    image: apprepo
+    command: [
+      "/src/bin/eapp_repo", "web-server"
+    ]
+    volumes:
+      - "..:/src"
+      - "./config_web.json:/src/data/config.json"
+    ports:
+      - 8000:8000
+
+  ftpserver:
+    image: apprepo
+    command: [
+      "/src/bin/eapp_repo", "ftp-server",  "--process-incoming-on-startup"
+    ]
+    volumes:
+      - "..:/src"
+      - "./config_ftp.json:/src/data/config.json"
+    ports:
+      - 8002:8002
+
+  rpcserver:
+    image: apprepo
+    command: [
+      "/src/bin/eapp_repo", "rpc-server", 
+    ]
+    volumes:
+      - "..:/src"
+      - "./config_rpc.json:/src/data/config.json"
+    ports:
+      - 8001:8001
+
