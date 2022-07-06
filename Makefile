@@ -15,6 +15,7 @@ restart_testserver: stop_testserver testserver
 
 
 process_file:
+	mkdir -p data/artifacts/incoming/main-stable
 	cp $(FILE) data/artifacts/incoming/main-stable
 	$(eval now := $(shell date +"%Y-%m-%dT%H:%M:%S"))
 	docker exec -it apprepo_webserver_1 /src/bin/eapp_repo service process-incoming main-stable
