@@ -1,11 +1,7 @@
 from .base import Indexer
-from infi.gevent_utils.os import path, symlink, remove
+from infi.gevent_utils.os import path
 from infi.gevent_utils.glob import glob
-from infi.app_repo.filename_parser import parse_filepath, FilenameParsingFailed
-from infi.app_repo.utils import ensure_directory_exists, hard_link_or_raise_exception, log_execute_assert_success
-from infi.app_repo.utils import ensure_directory_exists
-
-ARCH = "x64_vhd"
+from infi.app_repo.utils import ensure_directory_exists, hard_link_or_raise_exception
 
 
 class WindowsHypervIndexer(Indexer):
