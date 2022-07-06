@@ -47,3 +47,43 @@ TBD
 Python 3 Support
 ================
 Python 3 support is experimental and not fully tested.
+
+
+Local Development
+==================
+
+Build by running: (this takes a while)
+
+```
+make build
+```
+
+Start the services by running:
+
+```
+make testserver
+```
+
+Process a file by running:
+
+```
+make process_file FILE=<path to file>
+```
+
+Stop the services by running:
+
+```
+make stop_testserver
+```
+
+To run any command:
+
+```
+make run CMD=<your command>
+```
+
+e.g to run python shell:
+
+```
+make run CMD=bin/python
+```
