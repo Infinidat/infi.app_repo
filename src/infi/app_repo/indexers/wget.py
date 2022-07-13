@@ -167,6 +167,8 @@ class PrettyIndexer(Indexer):
             return distribution['platform'].split('-')[1]  # linux-<dist>-<ver>
         if distribution['platform'] == 'windows':
             return 'windows-%s' % distribution['architecture']
+        if distribution['platform'] == 'windows-hyperv':
+            return 'windows-hyperv'
         if distribution['platform'] == 'vmware-esx':
             return 'vmware'
         if 'solaris' in distribution['platform']:
@@ -211,6 +213,12 @@ class PrettyIndexer(Indexer):
                                                            installable=True,
                                                            upgrade=dict(download_link=distribution['filepath']),
                                                            install=dict(download_link=distribution['filepath']))
+
+            if platform == 'windows-hyperv' and distribution['extension'] == 'vhd':
+                instructions = dict(installable=True,
+                                    requires_setup=False,
+                                    install=dict(download_link=distribution['filepath']))
+                installation_instructions.setdefault(platform, dict()).update(instructions)
 
             if platform == 'vmware' and distribution['extension'] == 'ova':
                 instructions = dict(installable=True,

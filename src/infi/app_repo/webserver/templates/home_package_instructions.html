@@ -43,6 +43,14 @@
         {% else %}
             <a href="{{ instructions.download_link }}">Download</a> the OVF and deploy it via VMware vSphere.
         {% endif %}
+    {% elif platform == 'windows-hyperv' %}
+        {% if instructions.notes %}
+            {% for note in instructions.notes %}
+                {{ note }}<br>
+            {% endfor %}
+        {% else %}
+            <a href="{{ instructions.download_link }}">Download</a> the VHD and deploy it.
+        {% endif %}
     {% elif platform == 'python-docs' %}
             <a href="{{ instructions.download_link }}">Download</a> and extact the documentation archive.
     {% else %}
@@ -98,6 +106,8 @@
          Windows (x86)
     {% elif platform == "windows-x64" %}
          Windows (x64)
+    {% elif platform == "windows-hyperv" %}
+        Windows HyperV
     {% elif platform == "vmware" %}
         VMware
     {% elif platform == "solaris" %}
