@@ -128,6 +128,8 @@ cases = [
 
     dict(expected=('infinibox-management-pack-for-vrops', '1.1.0', 'custom', 'generic', 'pak'),
          basename="infinibox-management-pack-for-vrops-1.1.0-custom-generic.pak"),
+    dict(expected=('infinibox-witness', '7.0.0.240', 'windows-hyperv', 'x64_vhd', 'vhd'),
+         basename="infinibox-witness-7.0.0.240-windows-hyperv-x64_vhd.vhd"),
 ]
 
 class ParserTestCase(TestCase):
