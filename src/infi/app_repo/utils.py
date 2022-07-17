@@ -84,6 +84,7 @@ def temporary_directory_context():
     from infi.gevent_utils.shutil import rmtree
     #tempdir = mkdtemp()
     #FIX THIS Details in ticket https://jira.infinidat.com/browse/APR-170
+    ensure_directory_exists("/opt/temp/")
     tempdir = mkdtemp(dir="/opt/temp/")
     try:
         with chdir(tempdir):
