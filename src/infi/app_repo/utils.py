@@ -82,7 +82,9 @@ def chdir(path):
 def temporary_directory_context():
     from infi.gevent_utils.tempfile import mkdtemp
     from infi.gevent_utils.shutil import rmtree
-    tempdir = mkdtemp()
+    #tempdir = mkdtemp()
+    #FIX THIS Details in ticket https://jira.infinidat.com/browse/APR-170
+    tempdir = mkdtemp(dir="/opt/temp/")
     try:
         with chdir(tempdir):
             yield tempdir
