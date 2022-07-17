@@ -20,3 +20,6 @@ process_file:
 	$(eval now := $(shell date +"%Y-%m-%dT%H:%M:%S"))
 	docker exec -it apprepo_webserver_1 /src/bin/eapp_repo service process-incoming main-stable
 	docker logs apprepo_rpcserver_1 --since "$(now)"
+
+release:
+	docker run -it -v "$(HOME)/.gitconfig:/root/.gitconfig" -v "$(HOME)/.ssh:/root/.ssh" -v "$(PWD):/src" -w "/src" apprepo projector version release $(VERSION)
