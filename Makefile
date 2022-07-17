@@ -22,4 +22,4 @@ process_file:
 	docker logs apprepo_rpcserver_1 --since "$(now)"
 
 release:
-	docker run -it -v "$(HOME)/.ssh:/root/.ssh" -v "$(PWD):/src" -w "/src" apprepo projector version release $(VERSION)
+	docker run -it -v "$(HOME)/.gitconfig:/root/.gitconfig" -v "$(HOME)/.ssh:/root/.ssh" -v "$(PWD):/src" -w "/src" apprepo projector version release $(VERSION)
