@@ -1,0 +1,15 @@
+variables:
+  REMOTE_SERVER: app-repo-stg
+  REMOTE_PATH: /opt/infinidat/application-repository/src/
+  LOCAL_PATH: $CI_PROJECT_DIR/src/
+
+job:
+  image: ubuntu:18.04
+  script:
+    - apt-get update
+    - apt-get install rsync openssh-client -y
+    - echo "$CI_PROJECT_DIR"
+    - ls
+    - rsync -avz $LOCAL_PATH root@$REMOTE_SERVER:$REMOTE_PATH
+    - pwd
+  when: manual
