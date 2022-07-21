@@ -1,0 +1,14 @@
+variables:
+  REMOTE_PATH: /opt/infinidat/application-repository/src/
+  LOCAL_PATH: $CI_PROJECT_DIR/src/
+
+sync_code:
+  before_script:
+    - apt-get update
+    - apt-get install -y openssh-client rsync sshpass
+    - mkdir -p ~/.ssh/
+    - echo -e "Host *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n\n" > ~/.ssh/config
+  script:
+    - sshpass -p "$SSHPASS" rsync -avz --progress "$LOCAL_PATH" root@"$REMOTE_SERVER:$REMOTE_PATH"
+    - echo -e "chmod 755 $REMOTE_PATH\nsystemctl restart app-repo-web app-repo-rpc app-repo-ftp" | sshpass -p "$SSHPASS" ssh root@"$REMOTE_SERVER" /bin/bash
+  when: manual
