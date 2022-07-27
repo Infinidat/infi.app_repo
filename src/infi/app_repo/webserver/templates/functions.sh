@@ -93,6 +93,13 @@ _aix_download() {
     _curl $url > $fname
 
     if [ "$?" != "0" ]; then
+        os="aix-5.3"
+        fname="$name-$version-$os-$arch.rpm"
+        url="$packages_base_url/$uri/$fname"
+        _curl $url > $fname
+    fi
+
+    if [ "$?" != "0" ]; then
         echo "file not found: $url" 1>&2;
         exit 1
     fi
