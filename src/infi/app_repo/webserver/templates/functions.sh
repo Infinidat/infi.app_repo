@@ -95,6 +95,7 @@ _aix_download() {
     if [ "$?" != "0" ]; then
         os="aix-5.3"
         fname="$name-$version-$os-$arch.rpm"
+        uri="$name/releases/$version/distributions/$os/architectures/$arch/extensions/rpm"
         url="$packages_base_url/$uri/$fname"
         _curl $url > $fname
     fi
