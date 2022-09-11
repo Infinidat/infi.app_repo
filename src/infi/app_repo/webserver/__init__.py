@@ -186,7 +186,7 @@ def start(config):
     app = FlaskApp.from_config(config)
     app.jinja_options['extensions'].append("jinja2.ext.loopcontrols")
     cors = CORS(app, send_wildcard=True)
-    app_wrapper = ProxyFix(DebuggedApplication(app, True))
+    app_wrapper = ProxyFix(DebuggedApplication(app, True), x_proto=1)
     args = (config.webserver.address, config.webserver.port)
     server = WSGIServer(args, app_wrapper, log=DummyWSGILogger, handler_class=WSGIHandlerWithWorkarounds)
     server.start()
