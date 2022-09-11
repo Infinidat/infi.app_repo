@@ -175,7 +175,7 @@ _msiexec() {
 
 _curl() {
     echo "downloading... this can take a while..." 1>&2;
-    curl -f "$1"
+    curl -fk "$1"
 }
 
 _solaris_install() {
