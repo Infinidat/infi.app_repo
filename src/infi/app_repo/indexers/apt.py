@@ -13,6 +13,7 @@ KNOWN_DISTRIBUTIONS = {
         'xenial': ('i386', 'amd64'),
         'bionic': ('amd64', ),
         'focal': ('amd64', ),
+        'jammy': ('amd64', ),
     }
 }
 
